@@ -1,0 +1,7 @@
+[
+    {
+        "label": "Dashboard",
+        "route": "mahasiswa.dashboard",
+        "icon": "fa-solid fa-gauge"
+    }
+]
