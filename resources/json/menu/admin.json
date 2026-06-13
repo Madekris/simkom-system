@@ -1,0 +1,12 @@
+[
+    {
+        "label": "Dashboard",
+        "route": "admin.dashboard",
+        "icon": "dashboard"
+    },
+    {
+        "label": "Daftar Ormawa",
+        "route": "admin.organisasi.index",
+        "icon": "ormawa"
+    }
+]

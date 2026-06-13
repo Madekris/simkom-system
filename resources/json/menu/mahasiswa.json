@@ -3,5 +3,10 @@
         "label": "Dashboard",
         "route": "mahasiswa.dashboard",
         "icon": "fa-solid fa-gauge"
+    },
+    {
+        "label": "Daftar Organisasi",
+        "route": "mahasiswa.organisasi.index",
+        "icon": "fa-solid fa-users"
     }
 ]

@@ -7,6 +7,7 @@ use App\Models\Mahasiswa;
 use App\Models\Pembina;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
 
 class Login extends Controller
@@ -46,14 +47,20 @@ class Login extends Controller
         Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
 
-        return match ($user->role) {
-            'mahasiswa' => redirect()->route('mahasiswa.dashboard'),
-            'admin'     => redirect()->route('admin.dashboard'),
-            'pengurus'  => redirect()->route('pengurus.dashboard'),
-            'pembina'   => redirect()->route('pembina.dashboard'),
-            'bendahara' => redirect()->route('bendahara.dashboard'),
-            default     => redirect('/'),
+        $dashboardRoute = match ($user->role) {
+            'mahasiswa' => 'mahasiswa.dashboard',
+            'admin' => 'admin.dashboard',
+            'pengurus' => 'pengurus.dashboard',
+            'pembina' => 'pembina.dashboard',
+            'bendahara' => 'bendahara.dashboard',
+            default => null,
         };
+
+        if ($dashboardRoute && Route::has($dashboardRoute)) {
+            return redirect()->route($dashboardRoute);
+        }
+
+        return redirect()->route('mahasiswa.dashboard');
     }
 
     public function destroy(Request $request)

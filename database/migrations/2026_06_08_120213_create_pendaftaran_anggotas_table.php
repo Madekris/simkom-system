@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('pendaftaran_anggotas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_user')->constrained('users');
-            $table->foreignId('id_organisasi')->constrained('organisasis');
-            $table->string('dokumen_pendukung');
-            $table->string('status');
+            $table->foreignId('id_organisasi')->constrained('organisasis')->onDelete('cascade');
+            // Ganti baris 18 menjadi:
+            $table->enum('status', ['pending', 'aktif', 'ditolak'])->default('pending');
             $table->text('keterangan')->nullable();
             $table->timestamps();
         });

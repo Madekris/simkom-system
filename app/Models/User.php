@@ -51,6 +51,24 @@ class User extends Authenticatable
     {
         return $this->hasMany(PendaftaranPesertaKegiatan::class, 'id_user');
     }
+
+    public function getNameAttribute(): string
+    {
+        return $this->mahasiswa?->nama
+            ?? $this->pembina?->nama
+            ?? $this->email;
+    }
+
+    public function getNimAttribute(): ?string
+    {
+        return $this->mahasiswa?->nim;
+    }
+
+    public function getNipAttribute(): ?string
+    {
+        return $this->pembina?->nip;
+    }
+
     protected function casts(): array
     {
         return [

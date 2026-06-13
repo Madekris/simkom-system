@@ -1,0 +1,37 @@
+[
+  {
+    "label": "Dashboard",
+    "icon": "grid",
+    "route": "pengurus.dashboard"
+  },
+  {
+    "label": "Anggota & Verifikasi",
+    "icon": "users",
+    "route": "pengurus.verifikasi.index"
+  },
+  {
+    "label": "Kegiatan",
+    "icon": "calendar",
+    "route": "pengurus.kegiatan"
+  },
+  {
+    "label": "Dokumen",
+    "icon": "file-text",
+    "route": "pengurus.dokumen"
+  },
+  {
+    "label": "Keuangan",
+    "icon": "dollar-sign",
+    "route": "pengurus.keuangan"
+  },
+  {
+    "label": "Log Aktivitas",
+    "icon": "activity",
+    "route": "pengurus.log"
+  },
+  {
+    "label": "Profil",
+    "icon": "user",
+    "route": "pengurus.organisasi.edit"
+  }
+]

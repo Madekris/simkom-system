@@ -22,4 +22,10 @@ class AnggotaOrganisasi extends Model
     {
         return $this->belongsTo(PeriodeKepengurusan::class, 'id_periode');
     }
+
+    public function mahasiswa()
+{
+    // Sesuaikan foreign key dengan database Anda (id_user)
+    return $this->belongsTo(Mahasiswa::class, 'id_user', 'id_user');
+}
 }

@@ -107,7 +107,8 @@
                 @php
         $role = Auth::user()->role;
         $jsonPath = resource_path("json/menu/{$role}.json");
-        $menus = file_exists($jsonPath) ? json_decode(file_get_contents($jsonPath), true) : [];
+        // UBAH BARIS 110 MENJADI SEPERTI INI:
+        $menus = file_exists($jsonPath) ? (json_decode(file_get_contents($jsonPath), true) ?? []) : [];
     @endphp
 
     @foreach($menus as $menu)
