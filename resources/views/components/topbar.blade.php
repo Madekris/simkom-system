@@ -7,7 +7,7 @@
 <header class="bg-white border-b border-[#E5E7EB] px-4 sm:px-6 lg:px-8 py-4
                flex items-center justify-between gap-3 shrink-0 z-30 relative">
 
-    {{-- KIRI: hamburger + judul --}}
+    {{-- KIRI: hamburger + judul halaman --}}
     <div class="flex items-center gap-3 min-w-0">
         {{-- Hamburger (mobile) --}}
         <button @click="sidebarOpen = true"
@@ -33,10 +33,10 @@
         </div>
     </div>
 
-    {{-- KANAN: aksi + search + notif + avatar --}}
+    {{-- KANAN: search + notif + avatar profil --}}
     <div class="flex items-center gap-2 sm:gap-3 shrink-0">
 
-        {{-- Slot aksi tambahan (tombol tambah, export, dll) --}}
+        {{-- Slot aksi tambahan jika halaman tertentu butuh tombol ekstra --}}
         @yield('topbar_actions')
 
         {{-- Notifikasi --}}

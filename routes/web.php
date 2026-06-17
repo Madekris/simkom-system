@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\Login;
 use App\Http\Controllers\Auth\Registrasi;
 use App\Http\Controllers\Mahasiswa\Dashboard as MahasiswaDashboard;
+use App\Http\Controllers\Mahasiswa\KegiatanSaya as MahasiswaKegiatanSaya;
 use App\Http\Controllers\Pengurus\VerifikasiController;
 use App\Http\Controllers\Pengurus\OrganisasiController; 
 use App\Http\Controllers\Admin\AdminController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Bendahara\Dashboard as BendaharaDashboard;
 use App\Http\Controllers\Bendahara\InfoOrmawa;
 use App\Http\Controllers\Bendahara\LogAktivitas as BendaharaLogAktivitas;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\Pembina\RiwayatKegiatan;
 use Illuminate\Support\Facades\Route;
 
 
@@ -28,39 +30,48 @@ Route::post('/register', [Registrasi::class, 'store']);
 
 
 // ==========================================
-// AREA MAHASISWA & PENGURUS (MIDDLEWARE: AUTH)
+// AREA USER TER-AUTENTIKASI (MIDDLEWARE: AUTH)
 // ==========================================
 Route::middleware(['auth'])->group(function () {
 
-    // 1. AREA MAHASISWA
-    Route::prefix('mahasiswa')->name('mahasiswa.')->group(function () {
-        Route::get('/dashboard', [MahasiswaDashboard::class, 'index'])->name('dashboard');
-        Route::get('/organisasi', [MahasiswaDashboard::class, 'organisasi'])->name('organisasi.index');
-        
-        // KUNCI FIX: Rute DAFTAR HARUS DI ATAS rute DETAIL!
-        Route::get('/organisasi/{id}/daftar', [MahasiswaDashboard::class, 'pendaftaran'])->name('organisasi.daftar');
-        Route::post('/organisasi/daftar', [MahasiswaDashboard::class, 'store'])->name('organisasi.store');
-        
-        // Rute DETAIL taruh di paling bawah agar tidak "memakan" rute lain
-        Route::get('/organisasi/{id}', [MahasiswaDashboard::class, 'show'])->name('organisasi.show'); 
-    });
+    // 1. AREA MAHASISWA (Hanya bisa diakses oleh role: mahasiswa)
+    Route::prefix('mahasiswa')
+     ->name('mahasiswa.')
+     ->middleware(['role:mahasiswa']) // <-- Proteksi Role
+     ->group(function () {
+         Route::get('/dashboard', [MahasiswaDashboard::class, 'index'])->name('dashboard');
+         Route::get('/organisasi', [MahasiswaDashboard::class, 'organisasi'])->name('organisasi.index');
+         
+         // KUNCI FIX: Rute DAFTAR HARUS DI ATAS rute DETAIL!
+         Route::get('/organisasi/{id}/daftar', [MahasiswaDashboard::class, 'pendaftaran'])->name('organisasi.daftar');
+         Route::post('/organisasi/daftar', [MahasiswaDashboard::class, 'store'])->name('organisasi.store');
+         
+         // Rute DETAIL
+         Route::get('/organisasi/{id}', [MahasiswaDashboard::class, 'show'])->name('organisasi.show'); 
 
-    // 2. AREA PENGURUS
-    Route::prefix('pengurus')->name('pengurus.')->group(function () {
-        Route::get('/dashboard', [MahasiswaDashboard::class, 'index'])->name('dashboard');
-        
-        // Verifikasi & Anggota
-        Route::get('/verifikasi', [VerifikasiController::class, 'index'])->name('verifikasi.index');
-        Route::post('/verifikasi/{id}', [VerifikasiController::class, 'verifikasi'])->name('verifikasi'); 
-        
-        // Manajemen Anggota Internal
-        Route::put('/anggota/{id}', [VerifikasiController::class, 'updateAnggota'])->name('anggota.update');
-        Route::post('/anggota/{id}/arsip', [VerifikasiController::class, 'arsip'])->name('anggota.arsip');
-        Route::post('/anggota/{id}/restore', [VerifikasiController::class, 'restore'])->name('anggota.restore');
+         // ── TAMBAHAN RUTE BARU: KEGIATAN SAYA ──
+         // URL: /mahasiswa/kegiatan-saya  |  Nama Route: mahasiswa.kegiatan-saya
+         Route::get('/kegiatan-saya', [MahasiswaKegiatanSaya::class, 'index'])->name('kegiatan-saya');
+         // TAMBAHAN RUTE UNTUK DETAIL API (ALPINJS AJAX)
+         Route::get('/kegiatan-saya/{id}', [MahasiswaKegiatanSaya::class, 'show'])->name('kegiatan-saya.show');
+     });
 
-        // Manajemen Profil Organisasi Internal Pengurus
-        Route::get('/organisasi/edit', [OrganisasiController::class, 'edit'])->name('organisasi.edit');
-        Route::put('/organisasi/update', [OrganisasiController::class, 'update'])->name('organisasi.update');
+    // 2. AREA PENGURUS (Hanya bisa diakses oleh role: pengurus)
+    Route::prefix('pengurus')
+         ->name('pengurus.')
+         ->middleware(['role:pengurus']) // <-- Proteksi Role
+         ->group(function () {
+             Route::get('/dashboard', [MahasiswaDashboard::class, 'index'])->name('dashboard');
+             
+             // Verifikasi & Anggota
+             Route::get('/verifikasi', [VerifikasiController::class, 'index'])->name('verifikasi.index');
+             Route::post('/verifikasi/{id}', [VerifikasiController::class, 'verifikasi'])->name('verifikasi'); 
+             
+             // Manajemen Anggota Internal
+             Route::put('/anggota/{id}', [VerifikasiController::class, 'updateAnggota'])->name('anggota.update');
+             Route::post('/anggota/{id}/arsip', [VerifikasiController::class, 'arsip'])->name('anggota.arsip');
+             Route::post('/anggota/{id}/restore', [VerifikasiController::class, 'restore'])->name('anggota.restore');
+        
     });
 
     Route::middleware('role:bendahara')->prefix('bendahara')->name('bendahara.')->group(function () {
@@ -85,33 +96,45 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/keuangan-ormawa/export', [AdminKeuanganOrmawa::class, 'exportExcel'])->name('keuangan-ormawa.export');
     });
 
+    Route::get('/organisasi/edit', [OrganisasiController::class, 'edit'])->name('organisasi.edit');
+    Route::put('/organisasi/update', [OrganisasiController::class, 'update'])->name('organisasi.update');
+
+    Route::prefix('pembina')
+        ->name('pembina.')
+        ->middleware(['role:pembina'])
+        ->group(function () {
+            
+        // SINKRON: Sekarang mengarah ke fungsi dashboard()
+        Route::get('/dashboard', [RiwayatKegiatan::class, 'dashboard'])->name('dashboard'); 
+        
+        // Rute Resource untuk Riwayat (Otomatis mengarah ke fungsi index())
+        Route::resource('riwayat-kegiatan', RiwayatKegiatan::class)->parameters([
+            'riwayat-kegiatan' => 'id'
+        ]);
+    });
+
+    Route::prefix('admin')
+        ->name('admin.')
+        ->middleware(['role:admin']) // <-- Proteksi Role
+        ->group(function () {
+            // Dashboard Utama Admin
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        
+        // Fitur Tambah Organisasi Baru
+        Route::get('/organisasi/create', [AdminController::class, 'create'])->name('organisasi.create');
+        Route::post('/organisasi/store', [AdminController::class, 'store'])->name('organisasi.store');
+
+        // Manajemen Organisasi oleh Admin
+        Route::get('/organisasi', [AdminController::class, 'index'])->name('organisasi.index');
+        Route::get('/organisasi/{id}/edit', [AdminController::class, 'edit'])->name('organisasi.edit');
+        Route::put('/organisasi/{id}', [AdminController::class, 'update'])->name('organisasi.update');
+        Route::post('/organisasi/{id}/toggle', [AdminController::class, 'toggleStatus'])->name('organisasi.toggle');
+        
+        // Fitur Kearsipan Organisasi via Admin
+        Route::get('/organisasi/arsipkan/{id}', [AdminController::class, 'arsipkan'])->name('organisasi.arsipkan');
+        Route::get('/organisasi/pulihkan/{id}', [AdminController::class, 'pulihkan'])->name('organisasi.pulihkan');
+        
+        Route::get('/organisasi/{id}/anggota', [AdminController::class, 'getAnggota'])->name('organisasi.anggota');
+    });
+
 }); // Penutup Middleware Auth Utama
-
-
-// ==========================================
-// 3. AREA ADMIN (MIDDLEWARE: AUTH & ROLE ADMIN)
-// ==========================================
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    
-    // Dashboard Utama Admin
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    
-    // Fitur Tambah Organisasi Baru
-    Route::get('/organisasi/create', [AdminController::class, 'create'])->name('organisasi.create');
-    Route::post('/organisasi/store', [AdminController::class, 'store'])->name('organisasi.store');
-
-    // Manajemen Organisasi oleh Admin
-    Route::get('/organisasi', [AdminController::class, 'index'])->name('organisasi.index');
-    Route::get('/organisasi/{id}/edit', [AdminController::class, 'edit'])->name('organisasi.edit');
-    Route::put('/organisasi/{id}', [AdminController::class, 'update'])->name('organisasi.update');
-    Route::post('/organisasi/{id}/toggle', [AdminController::class, 'toggleStatus'])->name('organisasi.toggle');
-    
-    // Fitur Kearsipan Organisasi via Admin
-    Route::get('/organisasi/arsipkan/{id}', [AdminController::class, 'arsipkan'])->name('organisasi.arsipkan');
-    Route::get('/organisasi/pulihkan/{id}', [AdminController::class, 'pulihkan'])->name('organisasi.pulihkan');
-    
-    // FIX SINKRONISASI: Mengubah URL dari '/organisasi/{id}/get-anggota' menjadi '/organisasi/{id}/anggota' 
-    // agar tepat sasaran dengan fungsi fetch() JavaScript di file edit.blade.php
-    // FIX SINKRONISASI: Menghapus '/admin' di awal path karena sudah otomatis terisi oleh prefix grup admin di atas
-    Route::get('/organisasi/{id}/anggota', [AdminController::class, 'getAnggota'])->name('organisasi.anggota');
-});
