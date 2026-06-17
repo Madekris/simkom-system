@@ -7,7 +7,7 @@
 <header class="bg-white border-b border-[#E5E7EB] px-4 sm:px-6 lg:px-8 py-4
                flex items-center justify-between gap-3 shrink-0 z-30 relative">
 
-    {{-- KIRI: hamburger + judul --}}
+    {{-- KIRI: hamburger + judul halaman --}}
     <div class="flex items-center gap-3 min-w-0">
         {{-- Hamburger (mobile) --}}
         <button @click="sidebarOpen = true"
@@ -33,32 +33,28 @@
         </div>
     </div>
 
-    {{-- KANAN: aksi + search + notif + avatar --}}
+    {{-- KANAN: search + notif + avatar profil --}}
     <div class="flex items-center gap-2 sm:gap-3 shrink-0">
 
-        {{-- Slot aksi tambahan (tombol tambah, export, dll) --}}
+        {{-- Slot aksi tambahan jika halaman tertentu butuh tombol ekstra --}}
         @yield('topbar_actions')
 
-        {{-- Search (large screen only) --}}
-        <div class="relative w-56 hidden xl:block">
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280] pointer-events-none"
-                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        {{-- Icon Notifikasi Lonceng Merah (Sesuai kode desain Anda) --}}
+        <button data-slot="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all size-9 rounded-md relative hover:bg-gray-100 text-[#1C1E2C]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell w-5 h-5">
+                <path d="M10.268 21a2 2 0 0 0 3.464 0"></path>
+                <path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path>
             </svg>
-            <input type="search" placeholder="Cari..."
-                   class="w-full pl-9 pr-3 py-2 text-sm bg-[#F7F8FC] border border-[#E5E7EB] rounded-lg
-                          outline-none focus:border-[#1A2B5C] focus:ring-2 focus:ring-[#1A2B5C]/10 transition-all">
-        </div>
+            {{-- Dot Indikator Notifikasi Merah --}}
+            <span class="absolute top-2 right-2 w-2 h-2 bg-[#EF4444] rounded-full"></span>
+        </button>
 
-        {{-- Notifikasi --}}
-
-        {{-- Avatar --}}
-        <div class="hidden sm:flex w-9 h-9 rounded-full bg-[#1A2B5C] text-white text-xs
-                    font-bold items-center justify-center shrink-0 cursor-pointer
-                    hover:ring-2 hover:ring-[#F5A623] transition-all"
-             title="{{ auth()->user()->name ?? '' }}">
-            {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}{{ strtoupper(substr(explode(' ', auth()->user()->name ?? 'U')[1] ?? '', 0, 1)) }}
-        </div>
+        {{-- Avatar Inisial Nama Pengguna Secara Otomatis --}}
+        <span data-slot="avatar" class="relative size-9 shrink-0 overflow-hidden rounded-full hidden sm:flex" title="{{ auth()->user()->name ?? 'User' }}">
+            <span data-slot="avatar-fallback" class="flex size-full items-center justify-center rounded-full bg-[#1A2B5C] text-white text-xs font-bold uppercase tracking-wider">
+                {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}{{ strtoupper(substr(explode(' ', auth()->user()->name ?? 'U')[1] ?? '', 0, 1)) }}
+            </span>
+        </span>
+        
     </div>
 </header>

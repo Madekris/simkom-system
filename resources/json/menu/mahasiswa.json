@@ -8,5 +8,10 @@
         "label": "Daftar Organisasi",
         "route": "mahasiswa.organisasi.index",
         "icon": "fa-solid fa-users"
+    },
+    {
+        "label": "Kegiatan Saya",
+        "icon": "fa-solid fa-clock-rotate-left",
+        "route": "mahasiswa.kegiatan-saya"
     }
 ]

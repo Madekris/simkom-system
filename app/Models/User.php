@@ -46,8 +46,22 @@ class User extends Authenticatable
         return $this->hasMany(PendaftaranAnggota::class, 'id_user');
     }
 
-    // Relasi ke pendaftaran peserta kegiatan
-    public function pendaftaranPesertaKegiatan()
+    /**
+     * RELASI A: Langsung mendapatkan daftar KEGIATAN yang diikuti (Many-to-Many)
+     * Direkomendasikan untuk halaman "Kegiatan Saya" Anda saat ini.
+     */
+    public function pendaftaranKegiatan()
+    {
+        return $this->belongsToMany(Kegiatan::class, 'pendaftaran_peserta_kegiatans', 'id_user', 'id_kegiatan')
+                    ->withPivot('status') // Mengambil status pendaftaran mahasiswa (jika ada)
+                    ->withTimestamps();
+    }
+
+    /**
+     * RELASI B: Mendapatkan data baris log pendaftarannya saja (One-to-Many)
+     * Digunakan jika Anda ingin memanipulasi atau melihat data mentah dari tabel pivot.
+     */
+    public function logPendaftaran()
     {
         return $this->hasMany(PendaftaranPesertaKegiatan::class, 'id_user');
     }

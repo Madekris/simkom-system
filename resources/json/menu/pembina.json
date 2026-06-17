@@ -1,0 +1,12 @@
+[
+    {
+        "label": "Dashboard",
+        "route": "pembina.dashboard",
+        "icon": "fa-solid fa-gauge"
+    },
+    {
+        "label": "Riwayat Kegiatan",
+        "route": "pembina.riwayat-kegiatan.index",
+        "icon": "fa-solid fa-clock-rotate-left"
+    }
+]
