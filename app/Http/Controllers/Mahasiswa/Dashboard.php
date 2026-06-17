@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Mahasiswa;
 
 use App\Http\Controllers\Controller;
+use App\Models\AnggotaOrganisasi;
 use App\Models\Organisasi;
 use App\Models\PendaftaranAnggota;
 use App\Models\JenisOrganisasi;
+use App\Models\Mahasiswa;
+use App\Models\PendaftaranPesertaKegiatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,15 +16,32 @@ class Dashboard extends Controller
 {
     public function index()
     {
-        $stats = [
-            'total_ormawa' => Organisasi::count(),
-            'ormawa_aktif' => Organisasi::where('status', 'aktif')->count(),
-            'kegiatan_aktif' => 0,
-            'kegiatan_diikuti' => 0,
-            'kegiatan_selesai' => 0,
-        ];
+        $dataMahasiswa = Mahasiswa::where('id_user', Auth::user()->id)->first();
+        $totalOrmawa = AnggotaOrganisasi::where('id_user', Auth::user()->id)->count();
 
-        return view('pages.mahasiswa.dashboard', compact('stats'));
+        $semuaKegiatan = PendaftaranPesertaKegiatan::where('id_user', Auth::id());
+
+        $kegiatanDiikuti = PendaftaranPesertaKegiatan::where('id_user', Auth::id())
+            ->whereHas('kegiatan', function ($query) {
+                // Menyaring pendaftaran yang HANYA memiliki kegiatan berstatus 'ongoing'
+                $query->where('status', 'ongoing');
+            })
+            ->with(['kegiatan' => function ($query) {
+                // Memuat data kegiatannya yang berstatus 'ongoing'
+                $query->where('status', 'ongoing');
+            }])
+            ->get(); // Jangan lupa tambahkan get() di ujung untuk mengambil datanya
+
+        $totalKegiatanMendatang = $kegiatanDiikuti->count();
+
+        $totalSemuaKegiatanSelesai = $semuaKegiatan->count() - $totalKegiatanMendatang;
+
+        return view('pages.mahasiswa.dashboard', compact(
+            'dataMahasiswa',
+            'totalOrmawa',
+            'totalKegiatanMendatang',
+            'totalSemuaKegiatanSelesai'
+        ));
     }
 
     public function organisasi(Request $request)

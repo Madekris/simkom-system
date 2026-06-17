@@ -147,11 +147,15 @@
             {{-- ── KONTEN HALAMAN ──────────────────────────────── --}}
             <div class="flex-1 overflow-y-auto">
                 @yield('content')
+
+                <x-toast />
+
             </div>
 
         </main>
     </div>
 
     @stack('scripts')
+    <x-preview-modal />
 </body>
 </html>

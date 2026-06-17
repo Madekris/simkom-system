@@ -91,4 +91,10 @@ class Organisasi extends Model
             ->where('jabatan', 'Bendahara')
             ->where('status', 'aktif');
     }
+
+    public function kegiatan(): HasMany
+    {
+        // Parameter kedua adalah foreign key di tabel kegiatan yang mengarah ke organisasi
+        return $this->hasMany(Kegiatan::class, 'id_organisasi', 'id');
+    }
 }

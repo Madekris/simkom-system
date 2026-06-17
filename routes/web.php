@@ -6,6 +6,12 @@ use App\Http\Controllers\Mahasiswa\Dashboard as MahasiswaDashboard;
 use App\Http\Controllers\Pengurus\VerifikasiController;
 use App\Http\Controllers\Pengurus\OrganisasiController; 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\KeuanganOrmawa as AdminKeuanganOrmawa;
+use App\Http\Controllers\Bendahara\InputKeuangan as BendaharaInputKeuangan;
+use App\Http\Controllers\Bendahara\Dashboard as BendaharaDashboard;
+use App\Http\Controllers\Bendahara\InfoOrmawa;
+use App\Http\Controllers\Bendahara\LogAktivitas as BendaharaLogAktivitas;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 
@@ -55,6 +61,28 @@ Route::middleware(['auth'])->group(function () {
         // Manajemen Profil Organisasi Internal Pengurus
         Route::get('/organisasi/edit', [OrganisasiController::class, 'edit'])->name('organisasi.edit');
         Route::put('/organisasi/update', [OrganisasiController::class, 'update'])->name('organisasi.update');
+    });
+
+    Route::middleware('role:bendahara')->prefix('bendahara')->name('bendahara.')->group(function () {
+
+        // Dashboard keuangan
+        Route::get('/dashboard', [BendaharaDashboard::class, 'index'])->name('dashboard.index');
+
+        // Info ormawa
+        Route::get('/info-ormawa', [InfoOrmawa::class, 'index'])->name('info-ormawa.index');
+
+        // Input keuangan
+        Route::get('/input-keuangan', [BendaharaInputKeuangan::class, 'create'])->name('input-keuangan.create');
+        Route::post('/input-keuangan', [BendaharaInputKeuangan::class, 'store'])->name('input-keuangan.store');
+        Route::get('/input-keuangan/export', [BendaharaInputKeuangan::class, 'exportExcel'])->name('input-keuangan.export');
+
+        // Log aktivitas
+        Route::get('/log-aktivitas', [BendaharaLogAktivitas::class, 'index'])->name('log-aktivitas.index');
+    });
+
+    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/keuangan-ormawa', [AdminKeuanganOrmawa::class, 'index'])->name('keuangan-ormawa.index');
+        Route::get('/keuangan-ormawa/export', [AdminKeuanganOrmawa::class, 'exportExcel'])->name('keuangan-ormawa.export');
     });
 
 }); // Penutup Middleware Auth Utama

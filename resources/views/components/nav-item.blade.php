@@ -12,7 +12,9 @@
         <span class="absolute left-0 top-2 bottom-2 w-1 bg-[#F5A623] rounded-r"></span>
     @endif
 
-    <i class="{{ $icon ?? 'fas fa-chart-pie' }} w-4 h-4 shrink-0 flex items-center justify-center text-base"></i>
+    {!! $icon !!}
+
+    {{-- <i class="{{ $icon ?? 'fas fa-chart-pie' }} w-4 h-4 shrink-0 flex items-center justify-center text-base"></i> --}}
 
     <span class="flex-1 text-left">{{ $label ?? 'Menu' }}</span>
 

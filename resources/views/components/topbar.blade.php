@@ -39,18 +39,6 @@
         {{-- Slot aksi tambahan (tombol tambah, export, dll) --}}
         @yield('topbar_actions')
 
-        {{-- Search (large screen only) --}}
-        <div class="relative w-56 hidden xl:block">
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280] pointer-events-none"
-                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <input type="search" placeholder="Cari..."
-                   class="w-full pl-9 pr-3 py-2 text-sm bg-[#F7F8FC] border border-[#E5E7EB] rounded-lg
-                          outline-none focus:border-[#1A2B5C] focus:ring-2 focus:ring-[#1A2B5C]/10 transition-all">
-        </div>
-
         {{-- Notifikasi --}}
 
         {{-- Avatar --}}

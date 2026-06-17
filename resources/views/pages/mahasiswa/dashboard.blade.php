@@ -3,42 +3,102 @@
 <div class="p-4 sm:p-6 lg:p-8 space-y-6">
 
     {{-- ── SAMBUTAN ─────────────────────────────────────────── --}}
-    <div class="bg-gradient-to-r from-[#1A2B5C] to-[#0F1B3D] rounded-2xl p-6 text-white relative overflow-hidden">
-        <div class="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-[#F5A623]/10 blur-2xl pointer-events-none"></div>
+    <div class="bg-gradient-to-r from-[#1A2B5C] to-[#0F1B3D] rounded-2xl text-white relative overflow-hidden">
+       
         <div class="absolute bottom-0 right-6 opacity-10 pointer-events-none">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                 <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
             </svg>
         </div>
-        <div class="relative">
-            <div class="text-sm text-white/60 mb-1">Selamat datang kembali,</div>
-            <h2 class="text-2xl font-bold">{{ auth()->user()->name ?? 'Mahasiswa' }} 👋</h2>
-            <p class="text-white/70 text-sm mt-1">
-                {{ auth()->user()->prodi ?? 'Sistem Informasi' }} · Semester {{ auth()->user()->semester ?? '?' }}
-            </p>
-            <div class="mt-4 flex gap-5">
-                <div>
-                    <div class="text-xl font-bold text-[#F5A623]">{{ $stats['kegiatan_diikuti'] ?? 3 }}</div>
-                    <div class="text-xs text-white/60">Kegiatan Diikuti</div>
-                </div>
-                <div>
-                    <div class="text-xl font-bold text-[#00C9A7]">{{ $stats['kegiatan_aktif'] ?? 1 }}</div>
-                    <div class="text-xs text-white/60">Sedang Berlangsung</div>
-                </div>
-                <div>
-                    <div class="text-xl font-bold text-white">{{ $stats['ormawa_aktif'] ?? 25 }}</div>
-                    <div class="text-xs text-white/60">Ormawa Aktif</div>
-                </div>
+
+        <div class="bg-gradient-to-r from-[#F5A623] to-[#E8901B] rounded-xl p-6 text-[#1A2B5C]">
+            {{-- Menggunakan Nama User Dinamis --}}
+            <div class="text-sm font-semibold">Halo, {{ $dataMahasiswa->nama }} 👋</div>
+            
+            <div class="text-2xl font-bold mt-1">Selamat datang di SIMKOM!</div>
+            
+            {{-- Menggunakan Hasil Count dari Controller --}}
+            <div class="text-sm mt-1 text-[#1A2B5C]/80">
+                Anda terdaftar di <strong>{{ $totalOrmawa }}</strong> ormawa dengan <strong>{{ $totalKegiatanMendatang }}</strong> kegiatan mendatang.
             </div>
         </div>
     </div>
 
     {{-- ── STAT CARDS ─────────────────────────────────────────── --}}
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        @include('components.stat-card', ['label' => 'Total Ormawa',  'value' => $stats['total_ormawa'] ?? '25',  'icon' => 'building',  'color' => 'navy'])
-        @include('components.stat-card', ['label' => 'Kegiatan Aktif','value' => $stats['kegiatan_aktif'] ?? '8', 'icon' => 'calendar',  'color' => 'teal'])
-        @include('components.stat-card', ['label' => 'Saya Ikuti',    'value' => $stats['kegiatan_diikuti'] ?? '3','icon' => 'check',     'color' => 'gold'])
-        @include('components.stat-card', ['label' => 'Selesai',       'value' => $stats['kegiatan_selesai'] ?? '2','icon' => 'shield',    'color' => 'green'])
+    
+    <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+    
+        {{-- Card 1: Ormawa Diikuti --}}
+        <div class="bg-white rounded-xl border border-[#E5E7EB] shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-5">
+            <div class="flex items-start justify-between">
+                <div>
+                    <div class="text-xs text-[#6B7280] uppercase tracking-wide font-medium">
+                        Ormawa Diikuti
+                    </div>
+                    <div class="text-2xl font-bold text-[#1C1E2C] mt-1">
+                        {{ $totalOrmawa ?? 0 }}
+                    </div>
+                </div>
+                <div class="w-11 h-11 rounded-lg flex items-center justify-center bg-[#1A2B5C] text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-building2 w-5 h-5">
+                        <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path>
+                        <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path>
+                        <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path>
+                        <path d="M10 6h4"></path>
+                        <path d="M10 10h4"></path>
+                        <path d="M10 14h4"></path>
+                        <path d="M10 18h4"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        {{-- Card 2: Kegiatan Mendatang --}}
+        <div class="bg-white rounded-xl border border-[#E5E7EB] shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-5">
+            <div class="flex items-start justify-between">
+                <div>
+                    <div class="text-xs text-[#6B7280] uppercase tracking-wide font-medium">
+                        Kegiatan Mendatang
+                    </div>
+                    <div class="text-2xl font-bold text-[#1C1E2C] mt-1">
+                        {{ $totalKegiatanMendatang ?? 0 }}
+                    </div>
+                </div>
+                <div class="w-11 h-11 rounded-lg flex items-center justify-center bg-[#00C9A7] text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-range w-5 h-5">
+                        <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+                        <path d="M16 2v4"></path>
+                        <path d="M3 10h18"></path>
+                        <path d="M8 2v4"></path>
+                        <path d="M17 14h-6"></path>
+                        <path d="M13 18H7"></path>
+                        <path d="M7 14h.01"></path>
+                        <path d="M17 18h.01"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        {{-- Card 3: Selesai Diikuti --}}
+        <div class="bg-white rounded-xl border border-[#E5E7EB] shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-5">
+            <div class="flex items-start justify-between">
+                <div>
+                    <div class="text-xs text-[#6B7280] uppercase tracking-wide font-medium">
+                        Selesai Diikuti
+                    </div>
+                    <div class="text-2xl font-bold text-[#1C1E2C] mt-1">
+                        {{ $totalSemuaKegiatanSelesai ?? 0 }}
+                    </div>
+                </div>
+                <div class="w-11 h-11 rounded-lg flex items-center justify-center bg-[#22C55E] text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-check w-5 h-5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="m9 12 2 2 4-4"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
