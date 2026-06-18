@@ -28,11 +28,7 @@
 
         <div class="flex flex-col gap-4 w-full">
             @foreach($daftarKegiatan as $kegiatan)
-                <div class="bg-white rounded-xl border border-[#E5E7EB] shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-5 hover:shadow-lg transition flex flex-col md:flex-row items-start md:items-center gap-5">
-                    
-                    <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-amber-200 bg-amber-100 font-bold text-xl text-amber-600 shadow-sm">
-                        {{ Str::upper(Str::substr($kegiatan['judul_kegiatan'], 0, 1)) }}
-                    </div>
+                <div class="bg-white rounded-xl border border-[#E5E7EB] shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-5 hover:shadow-lg transition flex flex-col md:flex-row items-start gap-5">
 
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 flex-wrap">
@@ -86,7 +82,7 @@
                         @if(!$isKuotaPenuh)
                             <form action="{{ route('mahasiswa.daftar-kegiatan.daftar', $kegiatan->id) }}" method="POST" class="w-full sm:w-auto">
                                 @csrf
-                                <button type="submit" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all h-9 rounded-lg px-4 w-full md:w-auto bg-[#F5A623] hover:bg-[#D88E15] text-[#1A2B5C] font-semibold shadow-sm">
+                                <button type="submit" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all h-9 rounded-lg px-4 w-full md:w-auto bg-[#F5A623] hover:bg-[#D88E15] text-white font-semibold shadow-sm">
                                     Daftar
                                 </button>
                             </form>
