@@ -8,33 +8,66 @@ use App\Models\DokumenKegiatan;
 use App\Models\Kegiatan as ModelsKegiatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class Kegiatan extends Controller
 {
-    public function index ()
+    /**
+     * Menampilkan daftar semua kegiatan ormawa.
+     */
+    public function index(Request $request)
     {
-        $anggotaOrganisasi = AnggotaOrganisasi::where('id_user', Auth::id())->get();
+        // 1. Ambil data organisasi pengurus yang sedang login
+        $anggotaOrganisasi = AnggotaOrganisasi::where('id_user', Auth::id())->first();
 
-        $kegiatan = ModelsKegiatan::with('dokumenKegiatan')->where('id_organisasi', $anggotaOrganisasi->first()->id_organisasi)->get();
+        if (!$anggotaOrganisasi) {
+            return redirect()->back()->with('error', 'Anda tidak terdaftar sebagai pengurus organisasi manapun.');
+        }
 
-        // dd($kegiatan->toArray());
-        return view('pages.pengurus.kegiatan', compact(
-            'kegiatan'
-        ));
+        // 2. Tangkap parameter filter menggunakan query() (default: 'semua')
+        $statusFilter = $request->query('status', 'semua');
+
+        // 3. Query dasar kegiatan berdasarkan organisasi
+        $query = ModelsKegiatan::with('dokumenKegiatan')
+            ->where('id_organisasi', $anggotaOrganisasi->id_organisasi)
+            ->latest();
+
+        // 4. Sesuaikan filter dengan value database
+        if ($statusFilter !== 'semua') {
+            if ($statusFilter === 'berlangsung') {
+                $query->whereIn('status', ['Pending', 'Mendatang', 'pending']);
+            } elseif ($statusFilter === 'selesai') {
+                $query->where('status', 'Selesai');
+            } elseif ($statusFilter === 'dibatalkan') {
+                $query->where('status', 'Dibatalkan');
+            }
+        }
+
+        $kegiatan = $query->get();
+
+        return view('pages.pengurus.kegiatan', compact('kegiatan', 'statusFilter'));
     }
 
-    public function create () {
-        $anggotaOrganisasi = AnggotaOrganisasi::where('id_user', Auth::id())->get();
+    /**
+     * Menampilkan halaman formulir tambah kegiatan.
+     */
+    public function create()
+    {
+        // Ambil data organisasi pengurus aktif untuk dilempar ke form (jika dibutuhkan id_organisasi otomatis)
+        $anggotaOrganisasi = AnggotaOrganisasi::where('id_user', Auth::id())->first();
 
-        // dd($anggotaOrganisasi->toArray());
-        return view('pages.pengurus.kegiatan-create', compact(
-            'anggotaOrganisasi'
-        ));
+        if (!$anggotaOrganisasi) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki hak akses organisasi.');
+        }
+
+        return view('pages.pengurus.kegiatan-create', compact('anggotaOrganisasi')); 
     }
 
+    /**
+     * Menyimpan data kegiatan baru ke database beserta file proposal.
+     */
     public function store(Request $request)
     {
-        // 1. Jalankan Validasi Data Masuk
         $validated = $request->validate([
             'id_organisasi'    => 'required|integer',
             'id_periode'       => 'required|integer',
@@ -43,60 +76,13 @@ class Kegiatan extends Controller
             'tanggal_kegiatan' => 'required|date|after_or_equal:today',
             'waktu_kegiatan'   => 'required',
             'lokasi'           => 'required|string|max:255',
-            'kuota_peserta'    => 'required|integer|min:1',
+            'kuota_peserta'    => 'required|numeric|min:0', // Proteksi anti-minus
             'proposal'         => 'required|file|mimes:pdf|max:10240',
-        ], [
-            // id_organisasi & id_periode
-            'id_organisasi.required'    => 'Organisasi harus ditentukan.',
-            'id_organisasi.integer'     => 'ID organisasi tidak valid.',
-            'id_periode.required'       => 'Periode aktif harus ditentukan.',
-            'id_periode.integer'        => 'ID periode tidak valid.',
-
-            // judul_kegiatan
-            'judul_kegiatan.required'   => 'Judul kegiatan wajib diisi.',
-            'judul_kegiatan.string'     => 'Judul kegiatan harus berupa teks.',
-            'judul_kegiatan.max'        => 'Judul kegiatan tidak boleh lebih dari 255 karakter.',
-
-            // deskripsi
-            'deskripsi.required'        => 'Deskripsi kegiatan wajib diisi.',
-            'deskripsi.string'          => 'Deskripsi harus berupa teks.',
-
-            // tanggal_kegiatan
-            'tanggal_kegiatan.required' => 'Tanggal kegiatan wajib diisi.',
-            'tanggal_kegiatan.date'     => 'Format tanggal kegiatan tidak valid.',
-            'tanggal_kegiatan.after_or_equal' => 'Tanggal kegiatan tidak boleh lewat dari hari ini.',
-
-            // waktu_kegiatan
-            'waktu_kegiatan.required'   => 'Waktu pelaksanaan kegiatan wajib diisi.',
-
-            // lokasi
-            'lokasi.required'           => 'Lokasi kegiatan wajib diisi.',
-            'lokasi.string'             => 'Lokasi harus berupa teks.',
-            'lokasi.max'                => 'Lokasi tidak boleh lebih dari 255 karakter.',
-
-            // kuota_peserta
-            'kuota_peserta.required'    => 'Estimasi kuota peserta wajib diisi.',
-            'kuota_peserta.integer'     => 'Kuota peserta harus berupa angka.',
-            'kuota_peserta.min'         => 'Kuota peserta minimal diisi 1 orang.',
-
-            // proposal
-            'proposal.file'             => 'Berkas yang diunggah harus berupa file.',
-            'proposal.mimes'            => 'Proposal harus dalam format dokumen PDF.',
-            'proposal.max'              => 'Ukuran file proposal maksimal adalah 10 MB.',
         ]);
 
-        // 2. Tentukan status berdasarkan button mana yang diklik
         $status = 'pending';
 
-        // 3. Handle File Upload Proposal (jika ada)
-        $proposalPath = null;
-        if ($request->hasFile('proposal')) {
-            // Menyimpan ke folder storage/app/public/proposal
-            $proposalPath = $request->file('proposal')->store('proposal', 'public');
-        }
-
-        // 4. Masukkan Data ke Database
-        $kegiatan = ModelsKegiatan::create([
+        $kegiatan = ModelsKegiatan::query()->create([
             'id_organisasi'    => $validated['id_organisasi'],
             'id_periode'       => $validated['id_periode'],
             'judul_kegiatan'   => $validated['judul_kegiatan'],
@@ -108,39 +94,68 @@ class Kegiatan extends Controller
             'status'           => $status,
         ]);
 
-        $idKegiatanBaru = $kegiatan->id;
-
-        // dd($kegiatan);
-
         if ($request->hasFile('proposal')) {
             $file = $request->file('proposal');
-            
-            // 1. Ambil ekstensi asli file (misal: pdf)
             $ekstensi = $file->getClientOriginalExtension();
-            
-            // 2. Ambil judul kegiatan dari input, lalu ubah menjadi format slug yang aman untuk URL/File
-            $slugJudul = \Illuminate\Support\Str::slug($validated['judul_kegiatan']);
-            
-            // 3. Buat nama unik: judul-kegiatan-timestamp.pdf (Contoh: workshop-ai-2026-1718726400.pdf)
+            $slugJudul = Str::slug($validated['judul_kegiatan']);
             $namaFileUnique = $slugJudul . '-' . time() . '.' . $ekstensi;
-            
-            // 4. Simpan ke storage dengan nama unik tersebut ke folder 'proposals' di disk 'public'
             $path = $file->storeAs('proposals', $namaFileUnique, 'public');
 
-            // 5. Insert ke tabel dokumen_kegiatans
-            DokumenKegiatan::create([
-                'id_kegiatan'   => $idKegiatanBaru,
+            DokumenKegiatan::query()->create([
+                'id_kegiatan'   => $kegiatan->id,
                 'jenis_dokumen' => 'Proposal',
-                'nama_file'     => $namaFileUnique, // Menyimpan nama unik yang baru dibuat
+                'nama_file'     => $namaFileUnique,
                 'path_url'      => $path,
             ]);
         }
 
-        // 5. Kembalikan Respon Sukses
-        return redirect()->route('pengurus.kegiatan.index') // Sesuaikan dengan route tujuan Anda setelah submit
-            ->with('success', 'Kegiatan berhasil disimpan');
+        return redirect()->route('pengurus.kegiatan.index')->with('success', 'Kegiatan berhasil disimpan');
     }
 
+    /**
+     * Menampilkan detail data kegiatan spesifik.
+     */
+    public function show($id)
+    {
+        $anggotaOrganisasi = AnggotaOrganisasi::where('id_user', Auth::id())->first();
 
+        if (!$anggotaOrganisasi) {
+            return redirect()->back()->with('error', 'Anda tidak terdaftar sebagai pengurus organisasi manapun.');
+        }
+
+        $kegiatan = ModelsKegiatan::with('dokumenKegiatan')
+            ->where('id_organisasi', $anggotaOrganisasi->id_organisasi)
+            ->findOrFail($id);
+
+        return view('pages.pengurus.kegiatan-detail', compact('kegiatan'));
+    }
+
+    /**
+     * Memperbarui data kegiatan melalui Form Pop-up Edit.
+     */
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'judul_kegiatan'   => 'required|string|max:255',
+            'tanggal_kegiatan' => 'required|date',
+            'lokasi'           => 'required|string|max:255',
+            'kuota_peserta'    => 'required|numeric|min:0', // Proteksi backend anti-minus
+            'status'           => 'required|in:Pending,Berlangsung,Selesai,Dibatalkan,pending',
+            'deskripsi'        => 'required|string',
+        ]);
+
+        $kegiatan = ModelsKegiatan::query()->findOrFail($id); 
+
+        $kegiatan->update([
+            'judul_kegiatan'   => $request->judul_kegiatan,
+            'tanggal_kegiatan' => $request->tanggal_kegiatan,
+            'lokasi'           => $request->lokasi,
+            'kuota_peserta'    => $request->kuota_peserta,
+            'status'           => $request->status,
+            'deskripsi'        => $request->deskripsi,
+        ]);
+
+        return redirect()->route('pengurus.kegiatan.index')
+                        ->with('success', 'Kegiatan berhasil diperbarui!');
+    }
 }
-
