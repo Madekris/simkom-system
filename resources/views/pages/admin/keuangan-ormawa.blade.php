@@ -6,10 +6,12 @@
 {{-- Isi Subtitle Topbar (Opsional) --}}
 @section('topbar_subtitle', 'Pantauan keuangan semua ormawa SIMKOM Bali')
 
-{{-- Isi Tombol / Aksi di Sebelah Kanan (Opsional) --}}
+{{-- Isi Tombol / Aksi di Sebelah Kanan dengan Dropdown Mode --}}
 @section('topbar_actions')
-   <a href="{{ route('admin.keuangan-ormawa.export') }}" 
-    class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background text-foreground hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 has-[&gt;svg]:px-3">
+<div class="relative inline-block text-left" id="dropdown-export-wrapper">
+    {{-- Tombol Utama Pemicu Dropdown --}}
+    <button onclick="toggleExportDropdown()" type="button"
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all border bg-background text-foreground hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 h-9 px-4 py-2 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]">
         
         {{-- Ikon Download Lucide --}}
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download w-4 h-4 mr-1">
@@ -18,8 +20,37 @@
             <line x1="12" x2="12" y1="15" y2="3"></line>
         </svg> 
         
-        Export Excel
-    </a>
+        Export Laporan
+        
+        {{-- Ikon Panah Bawah Lucide --}}
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down w-4 h-4 ml-0.5">
+            <path d="m6 9 6 6 6-6"></path>
+        </svg>
+    </button>
+
+    {{-- Menu Pilihan Dropdown --}}
+    <div id="exportDropdownMenu" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 z-50 focus:outline-none">
+        <div class="py-1">
+            {{-- Pilihan 1: Excel --}}
+            <a href="{{ route('admin.keuangan-ormawa.export', ['format' => 'excel']) }}" 
+               class="group flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                <svg class="w-4 h-4 mr-3 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Export Excel (.xlsx)
+            </a>
+            
+            {{-- Pilihan 2: PDF --}}
+            <a href="{{ route('admin.keuangan-ormawa.export', ['format' => 'pdf']) }}" 
+               class="group flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                <svg class="w-4 h-4 mr-3 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                </svg>
+                Export PDF (.pdf)
+            </a>
+        </div>
+    </div>
+</div>
 @endsection
 
 @section('content')
@@ -171,6 +202,9 @@
 
                         // 4. Hitung Sisa Saldo Akhir Ormawa
                         $totalSaldo = $totalPemasukan - $totalPengeluaran;
+                        
+                        // 5. Ekstrak data nama pembina secara aman
+                        $namaPembina = is_array($ormawa) ? ($ormawa['pembina'] ?? 'Belum Diatur') : ($ormawa->pembina ?? 'Belum Diatur');
                     @endphp
 
                     <tr class="border-t border-[#E5E7EB] hover:bg-[#F7F8FC]/50 transition-colors">
@@ -179,9 +213,9 @@
                             {{ is_array($ormawa) ? $ormawa['nama'] : $ormawa->nama }}
                         </td>
                         
-                        {{-- Nama Pembina (Gunakan fallback karena tidak ada di dump data) --}}
+                        {{-- Nama Pembina --}}
                         <td class="px-5 py-4 text-[#6B7280]">
-                            {{ is_array($ormawa) ? ($ormawa['pembina'] ?? 'Belum Diatur') : ($ormawa->pembina ?? 'Belum Diatur') }}
+                            {{ $namaPembina }}
                         </td>
                         
                         {{-- Total Pemasukan --}}
@@ -202,18 +236,18 @@
                             </td>
                         @elseif($totalSaldo < 0)
                             {{-- Jika Saldo Negatif (Merah & Indikator -) --}}
-                            {{-- Gunakan abs() agar tanda minus bawaan number_format tidak double --}}
                             <td class="px-5 py-4 text-right font-bold text-[#EF4444]">
                                 - Rp {{ number_format(abs($totalSaldo), 0, ',', '.') }}
                             </td>
                         @else
-                            {{-- Jika Saldo Nol (Warna Netral / Biru Gelap Bawaanmu) --}}
+                            {{-- Jika Saldo Nol --}}
                             <td class="px-5 py-4 text-right font-bold text-[#1A2B5C]">
                                 Rp {{ number_format($totalSaldo, 0, ',', '.') }}
                             </td>
                         @endif
+                        
                         <td class="px-5 py-4 text-right text-[#EF4444] font-semibold">
-                            <button onclick="openModal('modalBem{{ $ormawa->id }}')" data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none h-8 rounded-md gap-1.5 px-3 text-[#1A2B5C] hover:bg-gray-100 disabled:pointer-events-none disabled:opacity-50 shrink-0 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive [_svg]:pointer-events-none [_svg:not([class*='size-'])]:size-4 [_svg]:shrink-0 has-[>svg]:px-2.5">
+                            <button onclick="openModal('modalBem{{ $ormawa->id }}')" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none h-8 rounded-md gap-1.5 px-3 text-[#1A2B5C] hover:bg-gray-100 disabled:pointer-events-none">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye w-4 h-4 mr-1">
                                     <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
                                     <circle cx="12" cy="12" r="3"></circle>
@@ -229,12 +263,12 @@
 
 </div>
 
+{{-- Render Komponen Modal Secara Berulang --}}
 @foreach($ormawaWithKeuangan as $ormawa)
-
     <x-modal-detail-keuangan-ormawa 
         :id="'modalBem' . ($ormawa['id'] ?? $loop->iteration)"
         :nama="$ormawa['nama'] ?? 'Tanpa Nama'"
-        pembina="-"
+        :pembina="is_array($ormawa) ? ($ormawa['pembina'] ?? 'Belum Diatur') : ($ormawa->pembina ?? 'Belum Diatur')"
         realisasiPersen="0"
         :riwayat="$ormawa->kegiatan"
     />
@@ -242,22 +276,69 @@
 
 @push('scripts')
 <script>
+    // ==========================================
+    // LOGIKA DROPDOWN MENU EXPORT GLOBAL (AKSI UTAMA)
+    // ==========================================
+    function toggleExportDropdown() {
+        const menu = document.getElementById('exportDropdownMenu');
+        menu.classList.toggle('hidden');
+    }
+
+    // ==========================================
+    // LOGIKA DROPDOWN MENU EXPORT PER MODAL DETAIL
+    // ==========================================
+    function toggleModalExportDropdown(modalId) {
+        const menu = document.getElementById('menuExportModal-' + modalId);
+        if (menu) {
+            menu.classList.toggle('hidden');
+        }
+    }
+
+    // ==========================================
+    // SISTEM PENGAMAN GLOBAL (CLICK OUTSIDE)
+    // ==========================================
+    window.addEventListener('click', function(e) {
+        // 1. Pengaman Dropdown Global (Pojok Kanan Atas)
+        const globalWrapper = document.getElementById('dropdown-export-wrapper');
+        const globalMenu = document.getElementById('exportDropdownMenu');
+        if (globalWrapper && globalMenu && !globalWrapper.contains(e.target)) {
+            globalMenu.classList.add('hidden');
+        }
+
+        // 2. Pengaman Dropdown Di Dalam Modal Detail (Berdasarkan Pola ID Modal)
+        const openModalDropdowns = document.querySelectorAll('[id^="menuExportModal-"]:not(.hidden)');
+        openModalDropdowns.forEach(function(menu) {
+            const modalId = menu.id.replace('menuExportModal-', '');
+            const wrapper = document.getElementById('wrapper-export-modal-' + modalId);
+            
+            if (wrapper && !wrapper.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+    });
+
+    // ==========================================
+    // LOGIKA MODAL DETAIL (DRIVER LAMA)
+    // ==========================================
     function showDetailOrmawa(nama, pembina, saldo) {
-        // 1. Isikan data ke elemen modal
         document.getElementById('modal-title').innerText = nama;
         document.getElementById('modal-pembina').innerText = pembina;
         document.getElementById('modal-saldo').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(saldo);
-        
-        // 2. Buka modalnya
         openModal('dynamicOrmawaModal');
     }
 
-    // Fungsi Driver Standard Toggle
     function openModal(id) {
         document.getElementById(id).classList.remove('hidden');
     }
+    
     function closeModal(id) {
         document.getElementById(id).classList.add('hidden');
+
+        // Tambahan: Tutup otomatis dropdown ekspor di dalam modal jika modalnya ditutup
+        const menuInsideModal = document.getElementById('menuExportModal-' + id);
+        if (menuInsideModal) {
+            menuInsideModal.classList.add('hidden');
+        }
     }
 </script>
 @endpush
