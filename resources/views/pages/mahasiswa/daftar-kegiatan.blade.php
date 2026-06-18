@@ -25,50 +25,9 @@
             </div>
 
         </div>
-        @php
-            // 3 Data Dummy berdasarkan struktur tabel kegiatans
-            $kegiatanList = [
-                [
-                    'id' => 1,
-                    'judul_kegiatan' => 'Workshop UI/UX Design & Prototyping bersama Figma',
-                    'deskripsi' => 'Pelatihan intensif pembuatan design system, wireframe, hingga high-fidelity prototype yang interaktif menggunakan Figma untuk persiapan kompetisi nasional.',
-                    'tanggal_kegiatan' => '2026-07-10',
-                    'waktu_kegiatan' => '09:00:00',
-                    'lokasi' => 'Lab Komputer 3, Gedung Utama Lt. 2',
-                    'kuota_peserta' => 50,
-                    'status' => 'Membuka Pendaftaran',
-                    'nama_organisasi' => 'HIMSISFO', // Relasi dari id_organisasi
-                    'nama_periode' => '2026/2027', // Relasi dari id_periode
-                ],
-                [
-                    'id' => 2,
-                    'judul_kegiatan' => 'Seminar Technopreneurship: Membangun Startup dari Kampus',
-                    'deskripsi' => 'Temukan strategi validasi ide bisnis digital, mencari pendanaan awal (seed funding), serta kisah sukses alumni dalam membangun startup berbasis teknologi.',
-                    'tanggal_kegiatan' => '2026-07-24',
-                    'waktu_kegiatan' => '13:30:00',
-                    'lokasi' => 'Aula Besar Kampus',
-                    'kuota_peserta' => 150,
-                    'status' => 'Membuka Pendaftaran',
-                    'nama_organisasi' => 'BEM ITB',
-                    'nama_periode' => '2026/2027',
-                ],
-                [
-                    'id' => 3,
-                    'judul_kegiatan' => 'Hackathon SIMKOM 2026: Sustainable Technology Solution',
-                    'deskripsi' => 'Kompetisi coding 24 jam tingkat internal untuk menciptakan solusi perangkat lunak guna menyelesaikan masalah lingkungan hidup dan manajemen energi bersih.',
-                    'tanggal_kegiatan' => '2026-08-05',
-                    'waktu_kegiatan' => '08:00:00',
-                    'lokasi' => 'Gedung Inkubator Bisnis Lt. 3',
-                    'kuota_peserta' => 30,
-                    'status' => 'Penuh',
-                    'nama_organisasi' => 'Sistem Komputer',
-                    'nama_periode' => '2026/2027',
-                ]
-            ];
-        @endphp
 
         <div class="flex flex-col gap-4 w-full">
-            @foreach($kegiatanList as $kegiatan)
+            @foreach($daftarKegiatan as $kegiatan)
                 <div class="bg-white rounded-xl border border-[#E5E7EB] shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-5 hover:shadow-lg transition flex flex-col md:flex-row items-start md:items-center gap-5">
                     
                     <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-amber-200 bg-amber-100 font-bold text-xl text-amber-600 shadow-sm">
@@ -82,18 +41,14 @@
                             </h3>
                             
                             <span class="text-[10px] uppercase tracking-wide font-semibold px-2 py-0.5 rounded bg-[#F7F8FC] text-[#6B7280]">
-                                {{ $kegiatan['nama_organisasi'] }}
+                                {{ $kegiatan->organisasi['nama'] }}
                             </span>
 
-                            @if($kegiatan['status'] == 'Membuka Pendaftaran')
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#DCFCE7] text-[#166534]">
-                                    Aktif
-                                </span>
-                            @else
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#FEE2E2] text-[#991B1B]">
-                                    {{ $kegiatan['status'] }}
-                                </span>
-                            @endif
+                     
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#DCFCE7] text-[#166534]">
+                                {{ $kegiatan['status'] }}
+                            </span>
+                        
                         </div>
 
                         <p class="text-sm text-[#6B7280] mt-1 line-clamp-2">
@@ -119,14 +74,22 @@
                     </div>
 
                     <div class="flex sm:flex-row md:flex-col lg:flex-row gap-2 w-full md:w-auto shrink-0 justify-end mt-4 md:mt-0">
-                        <a href="{{ route('mahasiswa.daftar-kegiatan.show', ['id' => 1]) }}" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all border border-[#E5E7EB] bg-white text-[#1C1E2C] hover:bg-[#F7F8FC] h-9 rounded-lg px-4 w-full md:w-auto">
+                        <a href="{{ route('mahasiswa.daftar-kegiatan.show', ['id' => $kegiatan['id']]) }}" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all border border-[#E5E7EB] bg-white text-[#1C1E2C] hover:bg-[#F7F8FC] h-9 rounded-lg px-4 w-full md:w-auto">
                             Detail
                         </a>
                         
-                        @if($kegiatan['status'] == 'Membuka Pendaftaran')
-                            <a href="/daftar-kegiatan/{{ $kegiatan['id'] }}" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all h-9 rounded-lg px-4 w-full md:w-auto bg-[#F5A623] hover:bg-[#D88E15] text-[#1A2B5C] font-semibold shadow-sm">
-                                Daftar
-                            </a>
+                        @php
+                            $totalPeserta = $kegiatan->pendaftaran_peserta_kegiatan_count;
+                            $isKuotaPenuh = $totalPeserta == $kegiatan['kuota_peserta'];
+                        @endphp
+
+                        @if(!$isKuotaPenuh)
+                            <form action="{{ route('mahasiswa.daftar-kegiatan.daftar', $kegiatan->id) }}" method="POST" class="w-full sm:w-auto">
+                                @csrf
+                                <button type="submit" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all h-9 rounded-lg px-4 w-full md:w-auto bg-[#F5A623] hover:bg-[#D88E15] text-[#1A2B5C] font-semibold shadow-sm">
+                                    Daftar
+                                </button>
+                            </form>
                         @else
                             <button disabled class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium h-9 rounded-lg px-4 w-full md:w-auto bg-[#E5E7EB] text-[#9CA3AF] cursor-not-allowed">
                                 Penuh

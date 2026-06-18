@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_kegiatan')->constrained('kegiatans')->onDelete('cascade');
             $table->foreignId('id_user')->constrained('users');
-            $table->string('status');
+            $table->enum('status', ['Menunggu konfirmasi', 'Pendaftaran berhasil', 'Gagal'])->default('Menunggu konfirmasi');
             $table->timestamps();
         });
     }

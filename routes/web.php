@@ -46,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
      ->group(function () {
         Route::get('/daftar-kegiatan', [MahasiswaDaftarKegiatan::class, 'index'])->name('daftar-kegiatan.index');
         Route::get('/daftar-kegiatan/{id}', [MahasiswaDaftarKegiatan::class, 'show'])->name('daftar-kegiatan.show');
+        Route::post('/daftar-kegiatan/{id}', [MahasiswaDaftarKegiatan::class, 'daftar'])->name('daftar-kegiatan.daftar');
 
          Route::get('/dashboard', [MahasiswaDashboard::class, 'index'])->name('dashboard');
          Route::get('/organisasi', [MahasiswaDashboard::class, 'organisasi'])->name('organisasi.index');

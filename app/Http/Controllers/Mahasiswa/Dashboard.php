@@ -24,11 +24,11 @@ class Dashboard extends Controller
         $kegiatanDiikuti = PendaftaranPesertaKegiatan::where('id_user', Auth::id())
             ->whereHas('kegiatan', function ($query) {
                 // Menyaring pendaftaran yang HANYA memiliki kegiatan berstatus 'ongoing'
-                $query->where('status', 'ongoing');
+                $query->where('status', 'Mendatang');
             })
             ->with(['kegiatan' => function ($query) {
                 // Memuat data kegiatannya yang berstatus 'ongoing'
-                $query->where('status', 'ongoing');
+                $query->where('status', 'Mendatang');
             }])
             ->get(); // Jangan lupa tambahkan get() di ujung untuk mengambil datanya
 
