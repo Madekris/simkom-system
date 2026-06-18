@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Mahasiswa; // Sesuaikan nama model Anda (biasanya Mahasiswa)
 use App\Models\Organisasi;
 use App\Models\PeriodeKepengurusan;
+use App\Models\ProgramStudi;
 use Illuminate\Support\Facades\Hash;
 
 class PengurusSeeder extends Seeder
@@ -17,6 +18,7 @@ class PengurusSeeder extends Seeder
      */
     public function run(): void
     {
+        $programStudi = ProgramStudi::where('nama', 'Sistem Informasi')->first();
         $dataMahasiswa = [
             [
                 'email' => '240030369@stikom-bali.ac.id',
@@ -27,7 +29,7 @@ class PengurusSeeder extends Seeder
                 'detail' => [
                     'nim' => '240030369',
                     'nama' => 'I Made krisna Widiatmika',
-                    'id_program_studi' => 1, // Sistem Informasi
+                    'id_program_studi' => $programStudi->id, // Sistem Informasi
                     'semester' => 4,
                 ]
             ],
@@ -40,7 +42,7 @@ class PengurusSeeder extends Seeder
                 'detail' => [
                     'nim' => '240030386',
                     'nama' => 'I Gede Dino',
-                    'id_program_studi' => 1, // Sistem Informasi
+                    'id_program_studi' => $programStudi->id, // Sistem Informasi
                     'semester' => 4,
                 ]
             ],
@@ -53,7 +55,7 @@ class PengurusSeeder extends Seeder
                 'detail' => [
                     'nim' => '240030353',
                     'nama' => 'I Made Denny Krisna Dwipayana',
-                    'id_program_studi' => 1, // Sistem Informasi
+                    'id_program_studi' => $programStudi->id, // Sistem Informasi
                     'semester' => 4,
                 ]
             ],
@@ -66,7 +68,7 @@ class PengurusSeeder extends Seeder
                 'detail' => [
                     'nim' => '240030424',
                     'nama' => 'Ida Bagus Putu Surya Negara',
-                    'id_program_studi' => 1, // Sistem Informasi
+                    'id_program_studi' => $programStudi->id, // Sistem Informasi
                     'semester' => 4,
                 ]
             ]
