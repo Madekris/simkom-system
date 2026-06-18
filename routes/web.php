@@ -80,6 +80,8 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/kegiatan', [PengurusKegiatan::class, 'index'])->name('kegiatan.index');
             Route::get('/kegiatan/create', [PengurusKegiatan::class, 'create'])->name('kegiatan.create');
             Route::post('/kegiatan/store', [PengurusKegiatan::class, 'store'])->name('kegiatan.store');
+            Route::put('/kegiatan/{id}', [PengurusKegiatan::class, 'update'])->name('kegiatan.update');
+            //Route::get('/kegiatan/{id}', [PengurusKegiatan::class, 'show'])->name('kegiatan.show'); // <-- Tambahkan baris ini
         
              // Verifikasi & Anggota
              Route::get('/verifikasi', [VerifikasiController::class, 'index'])->name('verifikasi.index');
