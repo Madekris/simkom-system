@@ -89,7 +89,8 @@
                     <div>
                         <div class="font-bold tracking-tight text-sm">SIMKOM</div>
                         <div class="text-[10px] uppercase tracking-wider text-white/60">
-                            @yield('role_label', 'Pengguna')
+                            {{-- Mengambil role user yang sedang login secara dinamis --}}
+                            {{ auth()->user()->role ?? 'Pengguna' }}
                         </div>
                     </div>
                 </div>

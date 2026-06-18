@@ -1,21 +1,24 @@
 @extends('layouts.app')
 
-@section('content')
-<div class="p-6 max-w-7xl mx-auto">
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">Daftar Organisasi</h1>
-        <p class="text-sm text-gray-500">Seluruh organisasi mahasiswa SIMKOM Bali</p>
-    </div>
+{{-- Isi Judul Topbar --}}
+@section('topbar_title', 'Daftar Organisasi')
 
-    <div class="mb-6 max-w-md">
-        <form action="{{ route('mahasiswa.organisasi.index') }}" method="GET" class="relative">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                <i class="fas fa-search"></i>
-            </span>
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama ormawa..." 
-                class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition">
-        </form>
-    </div>
+{{-- Isi Subtitle Topbar (Opsional) --}}
+@section('topbar_subtitle', 'Seluruh organisasi mahasiswa SIMKOM Bali')
+
+{{-- Isi Tombol / Aksi di Sebelah Kanan (Opsional) --}}
+@section('topbar_actions')
+    <form action="{{ route('mahasiswa.organisasi.index') }}" method="GET" class="relative">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+            <i class="fas fa-search"></i>
+        </span>
+        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama ormawa..." 
+            class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition">
+    </form>
+@endsection
+
+@section('content')
+<div class="p-6">
 
     <div class="space-y-4">
         @forelse($organisasi as $org)

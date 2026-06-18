@@ -16,6 +16,7 @@ use App\Http\Controllers\Pembina\KeuanganBinaan as PembinaKeuanganBinaan;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Pembina\RiwayatKegiatan;
 use App\Http\Controllers\Pengurus\Dashboard as PengurusDashboard;
+use App\Http\Controllers\Pengurus\Kegiatan as PengurusKegiatan;
 use App\Http\Controllers\Pengurus\Keuangan as PengurusKeuangan;
 use Illuminate\Support\Facades\Route;
 
@@ -70,6 +71,11 @@ Route::middleware(['auth'])->group(function () {
 
             Route::get('/keuangan', [PengurusKeuangan::class, 'index'])->name('keuangan.index');
              
+            // Kegiatan
+            Route::get('/kegiatan', [PengurusKegiatan::class, 'index'])->name('kegiatan.index');
+            Route::get('/kegiatan/create', [PengurusKegiatan::class, 'create'])->name('kegiatan.create');
+            Route::post('/kegiatan/store', [PengurusKegiatan::class, 'store'])->name('kegiatan.store');
+        
              // Verifikasi & Anggota
              Route::get('/verifikasi', [VerifikasiController::class, 'index'])->name('verifikasi.index');
              Route::post('/verifikasi/{id}', [VerifikasiController::class, 'verifikasi'])->name('verifikasi'); 

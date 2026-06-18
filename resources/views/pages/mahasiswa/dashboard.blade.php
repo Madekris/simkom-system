@@ -1,29 +1,17 @@
 @extends('layouts.app')
 @section('content')
-<div class="p-4 sm:p-6 lg:p-8 space-y-6">
+<div class="p-4 sm:p-6 lg:p-8 space-y-6 flex flex-col h-full">
 
     {{-- ── SAMBUTAN ─────────────────────────────────────────── --}}
-    <div class="bg-gradient-to-r from-[#1A2B5C] to-[#0F1B3D] rounded-2xl text-white relative overflow-hidden">
-       
-        <div class="absolute bottom-0 right-6 opacity-10 pointer-events-none">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
-            </svg>
+    <div class="bg-gradient-to-r from-[#1A2B5C] to-[#2B3F7A] rounded-xl p-6 text-white">
+        <div class="text-sm font-semibold opacity-80">
+            Halo, {{ $dataMahasiswa->nama }} 👋
         </div>
-
-        <div class="bg-gradient-to-r from-[#F5A623] to-[#E8901B] rounded-xl p-6 text-[#1A2B5C]">
-            {{-- Menggunakan Nama User Dinamis --}}
-            <div class="text-sm font-semibold">Halo, {{ $dataMahasiswa->nama }} 👋</div>
-            
-            <div class="text-2xl font-bold mt-1">Selamat datang di SIMKOM!</div>
-            
-            {{-- Menggunakan Hasil Count dari Controller --}}
-            <div class="text-sm mt-1 text-[#1A2B5C]/80">
-                Anda terdaftar di <strong>{{ $totalOrmawa }}</strong> ormawa dengan <strong>{{ $totalKegiatanMendatang }}</strong> kegiatan mendatang.
-            </div>
+        <div class="text-2xl font-bold mt-1">Selamat datang di SIMKOM!</div>
+        <div class="text-sm mt-1 opacity-70">
+            Anda terdaftar di <span class="font-bold">{{ $totalOrmawa }}</span> ormawa dengan <span class="font-bold">{{ $totalKegiatanMendatang }}</span> kegiatan mendatang.
         </div>
     </div>
-
     {{-- ── STAT CARDS ─────────────────────────────────────────── --}}
     
     <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
@@ -101,57 +89,36 @@
 
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <div class="flex flex-col md:flex-row gap-5 flex-1">
 
         {{-- ── KEGIATAN BERLANGSUNG ─────────────────────────── --}}
-        <div class="lg:col-span-2 bg-white rounded-xl border border-[#E5E7EB] shadow-card p-6">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h3 class="font-bold text-[#1C1E2C]">Kegiatan Berlangsung</h3>
-                    <p class="text-xs text-[#6B7280] mt-0.5">Kegiatan yang sedang aktif saat ini</p>
-                </div>
-                <a 
-                   class="text-xs text-[#1A2B5C] font-semibold hover:underline">Lihat semua →</a>
-            </div>
+        <div class="flex-1 bg-white rounded-xl border border-[#E5E7EB] shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-6">
+            <h3 class="font-bold text-[#1C1E2C] mb-3">Ormawa Saya</h3>
             <div class="space-y-3">
-                @forelse($kegiatanAktif ?? [] as $k)
-                    <div class="flex items-start gap-3 p-4 rounded-xl bg-[#F7F8FC] hover:bg-[#EFF1F8] transition-colors">
-                        <div class="w-10 h-10 rounded-xl bg-[#1A2B5C] flex items-center justify-center shrink-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#F5A623]" fill="none"
-                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
-                                <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                            </svg>
+                @foreach($ormawaMahasiswa as $ormawa)
+                    <div class="flex items-center gap-3 p-3 rounded-lg bg-[#F7F8FC]">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-amber-200 bg-amber-100 font-bold text-xl text-amber-600 shadow-sm">
+                           {{ Str::upper(Str::substr($ormawa->organisasi->nama, 0, 1)) }}
                         </div>
+                        
                         <div class="flex-1 min-w-0">
-                            <div class="font-semibold text-sm text-[#1C1E2C] truncate">{{ $k->judul }}</div>
-                            <div class="text-xs text-[#6B7280] mt-0.5">
-                                {{ $k->ormawa->nama ?? '-' }} · {{ $k->lokasi }}
-                            </div>
-                            <div class="text-xs text-[#6B7280] mt-0.5">
-                                {{ $k->tanggal_mulai?->format('d M Y') }}
-                            </div>
+                            <div class="font-semibold text-sm text-[#1C1E2C] truncate">{{ $ormawa->organisasi->nama }}</div>
+                            <div class="text-xs text-[#6B7280]">{{ ucfirst($ormawa->jabatan) }} sejak {{ \Carbon\Carbon::parse($ormawa->created_at)->format('Y') }}</div>
                         </div>
-                        <div class="flex flex-col items-end gap-2 shrink-0">
-                            @include('components.status-badge', ['status' => $k->status])
-                            <a 
-                               class="text-xs text-[#1A2B5C] hover:underline font-medium">Detail →</a>
-                        </div>
+                        <a href="{{ route('mahasiswa.organisasi.show', ['id' => $ormawa->organisasi->id]) }}" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all h-8 rounded-md px-3 bg-[#1A2B5C] hover:bg-[#0F1D3D] text-white shrink-0">
+                            Lihat
+                        </a>
                     </div>
-                @empty
-                    <div class="py-8 text-center text-sm text-[#6B7280]">
-                        Tidak ada kegiatan berlangsung saat ini.
-                    </div>
-                @endforelse
+                @endforeach
             </div>
         </div>
 
         {{-- ── KEGIATAN SAYA ────────────────────────────────── --}}
-        <div class="bg-white rounded-xl border border-[#E5E7EB] shadow-card p-6">
+        <div class="bg-white flex-1 rounded-xl border border-[#E5E7EB] shadow-card p-6">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="font-bold text-[#1C1E2C]">Kegiatan Saya</h3>
-                <a 
-                   class="text-xs text-[#1A2B5C] font-semibold hover:underline">Lihat →</a>
+                <a href="{{ route('mahasiswa.kegiatan-saya') }}"
+                   class="text-xs text-[#1A2B5C] font-semibold cursor-pointer hover:underline">Lihat →</a>
             </div>
             <div class="space-y-2.5">
                 @forelse($kegiatanSaya ?? [] as $k)

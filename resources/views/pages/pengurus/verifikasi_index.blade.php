@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+@section('topbar_title', 'Manajemen Anggota')
+
+{{-- Isi Subtitle Topbar (Opsional) --}}
+@section('topbar_subtitle', 'BEM · (' . $listAnggota->count() . ') anggota')
+
 @section('content')
 <div class="p-4 md:p-5 max-w-[1300px] mx-auto space-y-4 select-none">
     
@@ -9,13 +14,6 @@
             {{ session('success') }}
         </div>
     @endif
-
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <div>
-            <h1 class="text-lg font-bold text-slate-900 tracking-tight">Manajemen Anggota</h1>
-            <p class="text-[11px] text-slate-500">HIMA TI · {{ $listAnggota->count() }} anggota</p>
-        </div>
-    </div>
 
     <div class="bg-white rounded-xl p-2.5 border border-slate-200/80 shadow-sm flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2 flex-1 min-w-[260px]">

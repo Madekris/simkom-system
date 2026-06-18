@@ -50,9 +50,9 @@ class Login extends Controller
         $dashboardRoute = match ($user->role) {
             'mahasiswa' => 'mahasiswa.dashboard',
             'admin' => 'admin.dashboard',
-            'pengurus' => 'pengurus.dashboard',
+            'pengurus' => 'pengurus.dashboard.index',
             'pembina' => 'pembina.dashboard',
-            'bendahara' => 'bendahara.dashboard',
+            'bendahara' => 'bendahara.dashboard.index',
             default => null,
         };
 

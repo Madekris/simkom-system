@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Kegiatan extends Model
 {
     protected $guarded = ['id'];
+
     public function organisasi()
     {
         return $this->belongsTo(Organisasi::class, 'id_organisasi');

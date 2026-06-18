@@ -36,11 +36,14 @@ class Dashboard extends Controller
 
         $totalSemuaKegiatanSelesai = $semuaKegiatan->count() - $totalKegiatanMendatang;
 
+        $ormawaMahasiswa = AnggotaOrganisasi::where('id_user', Auth::id())->with('organisasi')->get();
+
         return view('pages.mahasiswa.dashboard', compact(
             'dataMahasiswa',
             'totalOrmawa',
             'totalKegiatanMendatang',
-            'totalSemuaKegiatanSelesai'
+            'totalSemuaKegiatanSelesai',
+            'ormawaMahasiswa'
         ));
     }
 
@@ -99,12 +102,20 @@ class Dashboard extends Controller
             'no_telepon' => $request->no_whatsapp,
         ]);
 
-        PendaftaranAnggota::create([
-            'id_user' => Auth::id(),
-            'id_organisasi' => $request->id_organisasi,
-            'status' => 'pending',
-            'keterangan' => $request->alasan,
-        ]);
+        $isTerdaftar = PendaftaranAnggota::where('id_user', Auth::id())->whereIn('status', ['aktif', 'pending'])->first();
+
+        if(!$isTerdaftar){
+            PendaftaranAnggota::create([
+                'id_user' => Auth::id(),
+                'id_organisasi' => $request->id_organisasi,
+                'status' => 'pending',
+                'keterangan' => $request->alasan,
+            ]);
+        } else {
+            return redirect()
+                ->route('mahasiswa.organisasi.index')
+                ->with('error', 'Anda sudah melakukan pendaftaran di organisasi ini!');
+        }
 
         return redirect()
             ->route('mahasiswa.organisasi.index')

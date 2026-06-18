@@ -15,13 +15,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            // 'name' => 'Test User', <-- HAPUS ATAU KOMENTARI BARIS INI
-            'email' => 'test@example.com',
-            'password' => bcrypt('password'), // Tambahkan ini jika perlu password untuk login nanti
-            'no_telepon' => '081234567890',
+        $this->call([
+            UserAdminSeeder::class,
+            JenisOrganisasiSeeder::class,
+            OrganisasiSeeder::class,
+            PengurusSeeder::class,
+            PembinaSeeder::class,
         ]);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pengurus;
 use App\Http\Controllers\Controller;
 use App\Models\PendaftaranAnggota;
 use App\Models\AnggotaOrganisasi;
+use App\Models\PeriodeKepengurusan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -56,6 +57,10 @@ class VerifikasiController extends Controller
 
             // 2. Jika disetujui ('aktif'), masukkan ke tabel anggota
             if ($request->status === 'aktif') {
+
+                $periodeAnggota = PeriodeKepengurusan::where('id_organisasi', $pendaftaran->id_organisasi)
+                    ->where('status_periode', 'aktif') // Pastikan nama kolom status periode Anda sesuai ('status' atau 'status_periode')
+                    ->first();
                 // Gunakan updateOrCreate untuk mencegah duplikasi jika tombol ditekan 2x
                 AnggotaOrganisasi::updateOrCreate(
                     [
@@ -63,7 +68,7 @@ class VerifikasiController extends Controller
                         'id_organisasi' => $pendaftaran->id_organisasi
                     ],
                     [
-                        'id_periode' => 1, 
+                        'id_periode' => $periodeAnggota->id, 
                         'jabatan'    => 'Anggota',
                         'status'     => 'aktif',
                     ]
