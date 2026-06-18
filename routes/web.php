@@ -104,11 +104,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/log-aktivitas', [BendaharaLogAktivitas::class, 'index'])->name('log-aktivitas.index');
     });
 
-    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/keuangan-ormawa', [AdminKeuanganOrmawa::class, 'index'])->name('keuangan-ormawa.index');
-        Route::get('/keuangan-ormawa/export', [AdminKeuanganOrmawa::class, 'exportExcel'])->name('keuangan-ormawa.export');
-    });
-
     Route::get('/organisasi/edit', [OrganisasiController::class, 'edit'])->name('organisasi.edit');
     Route::put('/organisasi/update', [OrganisasiController::class, 'update'])->name('organisasi.update');
 
@@ -131,9 +126,13 @@ Route::middleware(['auth'])->group(function () {
         ->name('admin.')
         ->middleware(['role:admin']) // <-- Proteksi Role
         ->group(function () {
-            // Dashboard Utama Admin
+        // Dashboard Utama Admin
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         
+        // Fitur Keuangan ormawa & export
+        Route::get('/keuangan-ormawa', [AdminKeuanganOrmawa::class, 'index'])->name('keuangan-ormawa.index');
+        Route::get('/keuangan-ormawa/export', [AdminKeuanganOrmawa::class, 'exportExcel'])->name('keuangan-ormawa.export');
+
         // Fitur Tambah Organisasi Baru
         Route::get('/organisasi/create', [AdminController::class, 'create'])->name('organisasi.create');
         Route::post('/organisasi/store', [AdminController::class, 'store'])->name('organisasi.store');

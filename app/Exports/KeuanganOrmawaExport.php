@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Exports;
 
 use App\Models\Organisasi;
@@ -10,26 +11,32 @@ use Carbon\Carbon;
 class KeuanganOrmawaExport implements FromCollection, WithHeadings, WithMapping
 {
     protected $idOrmawa;
+    protected $startDate;
+    protected $endDate;
 
-    // Terima ID Ormawa lewat constructor
-    public function __construct($idOrmawa)
+    // Terima ID Ormawa beserta Filter Tanggal lewat constructor
+    public function __construct($idOrmawa, $startDate, $endDate)
     {
         $this->idOrmawa = $idOrmawa;
+        $this->startDate = $startDate;
+        $this->endDate = $endDate;
     }
 
-    /**
-     * Ambil data relasi bertingkat dan ratakan (flatten) khusus untuk baris transaksi keuangan
-     */
     public function collection()
     {
-        $ormawa = Organisasi::with('kegiatan.keuanganKegiatan')->find($this->idOrmawa);
+        // Tarik data organisasi dengan filter rentang waktu langsung pada sub-relasi keuanganKegiatan
+        $ormawa = Organisasi::with(['kegiatan' => function($query) {
+            $query->with(['keuanganKegiatan' => function($q) {
+                $q->whereBetween('created_at', [$this->startDate . ' 00:00:00', $this->endDate . ' 23:59:59'])
+                  ->latest('created_at');
+            }]);
+        }])->find($this->idOrmawa);
         
         $flatTransactions = collect();
 
         if ($ormawa) {
             foreach ($ormawa->kegiatan as $kegiatan) {
                 foreach ($kegiatan->keuanganKegiatan as $item) {
-                    // Masukkan informasi nama kegiatan ke dalam objek keuangan agar bisa diexport per baris
                     $item->nama_kegiatan = $kegiatan->judul_kegiatan;
                     $flatTransactions->push($item);
                 }
@@ -39,9 +46,6 @@ class KeuanganOrmawaExport implements FromCollection, WithHeadings, WithMapping
         return $flatTransactions;
     }
 
-    /**
-     * Judul kolom paling atas di file Excel
-     */
     public function headings(): array
     {
         return [
@@ -54,9 +58,6 @@ class KeuanganOrmawaExport implements FromCollection, WithHeadings, WithMapping
         ];
     }
 
-    /**
-     * Mapping data fields dari objek ke kolom excel
-     */
     public function map($item): array
     {
         return [
@@ -64,7 +65,7 @@ class KeuanganOrmawaExport implements FromCollection, WithHeadings, WithMapping
             Carbon::parse($item->created_at)->translatedFormat('j M Y'),
             $item->nama_kegiatan,
             $item->keterangan ?? '-',
-            ucfirst($item->jenis_transaksi), // Pemasukan / Pengeluaran
+            ucfirst($item->jenis_transaksi),
             $item->nominal,
         ];
     }

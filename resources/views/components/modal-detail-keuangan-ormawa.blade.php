@@ -8,13 +8,10 @@
 
 
 <div id="{{ $id }}" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-    <!-- Backdrop -->
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeModal('{{ $id }}')"></div>
 
-    <!-- Konten Box Modal -->
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col relative z-10">
         
-        <!-- Header -->
         <div class="flex items-center gap-3 px-6 py-4 border-b border-[#E5E7EB] shrink-0">
             <div class="w-10 h-10 rounded-xl bg-[#1A2B5C] text-white flex items-center justify-center shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path></svg>
@@ -28,9 +25,7 @@
             </button>
         </div>
 
-        <!-- Body -->
         <div class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
-            <!-- Grid Statistik -->
             @php
                 // 1. Inisialisasi variabel awal
                 $pemasukan = 0;
@@ -74,7 +69,6 @@
                 </div>
             </div>
 
-            <!-- Progress Bar -->
             <div>
                 <div class="flex justify-between text-xs text-[#6B7280] mb-1">
                     <span>Realisasi Pengeluaran</span>
@@ -85,13 +79,9 @@
                 </div>
             </div>
 
-            <!-- Riwayat Transaksi -->
             <div>
                 <div class="font-bold text-sm text-[#1C1E2C] mb-3">Riwayat Transaksi</div>
                 <div class="space-y-2">
-                    {{-- <pre class="text-green-450 p-4 rounded-lg overflow-x-auto text-xs font-mono">
-                        @json($riwayat, JSON_PRETTY_PRINT)
-                    </pre> --}}
                     @forelse($riwayat as $trx)
                         @if ($trx->keuanganKegiatan)
                             
@@ -126,12 +116,54 @@
             </div>
         </div>
 
-        <!-- Footer -->
         <div class="px-6 py-4 border-t border-[#E5E7EB] shrink-0 flex justify-end gap-2">
             <button onclick="closeModal('{{ $id }}')" class="inline-flex items-center justify-center rounded-md text-sm font-medium border border-[#E5E7EB] text-[#374151] hover:bg-gray-50 h-9 px-4">Tutup</button>
-            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 bg-[#1A2B5C] text-white hover:bg-[#1A2B5C]/90">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 mr-1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg> Export
-            </button>
+            
+            {{-- ================================================================= --}}
+            {{-- DROPDOWN EKSPOR INTERAKTIF KHUSUS MODAL DETAIL ORMAWA             --}}
+            {{-- ================================================================= --}}
+            <div class="relative inline-block text-left" id="wrapper-export-modal-{{ $id }}">
+                {{-- Tombol Utama Pemicu Dropdown Modal --}}
+                <button onclick="toggleModalExportDropdown('{{ $id }}')" type="button"
+                    class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium h-9 px-4 bg-[#1A2B5C] text-white hover:bg-[#1A2B5C]/90 outline-none transition-all">
+                    
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 mr-1.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" x2="12" y1="15" y2="3"></line>
+                    </svg>
+                    Export
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 ml-0.5 opacity-80">
+                        <path d="m6 9 6 6 6-6"></path>
+                    </svg>
+                </button>
+
+                {{-- Menu Pilihan Dropdown Kas Per Ormawa --}}
+                @php $realOrmawaId = str_replace('modalBem', '', $id); @endphp
+                <div id="menuExportModal-{{ $id }}" class="hidden absolute right-0 bottom-full mb-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 z-[90] focus:outline-none">
+                    <div class="py-1">
+                        {{-- Opsi Excel (.xlsx) --}}
+                        <a href="{{ route('admin.keuangan-ormawa.export', ['format' => 'excel', 'id_organisasi' => $realOrmawaId]) }}" 
+                           class="group flex items-center px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                            <svg class="w-4 h-4 mr-3 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Format Excel (.xlsx)
+                        </a>
+                        
+                        {{-- Opsi PDF (.pdf) --}}
+                        <a href="{{ route('admin.keuangan-ormawa.export', ['format' => 'pdf', 'id_organisasi' => $realOrmawaId]) }}" 
+                           class="group flex items-center px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                            <svg class="w-4 h-4 mr-3 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                            Format PDF (.pdf)
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {{-- ================================================================= --}}
+
         </div>
     </div>
 </div>
