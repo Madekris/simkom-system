@@ -29,7 +29,7 @@ class Keuangan extends Controller
         ));
     }
     
-    public function export( string $id)
+    public function export( string $id, Request $request)
     {
         // 1. Cari data organisasi terlebih dahulu untuk penamaan file file excel yang dinamis
         $ormawa = Organisasi::findOrFail($id);
@@ -37,7 +37,14 @@ class Keuangan extends Controller
         // Slug nama ormawa agar aman digunakan sebagai nama file (contoh: ukm-mapala)
         $fileName = 'laporan-keuangan-' . Str::slug($ormawa->nama) . '-' . now()->format('Y-m-d') . '.xlsx';
 
-        // 2. Trigger download excel lewat package
-        return Excel::download(new KeuanganOrmawaExport($id), $fileName);
+        // Jika input 'start_date' kosong, default-nya adalah 1 bulan yang lalu dari hari ini
+        $startDate = $request->input('start_date', now()->subMonth()->format('Y-m-d'));
+
+        // Jika input 'end_date' kosong, default-nya adalah hari ini
+        $endDate = $request->input('end_date', now()->format('Y-m-d'));
+
+
+        // Sekarang aman dipanggil karena genap 3 parameter
+        return Excel::download(new KeuanganOrmawaExport($id, $startDate, $endDate), 'laporan-keuangan.xlsx');
     }
 }

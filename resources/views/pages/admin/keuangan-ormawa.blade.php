@@ -204,7 +204,7 @@
                         $totalSaldo = $totalPemasukan - $totalPengeluaran;
                         
                         // 5. Ekstrak data nama pembina secara aman
-                        $namaPembina = is_array($ormawa) ? ($ormawa['pembina'] ?? 'Belum Diatur') : ($ormawa->pembina ?? 'Belum Diatur');
+                        $namaPembina = $ormawa->pembina->user->pembina->nama ?? 'Belum diatur';
                     @endphp
 
                     <tr class="border-t border-[#E5E7EB] hover:bg-[#F7F8FC]/50 transition-colors">
@@ -215,7 +215,7 @@
                         
                         {{-- Nama Pembina --}}
                         <td class="px-5 py-4 text-[#6B7280]">
-                            {{ $namaPembina }}
+                            {{ $namaPembina  }}
                         </td>
                         
                         {{-- Total Pemasukan --}}
@@ -263,12 +263,11 @@
 
 </div>
 
-{{-- Render Komponen Modal Secara Berulang --}}
 @foreach($ormawaWithKeuangan as $ormawa)
     <x-modal-detail-keuangan-ormawa 
         :id="'modalBem' . ($ormawa['id'] ?? $loop->iteration)"
         :nama="$ormawa['nama'] ?? 'Tanpa Nama'"
-        :pembina="is_array($ormawa) ? ($ormawa['pembina'] ?? 'Belum Diatur') : ($ormawa->pembina ?? 'Belum Diatur')"
+        :pembina="$namaPembina = $ormawa->pembina->user->pembina->nama ?? 'Belum diatur'"
         realisasiPersen="0"
         :riwayat="$ormawa->kegiatan"
     />

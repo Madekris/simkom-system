@@ -40,7 +40,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <div class="text-xs text-[#6B7280] uppercase tracking-wide font-medium">Total Anggota</div>
-                    <div class="text-2xl font-bold text-[#1C1E2C] mt-1">{{ $tota_anggota ?? 0 }}</div>
+                    <div class="text-2xl font-bold text-[#1C1E2C] mt-1">{{ $total_anggota ?? 0 }}</div>
                 </div>
                 <div class="w-11 h-11 rounded-lg flex items-center justify-center bg-[#00C9A7] text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users w-5 h-5">
@@ -164,8 +164,16 @@
                     <div class="flex gap-2">
 
                         {{-- Belum di sesuaikan --}}
-                        <button data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none border rounded-md px-3 border-[#EF4444] text-[#EF4444] h-8 bg-white hover:bg-red-50">Tolak</button>
-                        <button data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none rounded-md px-3 bg-[#22C55E] hover:bg-[#16A34A] text-white h-8">Setujui</button>
+                        <form action="{{ route('admin.persetujuan.persetujuan', ['id' => $kegiatan->id]) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="status" value="Dibatalkan">
+                            <button type="submit" data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none border rounded-md px-3 border-[#EF4444] text-[#EF4444] h-8 bg-white hover:bg-red-50">Tolak</button>
+                        </form>
+                        <form action="{{ route('admin.persetujuan.persetujuan', ['id' => $kegiatan->id]) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="status" value="Mendatang">
+                            <button data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none rounded-md px-3 bg-[#22C55E] hover:bg-[#16A34A] text-white h-8">Setujui</button>
+                        </form>
                     </div>
                 </div>
             @empty

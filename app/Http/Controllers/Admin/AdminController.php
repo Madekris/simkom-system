@@ -20,12 +20,13 @@ class AdminController extends Controller
     {
         $total_ormawa = Organisasi::count();
         $totalAnggota = AnggotaOrganisasi::where('status', 'aktif')->count();
-        $kegiatanAktif = Kegiatan::whereIn('status', ['belangsung', 'mendatang'])->count();
-        $persetujuanKegiatan = Kegiatan::where('status', 'pending')->count();
+
+        // dd($totalAnggota);
+        $kegiatanAktif = Kegiatan::whereIn('status', ['Belangsung', 'Mendatang'])->count();
+        $persetujuanKegiatan = Kegiatan::where('status', 'Pending');
         
         $ormawaNonaktif = Organisasi::where('status', 'nonaktif')->count();
 
-        $tahunSekarang = Carbon::now()->year; // Tahun 2026
         $tanggalMulai = Carbon::now()->subMonths(5)->startOfMonth(); // Awal bulan dari 6 bulan lalu (Januari 2026)
         $tanggalAkhir = Carbon::now()->endOfMonth();
 
@@ -52,14 +53,14 @@ class AdminController extends Controller
             
             $berjalan->addMonth(); // Geser ke bulan berikutnya
         }
-
+        // dd($persetujuanKegiatan->get());
         $kegiatanPending = Kegiatan::with('organisasi')->where('status', 'Pending')->get();
 
         $data = [
             'total_ormawa'       => $total_ormawa,
             'total_anggota'      => $totalAnggota, 
             'kegiatan_aktif'     => $kegiatanAktif,
-            'pending'            => $persetujuanKegiatan,
+            'pending'            => $persetujuanKegiatan->count(),
             'chartData'          => $chartData,
             'labels'             => $labels,
             'ormawa_aktif'      => ($total_ormawa - $ormawaNonaktif),
@@ -68,6 +69,18 @@ class AdminController extends Controller
         ];
 
         return view('pages.admin.organisasi.dashboardAdmin', $data);
+    }
+
+    public function persetujuan(Request $request, string $id)
+    {
+        $status = $request->input('status'); // Atau $request['status']
+
+        // Melempar argumen dalam bentuk array []
+        Kegiatan::where('id', $id)->update([
+            'status' => $status
+        ]);
+        
+        return redirect()->back()->with('success', 'Status kegiatan berhasil diperbarui menjadi ' . $status . '!');
     }
 
     // 2. Menampilkan daftar organisasi (Aktif & Diarsipkan terpisah)
@@ -125,6 +138,8 @@ public function store(Request $request)
 
         // PERBAIKAN: Nama tabel dan nama kolom harus sesuai dengan database
 // Di dalam DB::transaction pada AdminController.php
+
+
         DB::table('anggota_organisasis')->insert([
             'id_organisasi' => $organisasi->id,
             'id_user'       => $request->mahasiswa_id, 
@@ -230,6 +245,7 @@ DB::transaction(function () use ($org, $validatedData, $request, $id) {
     }
 
     // 8. Fitur Mengarsipkan Data (Status berubah jadi 'diarsipkan')
+
     public function archive($id)
     {
         $org = Organisasi::findOrFail($id);
@@ -255,13 +271,45 @@ DB::transaction(function () use ($org, $validatedData, $request, $id) {
     // 10. Alias untuk rute arsip (menghubungkan rute 'arsipkan' ke fungsi 'archive')
     public function arsipkan($id)
     {
-        return $this->archive($id);
+        try {
+            // Find data organisasi
+            $organisasi = Organisasi::findOrFail($id);
+            
+            // Cukup ubah status organisasi menjadi diarsipkan
+            // Ini menghindari error 'visi cannot be null' karena tidak memicu proses insert baru
+            $organisasi->status = 'diarsipkan';
+            $organisasi->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Organisasi berhasil diarsipkan.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengarsipkan data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     // 11. Alias untuk rute pulihkan (jika rute web.php memanggil 'pulihkan')
-    public function pulihkan($id)
+    public function pulihkan(string $id)
     {
-        return $this->restoreFromArchive($id);
+        try {
+            // Find data organisasi
+            $organisasi = Organisasi::findOrFail($id);
+            
+            // Kembalikan status ke aktif
+            $organisasi->status = 'aktif';
+            $organisasi->save();
+
+            // Mengembalikan ke halaman sebelumnya dengan pesan sukses
+            return redirect()->back()->with('success', 'Organisasi berhasil diaktifkan kembali.');
+            
+        } catch (\Exception $e) {
+            // Mengembalikan ke halaman sebelumnya dengan pesan error
+            return redirect()->back()->with('error', 'Gagal memulihkan data: ' . $e->getMessage());
+        }
     }
 
     /**

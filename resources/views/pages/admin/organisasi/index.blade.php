@@ -1,5 +1,17 @@
 @extends('layouts.app')
 
+{{-- Isi Judul Topbar --}}
+@section('topbar_title', 'Daftar Ormawa')
+
+{{-- Isi Subtitle Topbar (Opsional) --}}
+@section('topbar_subtitle', 'Kelola seluruh organisasi mahasiswa di SIMKOM Bali')
+
+@section('topbar_actions')
+    <button type="button" onclick="openCreateModal()" class="bg-amber-500 hover:bg-amber-600 text-white font-medium px-4 py-2 rounded-xl transition duration-200 flex items-center gap-2 shadow-sm focus:outline-none">
+        <span>+ Tambah Ormawa</span>
+    </button>
+@endsection
+
 @section('content')
 <div class="p-6 max-w-[1600px] mx-auto min-h-screen bg-gray-50/50">
     
@@ -12,26 +24,13 @@
     </div>
 
     @if(session('success'))
-    <div class="mb-6 p-4 bg-emerald-50 border border-emerald-100 text-emerald-800 rounded-xl text-sm flex items-center gap-3 shadow-sm">
+    <div class="mb-6 p-4 bg-emerald-50 border border-emerald-100 text-emerald-800 rounded-lg text-sm flex items-center gap-3 shadow-sm">
         <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
         <span class="font-medium">{{ session('success') }}</span>
     </div>
     @endif
-
-    {{-- Header Page --}}
-    <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Daftar Ormawa</h1>
-            <p class="text-gray-500 text-sm mt-1">Kelola seluruh organisasi mahasiswa di SIMKOM Bali</p>
-        </div>
-        <div>
-            <button type="button" onclick="openCreateModal()" class="bg-amber-500 hover:bg-amber-600 text-white font-medium px-4 py-2 rounded-xl transition duration-200 flex items-center gap-2 shadow-sm focus:outline-none">
-                <span>+ Tambah Ormawa</span>
-            </button>
-        </div>
-    </div>
 
     {{-- Filter Utilities --}}
     <div class="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
