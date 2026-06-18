@@ -3,35 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Kegiatan extends Model
 {
-    protected $guarded = ['id'];
+    use LogsActivity;
 
-    public function organisasi()
-    {
-        return $this->belongsTo(Organisasi::class, 'id_organisasi');
-    }
-
-    public function periode()
-    {
-        return $this->belongsTo(PeriodeKepengurusan::class, 'id_periode');
-    }
-
-    public function dokumenKegiatan()
-    {
-        return $this->hasMany(DokumenKegiatan::class, 'id_kegiatan');
-    }
-
-    public function keuanganKegiatan()
-    {
-        return $this->hasMany(KeuanganKegiatan::class, 'id_kegiatan');
-    }
-
-    public function pendaftaranPesertaKegiatan()
-    {
-        return $this->hasMany(PendaftaranPesertaKegiatan::class, 'id_kegiatan');
-    }
     // 1. Sesuaikan nama tabel baru yang pakai 's' di belakangnya
     protected $table = 'kegiatans';
 
@@ -50,15 +28,17 @@ class Kegiatan extends Model
         'status',
         'evaluasi_kegiatan'
     ];
-}
 
-/*namespace App\Models;
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('manajemen_kegiatan') // Dilakukan oleh Pengurus
+            ->setDescriptionForEvent(fn(string $eventName) => "Kegiatan '{$this->judul_kegiatan}' telah di {$eventName}");
+    }
 
-use Illuminate\Database\Eloquent\Model;
-
-class Kegiatan extends Model
-{
-    protected $guarded = ['id'];
     public function organisasi()
     {
         return $this->belongsTo(Organisasi::class, 'id_organisasi');
@@ -83,4 +63,4 @@ class Kegiatan extends Model
     {
         return $this->hasMany(PendaftaranPesertaKegiatan::class, 'id_kegiatan');
     }
-}*/
+}
