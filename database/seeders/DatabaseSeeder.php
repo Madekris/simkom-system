@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             JenisOrganisasiSeeder::class,
             OrganisasiSeeder::class,
             PengurusSeeder::class,
+            PengurusSeeder::class,
             PembinaSeeder::class,
         ]);
     }
