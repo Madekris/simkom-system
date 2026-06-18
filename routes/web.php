@@ -12,6 +12,7 @@ use App\Http\Controllers\Bendahara\InputKeuangan as BendaharaInputKeuangan;
 use App\Http\Controllers\Bendahara\Dashboard as BendaharaDashboard;
 use App\Http\Controllers\Bendahara\InfoOrmawa;
 use App\Http\Controllers\Bendahara\LogAktivitas as BendaharaLogAktivitas;
+use App\Http\Controllers\Mahasiswa\DaftarKegiatan as MahasiswaDaftarKegiatan;
 use App\Http\Controllers\Pembina\KeuanganBinaan as PembinaKeuanganBinaan;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Pembina\RiwayatKegiatan;
@@ -43,6 +44,9 @@ Route::middleware(['auth'])->group(function () {
      ->name('mahasiswa.')
      ->middleware(['role:mahasiswa']) // <-- Proteksi Role
      ->group(function () {
+        Route::get('/daftar-kegiatan', [MahasiswaDaftarKegiatan::class, 'index'])->name('daftar-kegiatan.index');
+        Route::get('/daftar-kegiatan/{id}', [MahasiswaDaftarKegiatan::class, 'show'])->name('daftar-kegiatan.show');
+
          Route::get('/dashboard', [MahasiswaDashboard::class, 'index'])->name('dashboard');
          Route::get('/organisasi', [MahasiswaDashboard::class, 'organisasi'])->name('organisasi.index');
          

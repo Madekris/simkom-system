@@ -95,7 +95,7 @@
         <div class="flex-1 bg-white rounded-xl border border-[#E5E7EB] shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-6">
             <h3 class="font-bold text-[#1C1E2C] mb-3">Ormawa Saya</h3>
             <div class="space-y-3">
-                @foreach($ormawaMahasiswa as $ormawa)
+                @forelse($ormawaMahasiswa as $ormawa)
                     <div class="flex items-center gap-3 p-3 rounded-lg bg-[#F7F8FC]">
                         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-amber-200 bg-amber-100 font-bold text-xl text-amber-600 shadow-sm">
                            {{ Str::upper(Str::substr($ormawa->organisasi->nama, 0, 1)) }}
@@ -109,7 +109,11 @@
                             Lihat
                         </a>
                     </div>
-                @endforeach
+                @empty
+                    <div class="py-6 text-center text-sm text-[#6B7280]">
+                        Belum ada ormawa yang diikuti.
+                    </div>
+                @endforelse
             </div>
         </div>
 

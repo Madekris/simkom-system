@@ -6,19 +6,20 @@
 {{-- Isi Subtitle Topbar (Opsional) --}}
 @section('topbar_subtitle', 'Seluruh organisasi mahasiswa SIMKOM Bali')
 
-{{-- Isi Tombol / Aksi di Sebelah Kanan (Opsional) --}}
-@section('topbar_actions')
-    <form action="{{ route('mahasiswa.organisasi.index') }}" method="GET" class="relative">
-        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-            <i class="fas fa-search"></i>
-        </span>
-        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama ormawa..." 
-            class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition">
-    </form>
-@endsection
 
 @section('content')
-<div class="p-6">
+<div class="p-4 sm:p-6 lg:p-8 space-y-5">
+     <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+        <h2 class="text-xl font-bold text-[#1C1E2C]">Daftar Organisasi</h2>
+        <form action="{{ route('mahasiswa.organisasi.index') }}" method="GET" class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama ormawa..." 
+                    class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition">
+        </form>
+
+    </div>
 
     <div class="space-y-4">
         @forelse($organisasi as $org)
