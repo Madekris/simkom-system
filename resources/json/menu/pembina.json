@@ -2,11 +2,16 @@
     {
         "label": "Dashboard",
         "route": "pembina.dashboard",
-        "icon": "fa-solid fa-gauge"
+         "icon": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-layout-dashboard w-4 h-4\"><rect width=\"7\" height=\"9\" x=\"3\" y=\"3\" rx=\"1\"></rect><rect width=\"7\" height=\"5\" x=\"14\" y=\"3\" rx=\"1\"></rect><rect width=\"7\" height=\"9\" x=\"14\" y=\"12\" rx=\"1\"></rect><rect width=\"7\" height=\"5\" x=\"3\" y=\"16\" rx=\"1\"></rect></svg>"
     },
     {
         "label": "Riwayat Kegiatan",
         "route": "pembina.riwayat-kegiatan.index",
-        "icon": "fa-solid fa-clock-rotate-left"
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-calendar-range w-4 h-4'><rect width='18' height='18' x='3' y='4' rx='2'></rect><path d='M16 2v4'></path><path d='M3 10h18'></path><path d='M8 2v4'></path><path d='M17 14h-6'></path><path d='M13 18H7'></path><path d='M7 14h.01'></path><path d='M17 18h.01'></path></svg>"
+    },
+    {
+        "label": "Keuangan Binaan",
+        "route": "pembina.keuangan-binaan.index",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-wallet w-4 h-4'><path d='M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1'></path><path d='M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4'></path></svg>"
     }
 ]

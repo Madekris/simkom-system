@@ -7,11 +7,11 @@
     {
         "label": "Daftar Organisasi",
         "route": "mahasiswa.organisasi.index",
-        "icon": "fa-solid fa-users"
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-building2 w-4 h-4'><path d='M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z'></path><path d='M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2'></path><path d='M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2'></path><path d='M10 6h4'></path><path d='M10 10h4'></path><path d='M10 14h4'></path><path d='M10 18h4'></path></svg>"
     },
     {
         "label": "Kegiatan Saya",
-        "icon": "fa-solid fa-clock-rotate-left",
-        "route": "mahasiswa.kegiatan-saya"
+        "route": "mahasiswa.kegiatan-saya",
+        "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-calendar-range w-4 h-4'><rect width='18' height='18' x='3' y='4' rx='2'></rect><path d='M16 2v4'></path><path d='M3 10h18'></path><path d='M8 2v4'></path><path d='M17 14h-6'></path><path d='M13 18H7'></path><path d='M7 14h.01'></path><path d='M17 18h.01'></path></svg>"
     }
-]
+    ]

@@ -27,7 +27,7 @@ class InfoOrmawa extends Controller
 
         $ketua = '-';
         if($ketuaData){
-            $ketua = Mahasiswa::find($ketuaData->id_user);
+            $ketua = Mahasiswa::where('id_user', $ketuaData->id_user)->first();
         }
 
         $wakilData = AnggotaOrganisasi::with('periode')
@@ -37,7 +37,7 @@ class InfoOrmawa extends Controller
 
         $wakil = '-';
         if($wakilData){
-            $wakil = Mahasiswa::find($wakilData->id_user);
+            $wakil = Mahasiswa::where('id_user', $wakilData->id_user)->first();
         }
 
         $sekreData = AnggotaOrganisasi::with('periode')
@@ -47,7 +47,7 @@ class InfoOrmawa extends Controller
 
         $sekre = '-';
         if($sekreData){
-            $sekre = Mahasiswa::find($sekreData->id_user);
+            $sekre = Mahasiswa::where('id_user', $sekreData->id_user)->first();
         }
 
         $bendaharaData = AnggotaOrganisasi::with('periode')
@@ -57,7 +57,7 @@ class InfoOrmawa extends Controller
         
         $bendahara = '-';
         if($bendaharaData){
-            $bendahara = Mahasiswa::find($bendaharaData->id_user);
+            $bendahara = Mahasiswa::where('id_user', $bendaharaData->id_user)->first();
         }
 
 
@@ -65,13 +65,13 @@ class InfoOrmawa extends Controller
             ->where('jabatan', 'Pembina')
             ->first();
 
-        $namaPembina = '-';
+        $pembina = '-';
         if($pembinaData){
             $namaPembina = Pembina::find($pembinaData->id_user);
+            if($namaPembina){
+                $pembina = $namaPembina->nama;
+            }
         }
-
-        // Cek apakah data ketua ditemukan, jika tidak ada berikan teks alternatif '-' (agar tidak error)
-        $pembina = $pembinaData ? $namaPembina->nama : '-';
         
 
         if ($ketuaData && $ketuaData->periode) {

@@ -139,6 +139,7 @@
                     <th class="text-right px-5 py-3 font-semibold">Pemasukan</th>
                     <th class="text-right px-5 py-3 font-semibold">Pengeluaran</th>
                     <th class="text-right px-5 py-3 font-semibold">Saldo</th>
+                    <th class="text-right px-5 py-3 font-semibold">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -211,6 +212,15 @@
                                 Rp {{ number_format($totalSaldo, 0, ',', '.') }}
                             </td>
                         @endif
+                        <td class="px-5 py-4 text-right text-[#EF4444] font-semibold">
+                            <button onclick="openModal('modalBem{{ $ormawa->id }}')" data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none h-8 rounded-md gap-1.5 px-3 text-[#1A2B5C] hover:bg-gray-100 disabled:pointer-events-none disabled:opacity-50 shrink-0 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive [_svg]:pointer-events-none [_svg:not([class*='size-'])]:size-4 [_svg]:shrink-0 has-[>svg]:px-2.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye w-4 h-4 mr-1">
+                                    <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg> 
+                                Detail
+                            </button>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
@@ -218,4 +228,37 @@
     </div>
 
 </div>
+
+@foreach($ormawaWithKeuangan as $ormawa)
+
+    <x-modal-detail-keuangan-ormawa 
+        :id="'modalBem' . ($ormawa['id'] ?? $loop->iteration)"
+        :nama="$ormawa['nama'] ?? 'Tanpa Nama'"
+        pembina="-"
+        realisasiPersen="0"
+        :riwayat="$ormawa->kegiatan"
+    />
+@endforeach
+
+@push('scripts')
+<script>
+    function showDetailOrmawa(nama, pembina, saldo) {
+        // 1. Isikan data ke elemen modal
+        document.getElementById('modal-title').innerText = nama;
+        document.getElementById('modal-pembina').innerText = pembina;
+        document.getElementById('modal-saldo').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(saldo);
+        
+        // 2. Buka modalnya
+        openModal('dynamicOrmawaModal');
+    }
+
+    // Fungsi Driver Standard Toggle
+    function openModal(id) {
+        document.getElementById(id).classList.remove('hidden');
+    }
+    function closeModal(id) {
+        document.getElementById(id).classList.add('hidden');
+    }
+</script>
+@endpush
 @endsection

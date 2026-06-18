@@ -125,7 +125,7 @@
                     <thead class="bg-[#F7F8FC] text-[#6B7280] select-none">
                         <tr>
                             <th class="px-6 py-3.5 font-semibold w-[35%]">Nama Kegiatan</th>
-                            <th class="px-6 py-3.5 font-semibold w-[35%]">Penyelenggara (Ormawa)</th>
+                            <th class="px-6 py-3.5 font-semibold w-[35%]">Ormawa</th>
                             <th class="px-6 py-3.5 font-semibold w-[12%]">Tanggal</th>
                             <th class="px-6 py-3.5 font-semibold w-[10%]">Status</th>
                             <th class="px-6 py-3.5 font-semibold text-right w-[8%]">Aksi</th>
@@ -178,7 +178,7 @@
                     <thead class="bg-[#F7F8FC] text-[#6B7280] select-none">
                         <tr>
                             <th class="px-6 py-3.5 font-semibold w-[35%]">Nama Kegiatan</th>
-                            <th class="px-6 py-3.5 font-semibold w-[35%]">Penyelenggara (Ormawa)</th>
+                            <th class="px-6 py-3.5 font-semibold w-[35%]">Ormawa</th>
                             <th class="px-6 py-3.5 font-semibold w-[12%]">Tanggal</th>
                             <th class="px-6 py-3.5 font-semibold w-[10%]">Status</th>
                             <th class="px-6 py-3.5 font-semibold text-right w-[8%]">Aksi</th>

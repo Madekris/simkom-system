@@ -12,8 +12,11 @@ use App\Http\Controllers\Bendahara\InputKeuangan as BendaharaInputKeuangan;
 use App\Http\Controllers\Bendahara\Dashboard as BendaharaDashboard;
 use App\Http\Controllers\Bendahara\InfoOrmawa;
 use App\Http\Controllers\Bendahara\LogAktivitas as BendaharaLogAktivitas;
+use App\Http\Controllers\Pembina\KeuanganBinaan as PembinaKeuanganBinaan;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Pembina\RiwayatKegiatan;
+use App\Http\Controllers\Pengurus\Dashboard as PengurusDashboard;
+use App\Http\Controllers\Pengurus\Keuangan as PengurusKeuangan;
 use Illuminate\Support\Facades\Route;
 
 
@@ -61,7 +64,11 @@ Route::middleware(['auth'])->group(function () {
          ->name('pengurus.')
          ->middleware(['role:pengurus']) // <-- Proteksi Role
          ->group(function () {
-             Route::get('/dashboard', [MahasiswaDashboard::class, 'index'])->name('dashboard');
+            Route::get('/keuangan/export/{id}', [PengurusKeuangan::class, 'export'])->name('keuangan.export');
+            
+            Route::get('/dashboard', [PengurusDashboard::class, 'index'])->name('dashboard.index');
+
+            Route::get('/keuangan', [PengurusKeuangan::class, 'index'])->name('keuangan.index');
              
              // Verifikasi & Anggota
              Route::get('/verifikasi', [VerifikasiController::class, 'index'])->name('verifikasi.index');
@@ -108,6 +115,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [RiwayatKegiatan::class, 'dashboard'])->name('dashboard'); 
         
         // Rute Resource untuk Riwayat (Otomatis mengarah ke fungsi index())
+        Route::get('/keuangan-binaan', [PembinaKeuanganBinaan::class, 'index'])->name('keuangan-binaan.index');
         Route::resource('riwayat-kegiatan', RiwayatKegiatan::class)->parameters([
             'riwayat-kegiatan' => 'id'
         ]);

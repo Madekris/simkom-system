@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AnggotaOrganisasi;
 use App\Models\Organisasi; 
 use App\Models\User;       
-use App\Models\Kegiatan;   
+use App\Models\Kegiatan;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -17,20 +19,52 @@ class AdminController extends Controller
     public function dashboard()
     {
         $total_ormawa = Organisasi::count();
-        $ormawa_aktif = Organisasi::where('status', 'aktif')->count();
-        $ormawa_tidak_aktif = $total_ormawa - $ormawa_aktif;
+        $totalAnggota = AnggotaOrganisasi::where('status', 'aktif')->count();
+        $kegiatanAktif = Kegiatan::whereIn('status', ['belangsung', 'mendatang'])->count();
+        $persetujuanKegiatan = Kegiatan::where('status', 'pending')->count();
         
-        $total_mahasiswa = User::where('role', 'mahasiswa')->count();
-        $kegiatan_aktif = Kegiatan::where('status', 'berlangsung')->count();
+        $ormawaNonaktif = Organisasi::where('status', 'nonaktif')->count();
+
+        $tahunSekarang = Carbon::now()->year; // Tahun 2026
+        $tanggalMulai = Carbon::now()->subMonths(5)->startOfMonth(); // Awal bulan dari 6 bulan lalu (Januari 2026)
+        $tanggalAkhir = Carbon::now()->endOfMonth();
+
+        // Ambil data kegiatan dari bulan 1 (Jan) sampai 6 (Jun) di tahun berjalan
+        $kegiatanPerBulan = Kegiatan::selectRaw("DATE_FORMAT(tanggal_kegiatan, '%Y-%m') as bulan_tahun, COUNT(*) as total")
+            ->whereBetween('tanggal_kegiatan', [$tanggalMulai->format('Y-m-d'), $tanggalAkhir->format('Y-m-d')])
+            ->groupBy('bulan_tahun')
+            ->orderBy('bulan_tahun', 'asc')
+            ->pluck('total', 'bulan_tahun')
+            ->toArray();
+
+        $labels = [];
+        // Menyusun data agar pas dengan 6 indeks baris chart (Jan-Jun) meskipun ada bulan yang kosong (0)
+        $chartData = [];
+        $berjalan = $tanggalMulai->copy();
+        while ($berjalan <= $tanggalAkhir) {
+            $key = $berjalan->format('Y-m'); // Format: 2026-01, 2026-02, dst
+            
+            // Masukkan nama bulan singkat ke dalam array Label Chart (Jan, Feb, Mar...)
+            $labels[] = $berjalan->translatedFormat('M'); 
+            
+            // Masukkan total kegiatan (jika tidak ada kegiatan, otomatis 0)
+            $chartData[] = $kegiatanPerBulan[$key] ?? 0;
+            
+            $berjalan->addMonth(); // Geser ke bulan berikutnya
+        }
+
+        $kegiatanPending = Kegiatan::with('organisasi')->where('status', 'Pending')->get();
 
         $data = [
             'total_ormawa'       => $total_ormawa,
-            'ormawa_aktif'       => $ormawa_aktif,
-            'ormawa_tidak_aktif' => $ormawa_tidak_aktif,
-            'total_anggota'      => $total_mahasiswa > 0 ? $total_mahasiswa : 542, 
-            'kegiatan_aktif'     => $kegiatan_aktif > 0 ? $kegiatan_aktif : 18,
-            'pending_dokumen'    => 7, 
-            'organisasis'        => Organisasi::all() 
+            'total_anggota'      => $totalAnggota, 
+            'kegiatan_aktif'     => $kegiatanAktif,
+            'pending'            => $persetujuanKegiatan,
+            'chartData'          => $chartData,
+            'labels'             => $labels,
+            'ormawa_aktif'      => ($total_ormawa - $ormawaNonaktif),
+            'ormawa_nonaktif'   => $ormawaNonaktif,
+            'kegiatan_pending'  => $kegiatanPending
         ];
 
         return view('pages.admin.organisasi.dashboardAdmin', $data);

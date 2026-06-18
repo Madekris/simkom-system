@@ -20,7 +20,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <div class="text-xs text-[#6B7280] uppercase tracking-wide font-medium">Total Ormawa</div>
-                    <div class="text-2xl font-bold text-[#1C1E2C] mt-1">25</div>
+                    <div class="text-2xl font-bold text-[#1C1E2C] mt-1">{{ $total_ormawa ?? 0 }}</div>
                 </div>
                 <div class="w-11 h-11 rounded-lg flex items-center justify-center bg-[#1A2B5C] text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-building-2 w-5 h-5">
@@ -40,7 +40,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <div class="text-xs text-[#6B7280] uppercase tracking-wide font-medium">Total Anggota</div>
-                    <div class="text-2xl font-bold text-[#1C1E2C] mt-1">542</div>
+                    <div class="text-2xl font-bold text-[#1C1E2C] mt-1">{{ $tota_anggota ?? 0 }}</div>
                 </div>
                 <div class="w-11 h-11 rounded-lg flex items-center justify-center bg-[#00C9A7] text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users w-5 h-5">
@@ -57,7 +57,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <div class="text-xs text-[#6B7280] uppercase tracking-wide font-medium">Kegiatan Aktif</div>
-                    <div class="text-2xl font-bold text-[#1C1E2C] mt-1">18</div>
+                    <div class="text-2xl font-bold text-[#1C1E2C] mt-1">{{ $kegiatan_aktif ?? 0 }}</div>
                 </div>
                 <div class="w-11 h-11 rounded-lg flex items-center justify-center bg-[#F5A623] text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-range w-5 h-5">
@@ -78,7 +78,7 @@
             <div class="flex items-start justify-between">
                 <div>
                     <div class="text-xs text-[#6B7280] uppercase tracking-wide font-medium">Persetujuan Pending</div>
-                    <div class="text-2xl font-bold text-[#1C1E2C] mt-1">7</div>
+                    <div class="text-2xl font-bold text-[#1C1E2C] mt-1">{{ $pending ?? 0 }}</div>
                 </div>
                 <div class="w-11 h-11 rounded-lg flex items-center justify-center bg-[#EF4444] text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-triangle-alert w-5 h-5">
@@ -123,7 +123,7 @@
                     <canvas id="statusOrmawaChart"></canvas>
                     
                     <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <span class="text-2xl font-bold text-[#1C1E2C]">25</span>
+                        <span class="text-2xl font-bold text-[#1C1E2C]">{{ $total_ormawa }}</span>
                         <span class="text-[10px] text-[#6B7280]">Total</span>
                     </div>
                 </div>
@@ -134,14 +134,14 @@
                             <span class="w-3 h-3 rounded-full shrink-0 bg-[#22C55E]"></span>
                             <span class="text-sm text-[#374151]">Aktif</span>
                         </div>
-                        <span class="font-bold text-[#1C1E2C]">22</span>
+                        <span class="font-bold text-[#1C1E2C]">{{ $ormawa_aktif }}</span>
                     </div>
                     <div class="flex items-center justify-between px-3 py-2 rounded-lg bg-[#F7F8FC]">
                         <div class="flex items-center gap-2">
                             <span class="w-3 h-3 rounded-full shrink-0 bg-[#9CA3AF]"></span>
                             <span class="text-sm text-[#374151]">Tidak Aktif</span>
                         </div>
-                        <span class="font-bold text-[#1C1E2C]">3</span>
+                        <span class="font-bold text-[#1C1E2C]">{{ $ormawa_nonaktif }}</span>
                     </div>
                 </div>
     
@@ -155,42 +155,31 @@
         <h3 class="font-bold text-[#1C1E2C] mb-3">Persetujuan Pending</h3>
         <div class="space-y-3">
             
-            <!-- Item Pending 1 -->
-            <div class="flex items-center justify-between p-3 rounded-lg bg-[#F7F8FC]">
-                <div>
-                    <div class="font-semibold text-sm text-[#1C1E2C]">Workshop AI 2026</div>
-                    <div class="text-xs text-[#6B7280]">BEM · 5 Jun 2026</div>
-                </div>
-                <div class="flex gap-2">
-                    <button data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none border rounded-md px-3 border-[#EF4444] text-[#EF4444] h-8 bg-white hover:bg-red-50">Tolak</button>
-                    <button data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none rounded-md px-3 bg-[#22C55E] hover:bg-[#16A34A] text-white h-8">Setujui</button>
-                </div>
-            </div>
+            @forelse ($kegiatan_pending as $kegiatan)
+                <div class="flex items-center justify-between p-3 rounded-lg bg-[#F7F8FC]">
+                    <div>
+                        <div class="font-semibold text-sm text-[#1C1E2C]">{{ $kegiatan->judul_kegiatan }}</div>
+                        <div class="text-xs text-[#6B7280]">{{ $kegiatan->organisasi->nama }} · {{ \Carbon\Carbon::parse($kegiatan->tanggal_kegiatan)->translatedFormat('j M Y') }}</div>
+                    </div>
+                    <div class="flex gap-2">
 
-            <!-- Item Pending 2 -->
-            <div class="flex items-center justify-between p-3 rounded-lg bg-[#F7F8FC]">
-                <div>
-                    <div class="font-semibold text-sm text-[#1C1E2C]">Lomba Coding Internal</div>
-                    <div class="text-xs text-[#6B7280]">HIMA TI · 8 Jun 2026</div>
+                        {{-- Belum di sesuaikan --}}
+                        <button data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none border rounded-md px-3 border-[#EF4444] text-[#EF4444] h-8 bg-white hover:bg-red-50">Tolak</button>
+                        <button data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none rounded-md px-3 bg-[#22C55E] hover:bg-[#16A34A] text-white h-8">Setujui</button>
+                    </div>
                 </div>
-                <div class="flex gap-2">
-                    <button data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none border rounded-md px-3 border-[#EF4444] text-[#EF4444] h-8 bg-white hover:bg-red-50">Tolak</button>
-                    <button data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none rounded-md px-3 bg-[#22C55E] hover:bg-[#16A34A] text-white h-8">Setujui</button>
+            @empty
+                <div class="flex flex-col items-center justify-center py-8 px-4 text-center border border-dashed border-[#E5E7EB] rounded-xl bg-[#F7F8FC]/50">
+                    <div class="w-12 h-12 rounded-full bg-green-50 text-[#22C55E] flex items-center justify-center mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+                            <path d="m9 12 2 2 4-4"></path>
+                        </svg>
+                    </div>
+                    <div class="text-sm font-bold text-[#1C1E2C] mb-0.5">Semua Bersih!</div>
+                    <p class="text-xs text-[#6B7280] max-w-xs">Tidak ada pengajuan kegiatan baru dari ORMAWA yang memerlukan persetujuan Anda saat ini.</p>
                 </div>
-            </div>
-
-            <!-- Item Pending 3 -->
-            <div class="flex items-center justify-between p-3 rounded-lg bg-[#F7F8FC]">
-                <div>
-                    <div class="font-semibold text-sm text-[#1C1E2C]">Konser Akhir Tahun</div>
-                    <div class="text-xs text-[#6B7280]">Ormawa Musik · 15 Jun 2026</div>
-                </div>
-                <div class="flex gap-2">
-                    <button data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none border rounded-md px-3 border-[#EF4444] text-[#EF4444] h-8 bg-white hover:bg-red-50">Tolak</button>
-                    <button data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none rounded-md px-3 bg-[#22C55E] hover:bg-[#16A34A] text-white h-8">Setujui</button>
-                </div>
-            </div>
-
+            @endforelse
         </div>
     </div>
 
@@ -206,11 +195,11 @@
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
+                    labels: @json($labels),
                     datasets: [{
                         label: 'Total Kegiatan',
                         // Menyesuaikan data tinggi grafik pada SVG Recharts bawaan asli Anda
-                        data: [8, 12, 15, 10, 18, 14], 
+                        data: @json($chartData), 
                         backgroundColor: '#1A2B5C', // Warna Navy bawaan
                         borderPenetration: 0,
                         borderWidth: 0,
@@ -290,7 +279,7 @@
                 data: {
                     labels: ['Aktif', 'Tidak Aktif'],
                     datasets: [{
-                        data: [22, 3],
+                        data: [@json($ormawa_aktif), @json($ormawa_nonaktif)],
                         backgroundColor: [
                             '#22C55E', // Hijau Aktif
                             '#9CA3AF'  // Abu-abu Tidak Aktif
