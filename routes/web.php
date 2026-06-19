@@ -46,7 +46,7 @@ Route::middleware(['auth'])->group(function () {
 
 
     // Rute untuk manajemen dokumen kegiatan (hanya untuk pembina, bendahara, pengurus)
-    Route::get('/dokumen/upload-form', [DokumenKegiatan::class, 'create'])->name('DokumenKegiatan.create');
+    Route::get('/dokumen/create', [DokumenKegiatan::class, 'create'])->name('DokumenKegiatan.create');
     Route::post('/dokumen/upload', [DokumenKegiatan::class, 'upload'])->name('DokumenKegiatan.upload');
     // Route untuk mendownload berkas file fisik dokumen
     Route::get('/dokumen/download/{id}', [DokumenKegiatan::class, 'download'])->name('dokumen.download');
