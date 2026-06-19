@@ -8,6 +8,7 @@ use App\Http\Controllers\Pengurus\VerifikasiController;
 use App\Http\Controllers\Pengurus\OrganisasiController; 
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\KeuanganOrmawa as AdminKeuanganOrmawa;
+use App\Http\Controllers\Admin\Pengguna as AdminPengguna;
 use App\Http\Controllers\Admin\SemuaKegiatan  as AdminSemuaKegiatan;
 use App\Http\Controllers\Bendahara\InputKeuangan as BendaharaInputKeuangan;
 use App\Http\Controllers\Bendahara\Dashboard as BendaharaDashboard;
@@ -163,6 +164,10 @@ Route::middleware(['auth'])->group(function () {
 
         // Semua kegiatan
         Route::get('/semua-kegiatan', [AdminSemuaKegiatan::class, 'index'])->name('semua-kegiatan.index');
+
+
+        //Pengguna
+        Route::get('/pengguna', [AdminPengguna::class, 'index'])->name('pengguna.index');
     });
 
 }); // Penutup Middleware Auth Utama

@@ -84,7 +84,7 @@ class AdminController extends Controller
     }
 
     // 2. Menampilkan daftar organisasi (Aktif & Diarsipkan terpisah)
-    public function index()
+    public function index(Request $request)
     {
         // 1. Ambil data ormawa yang statusnya AKTIF saja untuk tabel utama
         $organisasis = Organisasi::with('ketua')->where('status', 'aktif')->get();
@@ -98,12 +98,24 @@ class AdminController extends Controller
         // PERBAIKAN TYPO: Mengubah 'jenis_organisasias' menjadi nama tabel database yang benar
         $jenis_organisasis = DB::table('jenis_organisasis')->get(); 
 
+        $oView = [];
+        $idOrg = $request->id;
+
+        if ($idOrg) {
+            $oView = Organisasi::with(['jenisOrganisasi', 'ketua.user.mahasiswa', 'pembina.user.pembina', 'anggotaOrganisasi', 'periode', 'kegiatan'])
+                ->findOrFail($idOrg);
+            
+                // dd($oView->toArray());
+        }
+
+
         // Kirim semua variabel ke view index
         return view('pages.admin.organisasi.index', compact(
             'organisasis', 
             'organisasis_diarsipkan', 
             'mahasiswas', 
-            'jenis_organisasis'
+            'jenis_organisasis',
+            'oView'
         ));
     }
 
@@ -269,7 +281,7 @@ DB::transaction(function () use ($org, $validatedData, $request, $id) {
     }
 
     // 10. Alias untuk rute arsip (menghubungkan rute 'arsipkan' ke fungsi 'archive')
-    public function arsipkan($id)
+    public function arsipkan(string $id)
     {
         try {
             // Find data organisasi
@@ -280,15 +292,10 @@ DB::transaction(function () use ($org, $validatedData, $request, $id) {
             $organisasi->status = 'diarsipkan';
             $organisasi->save();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Organisasi berhasil diarsipkan.'
-            ]);
+            return redirect()->back()->with('success', 'Organisasi berhasil diarsipkan kembali.');
+
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengarsipkan data: ' . $e->getMessage()
-            ], 500);
+            return redirect()->back()->with('error', 'Gagal memulihkan data: ' . $e->getMessage());
         }
     }
 

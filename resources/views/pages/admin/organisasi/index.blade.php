@@ -14,23 +14,6 @@
 
 @section('content')
 <div class="p-6 max-w-[1600px] mx-auto min-h-screen bg-gray-50/50">
-    
-    {{-- Notifikasi Alerts --}}
-    <div id="js-alert" class="hidden mb-6 p-4 bg-emerald-50 border border-emerald-100 text-emerald-800 rounded-xl text-sm flex items-center gap-3 shadow-sm">
-        <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <span id="js-alert-message" class="font-medium"></span>
-    </div>
-
-    @if(session('success'))
-    <div class="mb-6 p-4 bg-emerald-50 border border-emerald-100 text-emerald-800 rounded-lg text-sm flex items-center gap-3 shadow-sm">
-        <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <span class="font-medium">{{ session('success') }}</span>
-    </div>
-    @endif
 
     {{-- Filter Utilities --}}
     <div class="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
@@ -71,34 +54,66 @@
                         <td class="py-4 px-6">
                             <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100">Aktif</span>
                         </td>
-                        <td class="py-4 px-6 text-right">
-                            <div class="inline-flex items-center justify-end gap-3.5 text-gray-400">
-                                <a href="{{ $o->ad_art ? asset('storage/' . $o->ad_art) : '#' }}" target="_blank" class="hover:text-gray-600 transition" title="Lihat Dokumen">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                    </svg>
-                                </a>
-                                
-                                <button type="button" onclick="lihatDetailOrmawa({{ json_encode($o) }})" class="hover:text-cyan-500 transition focus:outline-none" title="Lihat Detail">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                    </svg>
-                                </button>
-                                
-                                <button type="button" onclick="openEditModal({{ json_encode($o) }})" class="hover:text-blue-500 transition focus:outline-none" title="Ubah Ormawa">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                                    </svg>
-                                </button>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex items-center justify-end gap-1">
+                                    
+                                    @if($o->ad_art)
+                                        <a href="{{ asset('storage/' . $o->ad_art) }}" target="_blank" data-slot="button" 
+                                        class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-gray-400/20 hover:bg-gray-100 hover:text-gray-900 rounded-md h-8 w-8 text-[#6B7280]" 
+                                        title="Lihat Dokumen">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                                                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                                                <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+                                                <path d="M10 9H8"></path>
+                                                <path d="M16 13H8"></path>
+                                                <path d="M16 17H8"></path>
+                                            </svg>
+                                        </a>
+                                    @else
+                                        <button type="button" disabled data-slot="button" 
+                                                class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium shrink-0 rounded-md h-8 w-8 text-gray-300 bg-gray-50/50 cursor-not-allowed" 
+                                                title="Dokumen Tidak Tersedia">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                                                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                                                <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+                                                <path d="M10 9H8"></path>
+                                                <path d="M16 13H8"></path>
+                                                <path d="M16 17H8"></path>
+                                            </svg>
+                                        </button>
+                                    @endif
+                                    
+                                    <a href="{{  route('admin.organisasi.index', ['id' => $o->id, 'tab' => 'informasi']) }}" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none hover:bg-gray-100 hover:text-[#1A2B5C] rounded-md h-8 w-8 text-[#1A2B5C] cursor-pointer" title="Detail Ormawa">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                                            <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg>
+                                    </a>
+                                    
+                                    <button type="button" onclick="openEditModal({{ json_encode($o) }})" data-slot="button" 
+                                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-[#1A2B5C]/20 hover:bg-[#1A2B5C]/5 hover:text-[#1A2B5C] rounded-md h-8 w-8 text-[#1A2B5C]" 
+                                            title="Edit Ormawa">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                                            <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path>
+                                        </svg>
+                                    </button>
 
-                                <button type="button" onclick="arsipkanOrmawa({{ $o->id }})" class="hover:text-[#e09516] transition focus:outline-none" title="Arsipkan Ormawa">
-                                    <svg class="w-4 h-4 text-orange-600/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </td>
+                                    <form action="{{ route('admin.organisasi.arsipkan', ['id' => $o->id]) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" data-slot="button" 
+                                                class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-[#92400E]/20 hover:bg-[#92400E]/5 hover:text-[#92400E] rounded-md h-8 w-8 text-[#92400E]" 
+                                                title="Arsipkan Ormawa">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+                                                <rect width="20" height="5" x="2" y="3" rx="1"></rect>
+                                                <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"></path>
+                                                <path d="M10 12h4"></path>
+                                            </svg>
+                                        </button>
+                                    </form>
+
+
+                                </div>
+                            </td>
                     </tr>
                     @empty
                     <tr>
@@ -164,6 +179,10 @@
         </div>
     </div>
 </div>
+
+@if (request('id'))
+    <x-modal-detail-ormawa :data="$oView" />
+@endif
 
 @include('pages.admin.organisasi.create')
 @include('pages.admin.organisasi.edit')
