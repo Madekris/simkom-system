@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class DokumenKegiatan extends Model
 {
 
-    use SoftDeletes; // TAMBAHKAN BARIS INI untuk mengaktifkan arsip otomatis
-
     protected $table = 'dokumen_kegiatans';
     
     protected $fillable = [
