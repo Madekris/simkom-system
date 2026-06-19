@@ -6,19 +6,20 @@
 {{-- Isi Subtitle Topbar (Opsional) --}}
 @section('topbar_subtitle', 'Seluruh organisasi mahasiswa SIMKOM Bali')
 
-{{-- Isi Tombol / Aksi di Sebelah Kanan (Opsional) --}}
-@section('topbar_actions')
-    <form action="{{ route('mahasiswa.organisasi.index') }}" method="GET" class="relative">
-        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-            <i class="fas fa-search"></i>
-        </span>
-        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama ormawa..." 
-            class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition">
-    </form>
-@endsection
 
 @section('content')
-<div class="p-6">
+<div class="p-4 sm:p-6 lg:p-8 space-y-5">
+     <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+        <h2 class="text-xl font-bold text-[#1C1E2C]">Daftar Organisasi</h2>
+        <form action="{{ route('mahasiswa.organisasi.index') }}" method="GET" class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama ormawa..." 
+                    class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition">
+        </form>
+
+    </div>
 
     <div class="space-y-4">
         @forelse($organisasi as $org)
@@ -49,7 +50,7 @@
                         </p>
                         <div class="flex gap-4 mt-2 text-xs text-gray-400">
                             <span><i class="fas fa-users mr-1"></i> {{ $org->anggota_count ?? '0' }} anggota</span>
-                            <span>Pengurus: <span class="text-gray-600 font-medium">{{ $org->ketua?->user?->mahasiswa?->nama ?? $org->pengurus?->user?->mahasiswa?->nama ?? $org->ketua?->user?->name ?? $org->pengurus?->user?->name ?? 'Belum Ditentukan' }}</span></span>
+                            <span>Ketua: <span class="text-gray-600 font-medium">{{ $org->ketua?->user?->mahasiswa?->nama ?? $org->pengurus?->user?->mahasiswa?->nama ?? $org->ketua?->user?->name ?? $org->pengurus?->user?->name ?? 'Belum Ditentukan' }}</span></span>
                         </div>
                     </div>
                 </div>
@@ -57,10 +58,16 @@
                 <div class="flex items-center gap-2 self-end md:self-center shrink-0">
                     <a href="{{ route('mahasiswa.organisasi.show', $org->id) }}" class="px-4 py-2 border border-gray-200 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-50 transition">Detail</a>
                     
-                    <a href="{{ route('mahasiswa.organisasi.daftar', $org->id) }}" 
-                        class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-semibold shadow-sm transition">
-                        Daftar
-                    </a>        
+                    @php
+                        $isMyOrg = in_array($org->id, $myOrganisasi);
+                    @endphp
+
+                    @if (!$isMyOrg)
+                        <a href="{{ route('mahasiswa.organisasi.daftar', $org->id) }}" 
+                            class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-semibold shadow-sm transition">
+                            Daftar
+                        </a>        
+                    @endif
                 </div>
 
             </div>

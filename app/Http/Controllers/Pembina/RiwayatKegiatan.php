@@ -118,11 +118,11 @@ class RiwayatKegiatan extends Controller
         // Transformasi data agar status 'complete' otomatis terbaca sebagai 'selesai' di view/Alpine.js
         $riwayatKegiatan = $riwayatRaw->map(function($kegiatan) {
             // Standarisasi status untuk kebutuhan visual dan filter UI
-            if ($kegiatan->status === 'complete' || $kegiatan->status === 'selesai') {
-                $kegiatan->status_ui = 'selesai';
+            if ($kegiatan->status === 'Selesai') {
+                $kegiatan->status_ui = 'Selesai';
                 $kegiatan->status_label = 'Selesai';
             } else {
-                $kegiatan->status_ui = 'berlangsung';
+                $kegiatan->status_ui = 'Berlangsung';
                 $kegiatan->status_label = 'Berlangsung';
             }
             return $kegiatan;

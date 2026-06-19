@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             PeriodeSeeder::class,
             PengurusSeeder::class,
             PembinaSeeder::class,
+            KegiatanSeeder::class,
         ]);
     }
 }

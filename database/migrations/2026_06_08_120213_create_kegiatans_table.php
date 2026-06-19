@@ -21,7 +21,7 @@ return new class extends Migration
             $table->time('waktu_kegiatan');
             $table->string('lokasi');
             $table->integer('kuota_peserta');
-            $table->string('status');
+            $table->enum('status', ['Pending', 'Mendatang', 'Berlangsung', 'Selesai', 'Dibatalkan'])->default('Pending');
             $table->text('evaluasi_kegiatan')->nullable();
             $table->timestamps();
         });

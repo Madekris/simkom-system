@@ -141,10 +141,10 @@
             <div>
                 <h3 class="font-bold text-[#1C1E2C] mb-4">Quick Actions</h3>
                 <div class="space-y-2">
-                    <button class="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all h-9 px-4 py-2 w-full justify-start bg-[#F5A623] hover:bg-[#D88E15] text-[#1A2B5C]">
+                    <a href= "{{ route('pengurus.kegiatan.create') }}"class="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all h-9 px-4 py-2 w-full justify-start bg-[#F5A623] hover:bg-[#D88E15] text-[#1A2B5C]">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus w-4 h-4 mr-1"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg> 
                         Buat Kegiatan
-                    </button>
+                    </a>
                     <a href="{{ route('pengurus.verifikasi.index') }}" class="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all border border-[#E5E7EB] bg-white text-[#1C1E2C] hover:bg-[#F7F8FC] h-9 px-4 py-2 w-full justify-start">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users w-4 h-4 mr-1"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> 
                         Verifikasi Anggota

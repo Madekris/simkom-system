@@ -12,7 +12,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class KeuanganOrmawa extends Controller
 {
     public function index () {
-        $ormawaWithKeuangan = Organisasi::with('kegiatan.keuanganKegiatan')->get();
+        $ormawaWithKeuangan = Organisasi::with('kegiatan.keuanganKegiatan', 'pembina.user.pembina')->get();
         return view('pages.admin.keuangan-ormawa', compact('ormawaWithKeuangan'));
     }
 

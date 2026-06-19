@@ -7,6 +7,7 @@ use App\Models\AnggotaOrganisasi;
 use App\Models\Organisasi;
 use App\Models\PendaftaranAnggota;
 use App\Models\JenisOrganisasi;
+use Illuminate\Support\Str;
 use App\Models\Mahasiswa;
 use App\Models\PendaftaranPesertaKegiatan;
 use Illuminate\Http\Request;
@@ -24,11 +25,11 @@ class Dashboard extends Controller
         $kegiatanDiikuti = PendaftaranPesertaKegiatan::where('id_user', Auth::id())
             ->whereHas('kegiatan', function ($query) {
                 // Menyaring pendaftaran yang HANYA memiliki kegiatan berstatus 'ongoing'
-                $query->where('status', 'ongoing');
+                $query->where('status', 'Mendatang');
             })
             ->with(['kegiatan' => function ($query) {
                 // Memuat data kegiatannya yang berstatus 'ongoing'
-                $query->where('status', 'ongoing');
+                $query->where('status', 'Mendatang');
             }])
             ->get(); // Jangan lupa tambahkan get() di ujung untuk mengambil datanya
 
@@ -60,18 +61,65 @@ class Dashboard extends Controller
             })
             ->get();
 
-        return view('pages.mahasiswa.organisasi_index', compact('organisasi'));
+        $myOrganisasi = PendaftaranAnggota::where('id_user', Auth::id())
+            ->whereIn('status', ['aktif'])
+            ->pluck('id_organisasi') // Mengambil kolom ID nya saja
+            ->toArray();
+
+        return view('pages.mahasiswa.organisasi_index', compact('organisasi', 'myOrganisasi'));
     }
 
-    public function show($id)
+    public function show( string $id)
     {
-        $organisasi = Organisasi::with(['jenisOrganisasi', 'ketua.user.mahasiswa', 'bendahara.user.mahasiswa'])
+        
+        $organisasi = Organisasi::with(['jenisOrganisasi', 'ketua.user.mahasiswa', 'bendahara.user.mahasiswa', 'pembina.user.pembina', 'anggotaOrganisasi', 'periode', 'kegiatan'])
             ->findOrFail($id);
 
-        return view('pages.mahasiswa.organisasi_show', compact('organisasi'));
+        $ketuaData = Organisasi::with('ketua.user.mahasiswa')->find($id);
+        $ketua = [
+            'jabatan' => 'Ketua',
+            'nama' => $ketuaData->ketua->user->mahasiswa->nama ?? '-'
+        ];
+
+        $wakilData = Organisasi::with('wakil.user.mahasiswa')->find($id);
+        $wakil = [
+            'jabatan' => 'Wakil Ketua',
+            'nama' => $wakilData->wakil->user->mahasiswa->nama ?? '-'
+        ];
+
+        $sekreData = Organisasi::with('sekre.user.mahasiswa')->find($id);
+        $sekre = [
+            'jabatan' => 'Sekretaris',
+            'nama' => $sekreData->sekre->user->mahasiswa->nama ?? '-'
+        ];
+
+        $bendaharaData = Organisasi::with('bendahara.user.mahasiswa')->find($id);
+        $bendahara = [
+            'jabatan' => 'Bendahara',
+            'nama' => $bendaharaData->bendahara->user->mahasiswa->nama ?? '-'
+        ];
+
+        $myOrganisasi = PendaftaranAnggota::where('id_user', Auth::id())
+            ->whereIn('status', ['aktif'])
+            ->pluck('id_organisasi')
+            ->toArray();
+
+        // dd($myOrganisasi);
+
+        $pengurusOrmawa = [
+            $ketua,
+            $wakil,
+            $sekre,
+            $bendahara
+        ];
+
+
+        // dd($pengurusOrmawa);
+
+        return view('pages.mahasiswa.organisasi_show', compact('organisasi', 'pengurusOrmawa', 'myOrganisasi'));
     }
 
-    public function pendaftaran($id)
+    public function pendaftaran(string $id)
     {
         $target_organisasi = Organisasi::findOrFail($id);
 
@@ -89,33 +137,27 @@ class Dashboard extends Controller
 
         $sudahMendaftar = PendaftaranAnggota::where('id_user', Auth::id())
             ->where('id_organisasi', $request->id_organisasi)
-            ->whereIn('status', ['pending', 'disetujui'])
-            ->exists();
+            ->whereIn('status', ['pending', 'aktif'])
+            ->get();
+
+        // dd($sudahMendaftar->toArray());
 
         if ($sudahMendaftar) {
             return back()
                 ->withInput()
-                ->with('error', 'Anda sudah memiliki pendaftaran aktif untuk organisasi ini.');
+                ->with('error', "Anda sudah memiliki pendaftaran aktif untuk organisasi ini. Status: " . Str::title($sudahMendaftar->first()->status));
         }
 
         Auth::user()->update([
             'no_telepon' => $request->no_whatsapp,
         ]);
 
-        $isTerdaftar = PendaftaranAnggota::where('id_user', Auth::id())->whereIn('status', ['aktif', 'pending'])->first();
-
-        if(!$isTerdaftar){
-            PendaftaranAnggota::create([
-                'id_user' => Auth::id(),
-                'id_organisasi' => $request->id_organisasi,
-                'status' => 'pending',
-                'keterangan' => $request->alasan,
-            ]);
-        } else {
-            return redirect()
-                ->route('mahasiswa.organisasi.index')
-                ->with('error', 'Anda sudah melakukan pendaftaran di organisasi ini!');
-        }
+        PendaftaranAnggota::create([
+            'id_user' => Auth::id(),
+            'id_organisasi' => $request->id_organisasi,
+            'status' => 'pending',
+            'keterangan' => $request->alasan,
+        ]);
 
         return redirect()
             ->route('mahasiswa.organisasi.index')
