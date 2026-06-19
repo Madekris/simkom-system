@@ -108,12 +108,31 @@
             </div>
             
             <div class="flex items-center gap-3 w-full sm:w-auto">
-               <form action="{{ route('mahasiswa.daftar-kegiatan.daftar', $daftarKegiatan->id) }}" method="POST" class="w-full sm:w-auto">
-                    @csrf
-                    <button type="submit" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all h-9 rounded-lg px-4 w-full md:w-auto bg-[#F5A623] hover:bg-[#D88E15] text-white font-semibold shadow-sm">
-                        Daftar
+                 @php
+                 $kegiatan = $daftarKegiatan;
+                    $totalPeserta = $kegiatan->pendaftaran_peserta_kegiatan_count;
+                    $isKuotaPenuh = $totalPeserta == $kegiatan['kuota_peserta'];
+                    $isTerdaftar = $kegiatanSaya->contains('id', $kegiatan->id ?? $kegiatan['id']);                        @endphp
+
+                @if ($isTerdaftar)
+                    <button disabled class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium h-9 rounded-lg px-4 w-full md:w-auto bg-green-100 text-green-700 cursor-not-allowed font-semibold">
+                        Sudah Terdaftar
                     </button>
-                </form>
+                @else
+                    @if(!$isKuotaPenuh)
+                        <form action="{{ route('mahasiswa.daftar-kegiatan.daftar', $daftarKegiatan->id) }}" method="POST" class="w-full sm:w-auto">
+                            @csrf
+                            <button type="submit" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all h-9 rounded-lg px-4 w-full md:w-auto bg-[#F5A623] hover:bg-[#D88E15] text-white font-semibold shadow-sm">
+                                Daftar
+                            </button>
+                        </form>
+                    @else
+                        <button disabled class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium h-9 rounded-lg px-4 w-full md:w-auto bg-[#E5E7EB] text-[#9CA3AF] cursor-not-allowed">
+                            Penuh
+                        </button>
+                    @endif
+                @endif
+               
             </div>
         </div>
 

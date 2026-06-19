@@ -18,11 +18,20 @@ class KegiatanSaya extends Controller
         // 1. Ambil kegiatan MENDATANG yang diikuti oleh mahasiswa ini
         // Kita panggil relasi belongsToMany dari User, lalu filter status tabel kegiatans
         $kegiatanMendatang = Auth::user()->pendaftaranKegiatan()
-            ->where('kegiatans.status', 'Mendatang') // Menegaskan filter status pada tabel kegiatans
+            // 1. Sesuaikan dengan nama tabel pivot asli di database
+            ->where('pendaftaran_peserta_kegiatans.status', 'Pendaftaran berhasil') 
+            
+            // 2. Sesuaikan nama tabel kegiatan dengan bentuk jamak (kegiatans)
+            ->where('kegiatans.status', 'Mendatang') 
+            
             ->with('organisasi')
-            ->orderBy('tanggal_kegiatan', 'asc')
+            
+            // 3. Pastikan order by juga mengarah ke tabel kegiatans
+            ->orderBy('kegiatans.tanggal_kegiatan', 'asc') 
             ->get();
-
+        
+        // dd($kegiatanMendatang->toArray());
+        
         // 2. Ambil RIWAYAT KEGIATAN (Selesai / Berlangsung) yang diikuti oleh mahasiswa ini
         $riwayatKegiatan = Auth::user()->pendaftaranKegiatan()
             ->whereIn('kegiatans.status', ['Selesai', 'Berlangsung']) // Menegaskan filter status pada tabel kegiatans
