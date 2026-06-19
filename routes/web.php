@@ -19,6 +19,7 @@ use App\Http\Controllers\Pengurus\Dashboard as PengurusDashboard;
 use App\Http\Controllers\Pengurus\Kegiatan as PengurusKegiatan;
 use App\Http\Controllers\Pengurus\Keuangan as PengurusKeuangan;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\DokumenKegiatan;
 
 
 // ==========================================
@@ -37,6 +38,16 @@ Route::post('/register', [Registrasi::class, 'store']);
 // AREA USER TER-AUTENTIKASI (MIDDLEWARE: AUTH)
 // ==========================================
 Route::middleware(['auth'])->group(function () {
+
+    Route::get('/dokumen', [DokumenKegiatan::class, 'index'])->name('pengurus.dokumen');
+
+
+    // Rute untuk manajemen dokumen kegiatan (hanya untuk pembina, bendahara, pengurus)
+    Route::get('/dokumen/upload-form', [DokumenKegiatan::class, 'create'])->name('DokumenKegiatan.create');
+    Route::post('/dokumen/upload', [DokumenKegiatan::class, 'upload'])->name('DokumenKegiatan.upload');
+    // Route untuk mendownload berkas file fisik dokumen
+    Route::get('/dokumen/download/{id}', [DokumenKegiatan::class, 'download'])->name('dokumen.download');
+    Route::delete('/dokumen/delete/{id}', [DokumenKegiatan::class, 'destroy'])->name('DokumenKegiatan.destroy');
 
     // 1. AREA MAHASISWA (Hanya bisa diakses oleh role: mahasiswa)
     Route::prefix('mahasiswa')
@@ -58,6 +69,8 @@ Route::middleware(['auth'])->group(function () {
          Route::get('/kegiatan-saya', [MahasiswaKegiatanSaya::class, 'index'])->name('kegiatan-saya');
          // TAMBAHAN RUTE UNTUK DETAIL API (ALPINJS AJAX)
          Route::get('/kegiatan-saya/{id}', [MahasiswaKegiatanSaya::class, 'show'])->name('kegiatan-saya.show');
+
+         Route::post('/kegiatan/daftar', [PendaftaranPeserta::class, 'daftar'])->name('kegiatan.daftar');
      });
 
     // 2. AREA PENGURUS (Hanya bisa diakses oleh role: pengurus)

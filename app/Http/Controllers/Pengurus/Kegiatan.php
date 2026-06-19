@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Auth;
 
 class Kegiatan extends Controller
 {
+    protected $table = 'kegiatans';
+    
+    // TAMBAHKAN BARIS INI: Beritahu Laravel kalau primary key-nya bukan 'id'
+    protected $primaryKey = 'id_kegiatan';
     public function index ()
     {
         $anggotaOrganisasi = AnggotaOrganisasi::where('id_user', Auth::id())->get();

@@ -6,7 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class PendaftaranPesertaKegiatan extends Model
 {
-    protected $guarded = ['id'];
+    use HasFactory;
+
+    // Definisikan nama tabel secara eksplisit jika tidak menggunakan default singular-plural otomatis
+    protected $table = 'pendaftaran_peserta_kegiatans';
+
+    protected $fillable = [
+        'id_kegiatan',
+        'id_user',
+        'status',
+    ];
 
     public function kegiatan()
     {
