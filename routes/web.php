@@ -16,6 +16,8 @@ use App\Http\Controllers\Bendahara\InfoOrmawa;
 use App\Http\Controllers\Bendahara\LogAktivitas as BendaharaLogAktivitas;
 use App\Http\Controllers\Mahasiswa\DaftarKegiatan as MahasiswaDaftarKegiatan;
 use App\Http\Controllers\Pembina\KeuanganBinaan as PembinaKeuanganBinaan;
+use App\Http\Controllers\Pembina\OrmawaBinaan as PembinaOrmawaBinaan;
+use App\Http\Controllers\Pembina\PersetujuanKegiatan as PembinaPersetujuanKegiatan;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Pembina\RiwayatKegiatan;
 use App\Http\Controllers\Pengurus\Dashboard as PengurusDashboard;
@@ -147,6 +149,14 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('riwayat-kegiatan', RiwayatKegiatan::class)->parameters([
             'riwayat-kegiatan' => 'id'
         ]);
+
+        // Ormawa binaa
+        Route::get('ormawa-binaan', [PembinaOrmawaBinaan::class, 'index'])->name('ormawa-binaan.index');
+        Route::post('setStatus/{id}', [PembinaOrmawaBinaan::class, 'setStatus'])->name('setStatus.setStatus');
+
+        // Persetujuan kegiatan
+        Route::get('pesetujuan-kegiatan', [PembinaPersetujuanKegiatan::class, 'index'])->name('persetujuan-kegiatan.index');
+        Route::patch('setStatus/{id}', [PembinaPersetujuanKegiatan::class, 'setStatus'])->name('setStatus.setStatus');
     });
 
     Route::prefix('admin')
@@ -183,6 +193,7 @@ Route::middleware(['auth'])->group(function () {
 
         //Pengguna
         Route::get('/pengguna', [AdminPengguna::class, 'index'])->name('pengguna.index');
+        Route::put('/pengguna/{id}', [AdminPengguna::class, 'update'])->name('pengguna.update');
     });
 
 }); // Penutup Middleware Auth Utama

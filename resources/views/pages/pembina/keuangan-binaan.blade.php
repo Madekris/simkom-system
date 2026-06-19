@@ -19,7 +19,7 @@
                 type="text" 
                 name="search" 
                 value="{{ request('search') }}" 
-                placeholder="Cari nama organisasi..." 
+                placeholder="Cari keterangan..." 
                 onkeyup="cariDenganJeda()"
                 onfocus="this.setSelectionRange(this.value.length, this.value.length);"
                 autofocus

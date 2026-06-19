@@ -161,7 +161,11 @@
 @endif
 
 @if (request('edit'))
-    <x-modal-edit-pengguna>
+    <x-modal-edit-pengguna
+        :data="$dPengguna"
+        :organisasi="$org"
+        :ps="$ps"
+    >
     </x-modal-edit-pengguna>
 @endif
 @endsection
