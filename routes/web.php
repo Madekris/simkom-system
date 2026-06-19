@@ -73,6 +73,7 @@ Route::middleware(['auth'])->group(function () {
          ->name('pengurus.')
          ->middleware(['role:pengurus']) // <-- Proteksi Role
          ->group(function () {
+            Route::get('/keuangan/export/{id}/{format}', [PengurusKeuangan::class, 'export'])->name('keuangan.export');
             
             Route::get('/dashboard', [PengurusDashboard::class, 'index'])->name('dashboard.index');
 
@@ -107,7 +108,7 @@ Route::middleware(['auth'])->group(function () {
         // Input keuangan
         Route::get('/input-keuangan', [BendaharaInputKeuangan::class, 'create'])->name('input-keuangan.create');
         Route::post('/input-keuangan', [BendaharaInputKeuangan::class, 'store'])->name('input-keuangan.store');
-        Route::get('/input-keuangan/export', [BendaharaInputKeuangan::class, 'exportExcel'])->name('input-keuangan.export');
+        Route::get('/input-keuangan/export/{format}', [BendaharaInputKeuangan::class, 'export'])->name('input-keuangan.export');
 
         // Laporan
         Route::get('/laporan', [PengurusKeuangan::class, 'index'])->name('laporan.index');

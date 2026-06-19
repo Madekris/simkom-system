@@ -10,13 +10,13 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf; // Pastikan facade DomPDF sudah di-import
 
 class InputKeuangan extends Controller
 {
     /**
      * Show the form for creating a new resource.
      */
-
     public function create(Request $request)
     {
         // 1. Ambil ID organisasi dari user bendahara yang sedang login
@@ -43,19 +43,44 @@ class InputKeuangan extends Controller
         // 6. Urutkan dari transaksi terbaru ke terlama
         $semuaTransaksi = $semuaTransaksi->sortByDesc('created_at');
 
-        // dd($semuaTransaksi->toArray());
-
         // 7. Lempar semua data ke satu view utama
         return view('pages.bendahara.input-keuangan', compact('kegiatanOrganisasi', 'semuaTransaksi'));
     }
 
-    public function exportExcel()
+    /**
+     * Export data keuangan ke format Excel atau PDF berdasarkan parameter rute.
+     */
+    public function export($format)
     {
-        // Mengambil nama bulan saat ini untuk penamaan file otomatis
+        // Mengambil nama bulan saat ini untuk penamaan file otomatis (Contoh: June_2026)
         $namaBulan = Carbon::now()->translatedFormat('F_Y'); 
-        $namaFile = 'Laporan_Keuangan_' . $namaBulan . '.xlsx';
 
-        // Proses unduh file Excel
+        if ($format === 'pdf') {
+            // 1. Ambil ID organisasi dari user bendahara yang sedang login
+            $idOrganisasi = Auth::user()->anggotaOrganisasi()->first()->id_organisasi;
+
+            // 2. Ambil semua kegiatan milik organisasi tersebut
+            $kegiatanOrganisasi = Kegiatan::where('id_organisasi', $idOrganisasi)->get();
+            
+            // 3. Ambil semua transaksi dari kegiatan organisasi tersebut khusus pada bulan dan tahun berjalan
+            $semuaTransaksi = KeuanganKegiatan::whereIn('id_kegiatan', $kegiatanOrganisasi->pluck('id'))
+                ->whereMonth('created_at', Carbon::now()->month)
+                ->whereYear('created_at', Carbon::now()->year)
+                ->orderBy('created_at', 'asc') // Diurutkan dari yang terlama ke terbaru agar runtut saat dibaca di PDF
+                ->get();
+
+            $namaFile = 'Laporan_Keuangan_' . $namaBulan . '.pdf';
+
+            // 4. Memanggil file view cetak yang baru saja Anda buat
+            // Perhatikan path: pages.bendahara.cetak.export-pdf
+            $pdf = Pdf::loadView('pages.bendahara.cetak.export-pdf', compact('semuaTransaksi', 'namaBulan'));
+            
+            // 5. Proses unduh file PDF
+            return $pdf->download($namaFile);
+        } 
+        
+        // Default / Jika memilih format excel
+        $namaFile = 'Laporan_Keuangan_' . $namaBulan . '.xlsx';
         return Excel::download(new KeuanganBulanIniExport, $namaFile);
     }
 
