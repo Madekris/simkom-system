@@ -24,6 +24,7 @@ use App\Http\Controllers\Pengurus\Dashboard as PengurusDashboard;
 use App\Http\Controllers\Pengurus\Kegiatan as PengurusKegiatan;
 use App\Http\Controllers\Pengurus\Keuangan as PengurusKeuangan;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\DokumenKegiatan;
 
 
 // ==========================================
@@ -43,6 +44,17 @@ Route::post('/register', [Registrasi::class, 'store']);
 // ==========================================
 Route::middleware(['auth'])->group(function () {
 
+    Route::get('/dokumen', [DokumenKegiatan::class, 'index'])->name('pengurus.dokumen');
+
+
+    // Rute untuk manajemen dokumen kegiatan (hanya untuk pembina, bendahara, pengurus)
+    Route::get('/dokumen/create', [DokumenKegiatan::class, 'create'])->name('DokumenKegiatan.create');
+    Route::post('/dokumen/upload', [DokumenKegiatan::class, 'upload'])->name('DokumenKegiatan.upload');
+    // Route untuk mendownload berkas file fisik dokumen
+    Route::get('/dokumen/download/{id}', [DokumenKegiatan::class, 'download'])->name('dokumen.download');
+    Route::delete('/dokumen/delete/{id}', [DokumenKegiatan::class, 'destroy'])->name('DokumenKegiatan.destroy');
+
+    // 1. AREA MAHASISWA (Hanya bisa diakses oleh role: mahasiswa)
     Route::get('/keuangan/export/{id}', [PengurusKeuangan::class, 'export'])->name('keuangan.export');
     
     Route::prefix('mahasiswa')
@@ -68,6 +80,8 @@ Route::middleware(['auth'])->group(function () {
          Route::get('/kegiatan-saya', [MahasiswaKegiatanSaya::class, 'index'])->name('kegiatan-saya');
          // TAMBAHAN RUTE UNTUK DETAIL API (ALPINJS AJAX)
          Route::get('/kegiatan-saya/{id}', [MahasiswaKegiatanSaya::class, 'show'])->name('kegiatan-saya.show');
+
+         Route::post('/kegiatan/daftar', [PendaftaranPeserta::class, 'daftar'])->name('kegiatan.daftar');
      });
 
     // 2. AREA PENGURUS (Hanya bisa diakses oleh role: pengurus)
@@ -75,6 +89,7 @@ Route::middleware(['auth'])->group(function () {
          ->name('pengurus.')
          ->middleware(['role:pengurus']) // <-- Proteksi Role
          ->group(function () {
+            Route::get('/keuangan/export/{id}/{format}', [PengurusKeuangan::class, 'export'])->name('keuangan.export');
             
             Route::get('/dashboard', [PengurusDashboard::class, 'index'])->name('dashboard.index');
 
@@ -109,7 +124,7 @@ Route::middleware(['auth'])->group(function () {
         // Input keuangan
         Route::get('/input-keuangan', [BendaharaInputKeuangan::class, 'create'])->name('input-keuangan.create');
         Route::post('/input-keuangan', [BendaharaInputKeuangan::class, 'store'])->name('input-keuangan.store');
-        Route::get('/input-keuangan/export', [BendaharaInputKeuangan::class, 'exportExcel'])->name('input-keuangan.export');
+        Route::get('/input-keuangan/export/{format}', [BendaharaInputKeuangan::class, 'export'])->name('input-keuangan.export');
 
         // Laporan
         Route::get('/laporan', [PengurusKeuangan::class, 'index'])->name('laporan.index');
