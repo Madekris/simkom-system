@@ -142,10 +142,10 @@ class Dashboard extends Controller
 
         // dd($sudahMendaftar->toArray());
 
-        if ($sudahMendaftar) {
+        if ($sudahMendaftar && $sudahMendaftar->isNotEmpty()) {
             return back()
                 ->withInput()
-                ->with('error', "Anda sudah memiliki pendaftaran aktif untuk organisasi ini. Status: " . Str::title($sudahMendaftar->first()->status));
+                ->with('error', "Anda sudah memiliki pendaftaran aktif untuk organisasi ini. Status: " . Str::title($sudahMendaftar->first()?->status ?? 'Tidak Diketahui'));
         }
 
         Auth::user()->update([

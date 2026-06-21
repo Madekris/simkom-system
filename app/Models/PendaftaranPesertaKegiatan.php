@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class PendaftaranPesertaKegiatan extends Model
 {
-    use HasFactory;
 
     // Definisikan nama tabel secara eksplisit jika tidak menggunakan default singular-plural otomatis
     protected $table = 'pendaftaran_peserta_kegiatans';
