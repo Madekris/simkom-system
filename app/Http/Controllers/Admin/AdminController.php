@@ -160,64 +160,77 @@ public function create()
 
     // 6. PROSES UPDATE Data Organisasi
     public function update(Request $request, $id)
-    {
-        $org = Organisasi::findOrFail($id);
+{
+    $org = Organisasi::findOrFail($id);
 
-        $validatedData = $request->validate([
-            'id_jenis_organisasi' => 'required|integer',
-            'nama'                => 'required|string|max:255|unique:organisasis,nama,' . $id,
-            'status'              => 'required|string|in:aktif,nonaktif,diarsipkan',
-            'deskripsi'           => 'nullable|string',
-            'visi'                => 'nullable|string',
-            'misi'                => 'nullable|string',
-            'mahasiswa_id'        => 'required|integer', 
-            'ad_art'              => 'nullable|file|mimes:pdf,doc,docx|max:5120',
-        ]);
+    $validatedData = $request->validate([
+        'id_jenis_organisasi' => 'required|integer',
+        'nama'                => 'required|string|max:255|unique:organisasis,nama,' . $id,
+        'status'              => 'required|string|in:aktif,nonaktif,diarsipkan',
+        'deskripsi'           => 'nullable|string',
+        'visi'                => 'nullable|string',
+        'misi'                => 'nullable|string',
+        'mahasiswa_id'        => 'required|integer', 
+        'ad_art'              => 'nullable|file|mimes:pdf,doc,docx|max:5120',
+    ]);
 
-        if ($request->hasFile('ad_art')) {
-            if ($org->ad_art) {
-                Storage::disk('public')->delete($org->ad_art);
-            }
-            $validatedData['ad_art'] = $request->file('ad_art')->store('organisasi/ad_art', 'public');
+    if ($request->hasFile('ad_art')) {
+        if ($org->ad_art) {
+            Storage::disk('public')->delete($org->ad_art);
         }
+        $validatedData['ad_art'] = $request->file('ad_art')->store('organisasi/ad_art', 'public');
+    }
 
-DB::transaction(function () use ($org, $validatedData, $request, $id) {
-            $org->update($validatedData);
+   DB::transaction(function () use ($org, $validatedData, $request, $id) {
+    $org->update($validatedData);
 
-            $ketuaLama = DB::table('anggota_organisasis')
-                            ->where('id_organisasi', $id)
-                            ->where('jabatan', 'Ketua')
-                            ->first();
-
-            // Ambil ID periode aktif agar dinamis
-            // Kode yang benar sesuai database Anda
-            $idPeriode = \App\Models\PeriodeKepengurusan::where('status_periode', 'aktif')->value('id') ?? 1;
-
-            if ($ketuaLama) {
-                DB::table('anggota_organisasis')
+    $ketuaLama = DB::table('anggota_organisasis')
                     ->where('id_organisasi', $id)
                     ->where('jabatan', 'Ketua')
-                    ->update([
-                        'id_user'      => $request->mahasiswa_id,
-                        'status'       => 'aktif',
-                        'id_periode'   => $idPeriode, 
-                        'updated_at'   => now()
-                    ]);
-            } else {
-                DB::table('anggota_organisasis')->insert([
-                    'id_organisasi' => $id,
-                    'id_user'       => $request->mahasiswa_id,
-                    'jabatan'       => 'Ketua',
-                    'status'        => 'aktif',
-                    'id_periode'    => $idPeriode, // <--- PENTING: Tambahkan ini agar tidak error 1364
-                    'created_at'    => now(),
-                    'updated_at'    => now()
-                ]);
-            }
-        });
+                    ->first();
 
-        return redirect()->route('admin.organisasi.index')->with('success', 'Data organisasi berhasil diperbarui!');
+    // 1. CARI PERIODE AKTIF YANG BENAR-BENAR MILIK ORGANISASI INI
+    $periodeAktif = DB::table('periode_kepengurusans')
+                        ->where('id_organisasi', $id)
+                        ->where('status_periode', 'aktif')
+                        ->first();
+
+    // 2. JIKA PERIODE AKTIF KETEMU, PAKAI ID-NYA. 
+    // Jika tidak ketemu, kita ambil ID Periode terakhir dari organisasi ini sebagai fallback (cadangan)
+    if ($periodeAktif) {
+        $idPeriode = $periodeAktif->id;
+    } else {
+        $idPeriode = DB::table('periode_kepengurusans')
+                        ->where('id_organisasi', $id)
+                        ->latest('id')
+                        ->value('id') ?? 1; 
     }
+
+    if ($ketuaLama) {
+        DB::table('anggota_organisasis')
+            ->where('id_organisasi', $id)
+            ->where('jabatan', 'Ketua')
+            ->update([
+                'id_user'    => $request->mahasiswa_id,
+                'status'     => 'aktif',
+                'id_periode' => $idPeriode, // <-- Sekarang ID-nya sudah akurat
+                'updated_at' => now()
+            ]);
+    } else {
+        DB::table('anggota_organisasis')->insert([
+            'id_organisasi' => $id,
+            'id_user'       => $request->mahasiswa_id,
+            'jabatan'       => 'Ketua',
+            'status'        => 'aktif',
+            'id_periode'    => $idPeriode, // <-- Sekarang ID-nya sudah akurat
+            'created_at'    => now(),
+            'updated_at'    => now()
+        ]);
+    }
+});
+
+    return redirect()->route('admin.organisasi.index')->with('success', 'Data organisasi berhasil diperbarui!');
+}
 
     // 7. Proses ganti status langsung via tombol toggle
     public function toggleStatus($id)
@@ -253,17 +266,51 @@ DB::transaction(function () use ($org, $validatedData, $request, $id) {
     }
 
     // 10. Alias untuk rute arsip (menghubungkan rute 'arsipkan' ke fungsi 'archive')
-    public function arsipkan($id)
-    {
-        return $this->archive($id);
+public function arsipkan($id)
+{
+    try {
+        // Find data organisasi
+        $organisasi = Organisasi::findOrFail($id);
+        
+        // Cukup ubah status organisasi menjadi diarsipkan
+        // Ini menghindari error 'visi cannot be null' karena tidak memicu proses insert baru
+        $organisasi->status = 'diarsipkan';
+        $organisasi->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Organisasi berhasil diarsipkan.'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal mengarsipkan data: ' . $e->getMessage()
+        ], 500);
     }
+}
 
     // 11. Alias untuk rute pulihkan (jika rute web.php memanggil 'pulihkan')
-    public function pulihkan($id)
-    {
-        return $this->restoreFromArchive($id);
-    }
+public function pulihkan($id)
+{
+    try {
+        // Find data organisasi
+        $organisasi = Organisasi::findOrFail($id);
+        
+        // Kembalikan status ke aktif
+        $organisasi->status = 'aktif';
+        $organisasi->save();
 
+        return response()->json([
+            'success' => true,
+            'message' => 'Organisasi berhasil diaktifkan kembali.'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal memulihkan data: ' . $e->getMessage()
+        ], 500);
+    }
+}
     /**
      * PERBAIKAN: Mengambil daftar anggota organisasi yang aktif dalam bentuk struktur JSON pembungkus 'data'
      * Mendukung pembacaan Javascript modal agar dropdown tidak menampilkan pesan "Gagal memuat..."

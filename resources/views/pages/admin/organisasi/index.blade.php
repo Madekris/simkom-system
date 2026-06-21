@@ -67,8 +67,42 @@
                             @php $jenis = collect($jenis_organisasis)->firstWhere('id', $o->id_jenis_organisasi); @endphp
                             {{ $jenis->nama ?? 'UKM' }}
                         </td>
-                        <td class="py-4 px-6 text-gray-500">{{ $o->jumlah_anggota ?? '0' }} orang</td>
-                        <td class="py-4 px-6 text-gray-500">{{ $o->ketua->nama ?? 'Belum Ditentukan' }}</td>
+                        
+                        {{-- HITUNG ANGGOTA OTOMATIS: Berdasarkan data asli di database --}}
+                        <td class="py-4 px-6 text-gray-500 font-medium">
+                            @php
+                                $hitungAnggota = DB::table('anggota_organisasis')
+                                    ->where('id_organisasi', $o->id)
+                                    ->where('status', 'aktif')
+                                    ->count();
+                            @endphp
+                            {{ $hitungAnggota }} orang
+                        </td>
+                        
+                        {{-- NAMA KETUA ASLI: Diambil langsung dari tabel mahasiswa --}}
+                        <td class="py-4 px-6 text-gray-500">
+                            @php
+                                $getKetua = DB::table('anggota_organisasis')
+                                    ->where('id_organisasi', $o->id)
+                                    ->where('jabatan', 'Ketua')
+                                    ->where('status', 'aktif')
+                                    ->first();
+                                
+                                $namaKetua = 'Belum Ditentukan';
+                                if ($getKetua) {
+                                    $mhs = DB::table('mahasiswas')->where('id_user', $getKetua->id_user)->first() 
+                                           ?? DB::table('users')->where('id', $getKetua->id_user)->first();
+                                    
+                                    if ($mhs) {
+                                        $namaKetua = $mhs->nama ?? $mhs->name ?? 'User Tanpa Nama';
+                                    }
+                                }
+                            @endphp
+                            <span class="{{ $namaKetua == 'Belum Ditentukan' ? 'text-gray-400 italic' : 'font-medium text-gray-900' }}">
+                                {{ $namaKetua }}
+                            </span>
+                        </td>
+
                         <td class="py-4 px-6">
                             <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100">Aktif</span>
                         </td>
@@ -113,7 +147,7 @@
 
     {{-- UTILITY AREA: LIST ORMAWA DIARSIPKAN --}}
     <div class="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
-        <button onclick="toggleAccordion('accordion-archive')" class="w-full flex items-center justify-between p-5 bg-gray-50/50 hover:bg-gray-50 transition focus:outline-none">
+        <button type="button" onclick="toggleAccordion('accordion-archive')" class="w-full flex items-center justify-between p-5 bg-gray-50/50 hover:bg-gray-50 transition focus:outline-none">
             <div class="flex items-center gap-4">
                 <div class="p-2.5 bg-orange-50 rounded-xl border border-orange-100 text-orange-500">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,28 +170,58 @@
                     <tr class="text-gray-400 text-xs font-semibold tracking-wider uppercase bg-gray-50/30 border-b border-gray-100">
                         <th class="py-4 px-6">Nama Ormawa</th>
                         <th class="py-4 px-6">Jenis</th>
+                        <th class="py-4 px-6">Anggota</th>
                         <th class="py-4 px-6">Ketua</th>
                         <th class="py-4 px-6 text-right">Opsi Pemulihan</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-[14px] text-gray-500">
                     @forelse($organisasis_diarsipkan as $arch)
-                    <tr class="hover:bg-gray-50/30 transition-colors">
+                    <tr id="row-archive-{{ $arch->id }}" class="hover:bg-gray-50/30 transition-colors">
                         <td class="py-4 px-6 font-semibold text-gray-800">{{ $arch->nama }}</td>
                         <td class="py-4 px-6">
                             @php $jenisArch = collect($jenis_organisasis)->firstWhere('id', $arch->id_jenis_organisasi); @endphp
                             {{ $jenisArch->nama ?? 'UKM' }}
                         </td>
-                        <td class="py-4 px-6">{{ $arch->ketua->nama ?? '-' }}</td>
+                        
+                        {{-- HITUNG ANGGOTA ARSIP --}}
+                        <td class="py-4 px-6">
+                            @php
+                                $hitungAnggotaArch = DB::table('anggota_organisasis')->where('id_organisasi', $arch->id)->count();
+                            @endphp
+                            {{ $hitungAnggotaArch }} orang
+                        </td>
+                        
+                        {{-- KETUA ARSIP --}}
+                        <td class="py-4 px-6 text-gray-500">
+                            @php
+                                $getKetuaArch = DB::table('anggota_organisasis')
+                                    ->where('id_organisasi', $arch->id)
+                                    ->where('jabatan', 'Ketua')
+                                    ->where('status', 'aktif')
+                                    ->first();
+                                
+                                $namaKetuaArch = '-';
+                                if ($getKetuaArch) {
+                                    $mhsArch = DB::table('mahasiswas')->where('id_user', $getKetuaArch->id_user)->first()
+                                               ?? DB::table('users')->where('id', $getKetuaArch->id_user)->first();
+                                    if ($mhsArch) {
+                                        $namaKetuaArch = $mhsArch->nama ?? $mhsArch->name ?? '-';
+                                    }
+                                }
+                            @endphp
+                            {{ $namaKetuaArch }}
+                        </td>
+
                         <td class="py-4 px-6 text-right">
-                            <a href="{{ route('admin.organisasi.pulihkan', $arch->id) }}" class="inline-block px-3 py-1.5 bg-gray-100 hover:bg-[#F5A623] hover:text-white text-gray-600 rounded-lg text-xs font-semibold transition shadow-sm">
+                            <button type="button" onclick="pulihkanOrmawa({{ $arch->id }})" class="inline-block px-3 py-1.5 bg-gray-100 hover:bg-[#F5A623] hover:text-white text-gray-600 rounded-lg text-xs font-semibold transition shadow-sm focus:outline-none">
                                 Aktifkan Kembali
-                            </a>
+                            </button>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="py-8 text-center text-gray-400 text-xs">Tidak ada data organisasi yang diarsipkan.</td>
+                        <td colspan="5" class="py-8 text-center text-gray-400 text-xs">Tidak ada data organisasi yang diarsipkan.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -170,7 +234,6 @@
 @include('pages.admin.organisasi.edit')
 
 <script>
-    // Bridge Functions untuk memastikan modal pemicu Create/Tambah berjalan lancar
     function openCreateModal() {
         const modal = document.getElementById('modal-create-ormawa');
         if (modal) {
@@ -181,7 +244,11 @@
     }
 
     function arsipkanOrmawa(id) {
-        fetch(`/admin/organisasi/arsipkan/${id}`, {
+        if(!confirm('Apakah Anda yakin ingin mengarsipkan ormawa ini?')) return;
+
+        let url = window.location.origin + "/admin/organisasi/" + id + "/arsipkan";
+
+        fetch(url, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -189,32 +256,61 @@
                 'Accept': 'application/json'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text) });
+            }
+            return response.json();
+        })
         .then(data => {
-            if (data.success) {
-                const row = document.getElementById(`row-ormawa-${id}`);
-                if (row) row.remove();
-
-                const alertBox = document.getElementById('js-alert');
-                const alertMsg = document.getElementById('js-alert-message');
-                if (alertBox && alertMsg) {
-                    alertMsg.textContent = data.message;
-                    alertBox.classList.remove('hidden');
-                }
-
-                setTimeout(() => { window.location.reload(); }, 1500);
+            if (data.success || data.status === 'success') {
+                alert('Organisasi berhasil diarsipkan.');
+                window.location.reload();
+            } else {
+                alert('Gagal: ' + (data.message || 'Terjadi kesalahan'));
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Terjadi kesalahan saat memproses arsip.');
+            window.location.reload();
+        });
+    }
+
+    function pulihkanOrmawa(id) {
+        let url = window.location.origin + "/admin/organisasi/" + id + "/pulihkan";
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text) });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success || data.status === 'success') {
+                alert('Organisasi berhasil diaktifkan kembali.');
+                window.location.reload();
+            } else {
+                alert('Gagal memulihkan data: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            window.location.reload();
         });
     }
 
     function toggleAccordion(id) {
         const content = document.getElementById(id);
         const arrow = document.getElementById('accordion-arrow');
-        if(content.classList.contains('hidden')) {
+        if (content.classList.contains('hidden')) {
             content.classList.remove('hidden');
             arrow.classList.add('rotate-180');
         } else {
