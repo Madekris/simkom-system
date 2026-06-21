@@ -114,7 +114,7 @@ class Pengguna extends Controller
             ],
             'id_program_studi'  => 'required_unless:role,pembina,admin',
             'semester'          => 'required_unless:role,pembina,admin',
-            'id_organisasi'     => 'nullable',
+            'id_organisasi'     => 'required',
         ], [
             // Pesan Error untuk Nama
             'nama.required'             => 'Nama lengkap wajib diisi.',
@@ -137,6 +137,7 @@ class Pengguna extends Controller
             'email.unique'              => 'Email ini sudah digunakan oleh pengguna lain.',
 
             // Pesan Error untuk Akademik
+            'id_organisasi.required'    => 'Silahkan pilih organisasi yang dibina',
             'id_program_studi.required' => 'Silakan pilih program studi.',
             'semester.required'         => 'Semester wajib diisi.',
         ]);
