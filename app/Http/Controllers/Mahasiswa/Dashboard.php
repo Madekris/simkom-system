@@ -145,7 +145,7 @@ class Dashboard extends Controller
         if ($sudahMendaftar) {
             return back()
                 ->withInput()
-                ->with('error', "Anda sudah memiliki pendaftaran aktif untuk organisasi ini. Status: " . Str::title($sudahMendaftar->first()->status));
+                ->with('error', "Anda sudah memiliki pendaftaran aktif untuk organisasi ini. Status: " . Str::title($sudahMendaftar->status));
         }
 
         Auth::user()->update([

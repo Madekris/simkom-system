@@ -31,7 +31,7 @@
         <div class="w-full sm:w-auto">
             <select name="status" onchange="this.form.submit()" class="w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg outline-none transition-all duration-200 focus:border-[#1A2B5C] focus:ring-2 focus:ring-[#1A2B5C]/10 text-gray-700 cursor-pointer">
                 <option value="">Semua Status</option>
-                <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                <option value="Mendatang" {{ request('status') == 'Mendatang' ? 'selected' : '' }}>Mendatang</option>
                 <option value="Berlangsung" {{ request('status') == 'Berlangsung' ? 'selected' : '' }}>Berlangsung</option>
                 <option value="Selesai" {{ request('status') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
                 <option value="Dibatalkan" {{ request('status') == 'Dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>
