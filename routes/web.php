@@ -81,7 +81,6 @@ Route::middleware(['auth'])->group(function () {
          // TAMBAHAN RUTE UNTUK DETAIL API (ALPINJS AJAX)
          Route::get('/kegiatan-saya/{id}', [MahasiswaKegiatanSaya::class, 'show'])->name('kegiatan-saya.show');
 
-         Route::post('/kegiatan/daftar', [PendaftaranPeserta::class, 'daftar'])->name('kegiatan.daftar');
      });
 
     // 2. AREA PENGURUS (Hanya bisa diakses oleh role: pengurus)
