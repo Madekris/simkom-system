@@ -161,4 +161,43 @@ Route::prefix('admin')
             
     });
 
-});
+    Route::prefix('admin')
+        ->name('admin.')
+        ->middleware(['role:admin']) // <-- Proteksi Role
+        ->group(function () {
+        // Dashboard Utama Admin
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::post('/persetujuan/{id}', [AdminController::class, 'persetujuan'])->name('persetujuan.persetujuan');
+
+        // Fitur Keuangan ormawa & export
+        Route::get('/keuangan-ormawa', [AdminKeuanganOrmawa::class, 'index'])->name('keuangan-ormawa.index');
+        Route::get('/keuangan-ormawa/export', [AdminKeuanganOrmawa::class, 'exportExcel'])->name('keuangan-ormawa.export');
+
+        // Fitur Tambah Organisasi Baru
+        Route::get('/organisasi/create', [AdminController::class, 'create'])->name('organisasi.create');
+        Route::post('/organisasi/store', [AdminController::class, 'store'])->name('organisasi.store');
+
+        // Manajemen Organisasi oleh Admin
+        Route::get('/organisasi', [AdminController::class, 'index'])->name('organisasi.index');
+        Route::get('/organisasi/{id}/edit', [AdminController::class, 'edit'])->name('organisasi.edit');
+        Route::put('/organisasi/{id}', [AdminController::class, 'update'])->name('organisasi.update');
+        Route::post('/organisasi/{id}/toggle', [AdminController::class, 'toggleStatus'])->name('organisasi.toggle');
+        
+        // Fitur Kearsipan Organisasi via Admin
+        Route::post('/organisasi/arsipkan/{id}', [AdminController::class, 'arsipkan'])->name('organisasi.arsipkan');
+        Route::get('/organisasi/pulihkan/{id}', [AdminController::class, 'pulihkan'])->name('organisasi.pulihkan');
+        
+        Route::get('/organisasi/{id}/anggota', [AdminController::class, 'getAnggota'])->name('organisasi.anggota');
+
+        // Semua kegiatan
+        Route::get('/semua-kegiatan', [AdminSemuaKegiatan::class, 'index'])->name('semua-kegiatan.index');
+
+
+        //Pengguna
+        Route::get('/pengguna', [AdminPengguna::class, 'index'])->name('pengguna.index');
+        Route::put('/pengguna/{id}', [AdminPengguna::class, 'update'])->name('pengguna.update');
+        Route::post('/pengguna', [AdminPengguna::class, 'store'])->name('pengguna.store');
+        Route::get('/organisasi/{id}/detail', [AdminPengguna::class, 'getOrganisasiDetail'])->name('admin.organisasi.detail');
+    });
+
+}); // Penutup Middleware Auth Utama

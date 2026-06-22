@@ -8,16 +8,20 @@
 
 @section('topbar_actions')
 
-<button data-slot="button" 
-        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-9 px-4 py-2 has-[>svg]:px-3 bg-[#F5A623] hover:bg-[#E0921B] text-white font-semibold">
-    
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus w-4 h-4">
-        <path d="M5 12h14"></path>
-        <path d="M12 5v14"></path>
-    </svg>
-    
-    <span>Tambah Pengguna</span>
-</button>
+<form action="{{ route('admin.pengguna.index') }}" method="GET">
+    <input type="hidden" name="add_pengguna" value="true">
+
+    <button data-slot="button" 
+            class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold transition-all outline-none h-9 px-4 py-2 shrink-0 disabled:pointer-events-none disabled:opacity-50 bg-[#F5A623] hover:bg-[#E0921B] text-white focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 aria-invalid:border-destructive dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 has-[>svg]:px-3">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus w-4 h-4">
+            <path d="M5 12h14"></path>
+            <path d="M12 5v14"></path>
+        </svg>
+        
+        <span>Tambah Pengguna</span>
+    </button>
+</form>
 @endsection
 
     
@@ -155,9 +159,17 @@
     
     
 </div>
+
 @if (request('id'))
     <x-modal-detail-pengguna :data="$dPengguna">
     </x-modal-detail-pengguna>
+@endif
+
+@if ($addPengguna)
+<x-modal-add-pengguna 
+    :organisasi="$allOrganisasi"
+
+/>
 @endif
 
 @if (request('edit'))
