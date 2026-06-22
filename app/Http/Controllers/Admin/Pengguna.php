@@ -5,11 +5,15 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AnggotaOrganisasi;
 use App\Models\Organisasi;
+use App\Models\Pembina;
 use App\Models\PeriodeKepengurusan;
 use App\Models\ProgramStudi;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Rule;
 
 class Pengguna extends Controller
@@ -95,87 +99,178 @@ class Pengguna extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            // 1. Validasi Role (Wajib diisi dan harus sesuai opsi)
-            'role' => ['required', Rule::in(['Admin', 'Pembina', 'Pengurus'])],
 
-            // 2. Validasi Organisasi
-            // Wajib diisi jika role BUKAN Admin. Nilai tidak boleh '-'
-            'id_organisasi' => [
-                'required_unless:role,Admin',
-                function ($attribute, $value, $fail) use ($request) {
-                    if ($request->role !== 'Admin' && $value === '-') {
-                        $fail('Silakan pilih organisasi yang valid.');
-                    }
-                },
-                // Ganti 'organisasirers' dengan nama tabel organisasimu jika ingin cek ke DB
-                // 'nullable', 'exists:organisasis,id' 
-            ],
+public function store(Request $request)
+{
+    // 1. Jalankan Validasi Form
+    $validated = $request->validate([
+        // Validasi Umum / Role
+        'role' => ['required', Rule::in(['Admin', 'Pembina', 'Pengurus'])],
 
-            // 3. Validasi Jabatan
-            // Wajib diisi HANYA JIKA role adalah Pengurus
-            'jabatan' => [
-                'required_if:role,Pengurus',
-                'nullable',
-                Rule::in(['Ketua', 'Wakil Ketua', 'Sekretaris', 'Bendahara']),
-            ],
+        // Validasi Organisasi (Pengurus berupa ID tunggal, Pembina berupa Array)
+        'id_organisasi' => [
+            'required_unless:role,Admin',
+            function ($attribute, $value, $fail) use ($request) {
+                if ($request->role !== 'Admin' && (is_array($value) ? in_array('-', $value) : $value === '-')) {
+                    $fail('Silakan pilih organisasi yang valid.');
+                }
+            },
+        ],
+        'id_organisasi.*' => 'exists:organisasis,id', // Validasi jika id_organisasi dikirim sebagai array (Pembina)
 
-            // 4. Validasi Mahasiswa / User
-            // Wajib diisi jika role BUKAN Admin
-            'id_user' => [
-                'required_unless:role,Admin,Pembina',
-                'nullable',
-                'exists:users,id', // Memastikan ID user terdaftar di tabel users
-            ],
-        ], [
-            // Kustomisasi Pesan Error (Bahasa Indonesia)
-            'role.required' => 'Role wajib dipilih.',
-            'role.in' => 'Pilihan role tidak valid.',
-            'id_organisasi.required_unless' => 'Organisasi wajib dipilih untuk role ini.',
-            'jabatan.required_if' => 'Jabatan wajib dipilih untuk role Pengurus.',
-            'jabatan.in' => 'Pilihan posisi jabatan tidak sesuai.',
-            'id_user.required_unless' => 'Mahasiswa wajib dipilih.',
-            'id_user.exists' => 'Mahasiswa yang dipilih tidak valid atau tidak terdaftar.',
-        ]);
+        // Validasi khusus Pengurus
+        'jabatan' => [
+            'required_if:role,Pengurus',
+            'nullable',
+            Rule::in(['Ketua', 'Wakil Ketua', 'Sekretaris', 'Bendahara']),
+        ],
+        'id_user' => [
+            'required_if:role,Pengurus',
+            'nullable',
+            'exists:users,id',
+        ],
 
-        if($validated['role'] == 'Pengurus') {
-            $periodeAktif = PeriodeKepengurusan::where('id_organisasi', $validated['id_organisasi'])
+        // Validasi khusus Pembina
+        'nama_lengkap' => 'required_if:role,Pembina|nullable|string|max:255',
+        'nip'          => 'required_if:role,Pembina|nullable|string|numeric|unique:pembinas,nip',
+        'telepon'      => 'required_if:role,Pembina|nullable|string|min:10|max:15',
+        'email'        => 'required_if:role,Pembina|nullable|email|unique:users,email',
+        'password'     => ['required_if:role,Pembina', 'confirmed', Password::min(8)],
+    ], [
+        // Kustomisasi Pesan Error (Bahasa Indonesia)
+        'role.required'                 => 'Role wajib dipilih.',
+        'role.in'                       => 'Pilihan role tidak valid.',
+        'id_organisasi.required_unless' => 'Organisasi wajib dipilih untuk role ini.',
+        'jabatan.required_if'           => 'Jabatan wajib dipilih untuk role Pengurus.',
+        'jabatan.in'                    => 'Pilihan posisi jabatan tidak sesuai.',
+        'id_user.required_if'           => 'Mahasiswa wajib dipilih.',
+        'id_user.exists'                => 'Mahasiswa yang dipilih tidak terdaftar.',
+        'nama_lengkap.required_if'      => 'Nama lengkap wajib diisi.',
+        'nip.required_if'               => 'NIP wajib diisi.',
+        'nip.numeric'                   => 'NIP harus berupa angka.',
+        'nip.unique'                    => 'NIP sudah terdaftar di sistem.',
+        'telepon.required_if'           => 'Nomor telepon wajib diisi.',
+        'email.required_if'             => 'Alamat email wajib diisi.',
+        'email.email'                   => 'Format email tidak valid.',
+        'email.unique'                  => 'Email sudah terdaftar.',
+        'password.required_if'          => 'Password wajib diisi.',
+        'password.confirmed'            => 'Konfirmasi password tidak cocok.',
+        'password.min'                  => 'Password minimal harus 8 karakter.',
+    ]);
+
+    // dd($validated['id_organisasis']);
+
+    // Ambil data request agar aman dari kendala data bersyarat $validated
+    $role         = $request->input('role');
+    $idOrganisasi = $request->input('id_organisasi');
+
+    // Mulai Transaksi Database untuk menjamin keamanan relasi data
+    DB::beginTransaction();
+
+    try {
+        // ── SKENARIO 1: PROSES ROLE PENGURUS ──
+        if ($role === 'Pengurus') {
+            
+            $idUser  = $request->input('id_user');
+            $jabatan = $request->input('jabatan');
+
+            // Cek ketersediaan periode aktif kepengurusan
+            $periodeAktif = PeriodeKepengurusan::where('id_organisasi', $idOrganisasi)
                 ->where('status_periode', 'aktif')
                 ->first();
 
-            // 2. Cegah proses jika periode aktif belum dibuat di database
             if (!$periodeAktif) {
+                DB::rollBack();
                 return redirect()->back()
                     ->withInput()
-                    ->withErrors(['id_organisasi' => 'Organisasi ini belum memiliki Periode Kepengurusan yang aktif. Silakan buat periode aktif terlebih dahulu.']);
+                    ->withErrors(['id_organisasi' => 'Organisasi ini belum memiliki Periode Kepengurusan yang aktif.']);
             }
 
-            // Menggunakan 'id' untuk mencari User, dan strtolower() untuk menyamakan format role di database
-            User::where('id', $validated['id_user'])->update([
-                'role' => strtolower($validated['role']) // Mengubah 'Pengurus' menjadi 'pengurus'
+            // Update role user berkaitan di table 'users'
+            User::where('id', $idUser)->update([
+                'role' => 'pengurus'
             ]);
 
+            // Catat data ke jembatan organisasi
             AnggotaOrganisasi::create([
-                'id_user'       => $validated['id_user'],
-                'id_organisasi' => $validated['id_organisasi'],
-                'jabatan'       => $validated['jabatan'], // Nilainya: 'Ketua', 'Wakil Ketua', dll.
-                'status'        => 'aktif',               // Sesuai kebutuhan sistemmu (misal: 'Aktif')
-                
-                // 💡 Catatan untuk id_periode:
-                // Kamu harus mengambil ID Periode yang sedang aktif saat ini. Contoh jika ada model Periode:
-                // 'id_periode' => Periode::where('status', 'Aktif')->first()->id ?? 1,
-                'id_periode'    => $periodeAktif->id, // Ganti dengan logika/variabel id_periode jenjang berjalanmu
+                'id_user'       => $idUser,
+                'id_organisasi' => $idOrganisasi,
+                'id_periode'    => $periodeAktif->id,
+                'jabatan'       => $jabatan,
+                'status'        => 'aktif',
             ]);
 
+        // ── SKENARIO 2: PROSES ROLE PEMBINA ──
+        } elseif ($role === 'Pembina') {
+            
+            // Loop validasi pencegahan awal: Pastikan tidak ada organisasi pilihan yang sudah punya pembina
+            foreach ($idOrganisasi as $idOrg) {
+                $pembinaEksis = DB::table('anggota_organisasis')
+                    ->where('id_organisasi', $idOrg)
+                    ->where('jabatan', 'Pembina')
+                    ->where('status', 'aktif')
+                    ->exists();
+
+                if ($pembinaEksis) {
+                    $namaOrganisasi = DB::table('organisasis')->where('id', $idOrg)->value('nama');
+                    DB::rollBack();
+
+                    return redirect()->back()
+                        ->withInput()
+                        ->withErrors(['id_organisasi' => "Organisasi '{$namaOrganisasi}' sudah memiliki pembina aktif."]);
+                }
+            }
+
+            // Tambah Akun Baru ke tabel 'users'
+            $user = User::create([
+                'email'      => $request->input('email'),
+                'no_telepon' => $request->input('telepon'),
+                'password'   => Hash::make($request->input('password')),
+                'role'       => 'pembina',
+            ]);
+
+            // Tambah Detail Profil ke tabel 'pembinas'
+            Pembina::create([
+                'id_user' => $user->id,
+                'nip'     => $request->input('nip'),
+                'nama'    => $request->input('nama_lengkap'),
+            ]);
+
+            // Daftarkan semua organisasi binaan ke dalam tabel jembatan organisasi
+            foreach ($idOrganisasi as $idOrg) {
+                // Ambil periode kepengurusan aktif untuk organisasi terkait
+                $periodeOrg = PeriodeKepengurusan::where('id_organisasi', $idOrg)
+                    ->where('status_periode', 'aktif')
+                    ->first();
+
+                DB::table('anggota_organisasis')->insert([
+                    'id_user'       => $user->id,
+                    'id_organisasi' => $idOrg,
+                    'id_periode'    => $periodeOrg->id ?? 1, // Jika tidak ada, fallback ke ID 1 atau buat pencegahan sesuai kebutuhan
+                    'jabatan'       => 'Pembina',
+                    'status'        => 'aktif',
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ]);
+            }
         }
+
+        // Jalankan commit jika semua query berhasil tanpa interupsi
+        DB::commit();
+
         return redirect()
             ->back()
             ->with('success', 'Anggota organisasi berhasil didaftarkan!');
-            
-        // dd($validated);
+
+    } catch (\Exception $e) {
+        // Jika sistem error di tengah jalan, batalkan semua perubahan data
+        DB::rollBack();
+
+        return redirect()->back()
+            ->withInput()
+            ->withErrors(['error' => 'Gagal mendaftarkan anggota: ' . $e->getMessage()]);
     }
+}
 
     /**
      * Display the specified resource.
