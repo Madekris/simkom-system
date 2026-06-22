@@ -1,6 +1,6 @@
 <div class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" 
      x-data="{ 
-        role: 'Admin', 
+        role: 'Pembina', 
         id_organisasi: '-', 
         jabatan: '',
         mahasiswaList: [],
@@ -44,13 +44,12 @@
                 <div>
                     <label data-slot="label" class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50">Role *</label>
                     <select name="role" x-model="role" class="mt-1.5 w-full px-3 py-2 rounded-md border border-[#E5E7EB] bg-white text-sm outline-none focus:border-[#1A2B5C] focus:ring-2 focus:ring-[#1A2B5C]/20">
-                        <option value="Admin">Admin</option>
                         <option value="Pembina">Pembina</option>
                         <option value="Pengurus">Pengurus</option>
                     </select>
                 </div>
 
-                <div x-show="role !== 'Admin'">
+                <div x-show="role == 'Pengurus'">
                     <label data-slot="label" class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50">Organisasi *</label>
                     <select name="id_organisasi" x-model="id_organisasi" class="mt-1.5 w-full px-3 py-2 rounded-md border border-[#E5E7EB] bg-white text-sm outline-none focus:border-[#1A2B5C] focus:ring-2 focus:ring-[#1A2B5C]/20">
                         <option value="-">Pilih organisasi</option>
@@ -60,6 +59,116 @@
                     </select>
                 </div>
 
+<div x-show="role == 'Pembina'">
+    <div class="mb-4">
+        <label 
+            data-slot="label" 
+            class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+        >
+            Nama Lengkap *
+        </label>
+        
+        <input 
+            type="text" 
+            name="nama_lengkap"
+            class="mt-1.5 w-full px-3 py-2 rounded-md border border-[#E5E7EB] bg-white text-sm outline-none focus:border-[#1A2B5C] focus:ring-2 focus:ring-[#1A2B5C]/20" 
+            placeholder="Nama lengkap pengguna" 
+            value=""
+        />
+    </div>
+
+    <div class="mb-4">
+        <label 
+            data-slot="label" 
+            class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+        >
+            NIP *
+        </label>
+        
+        <input 
+            type="text" 
+            name="nip"
+            class="mt-1.5 w-full px-3 py-2 rounded-md border border-[#E5E7EB] bg-white text-sm outline-none focus:border-[#1A2B5C] focus:ring-2 focus:ring-[#1A2B5C]/20" 
+            placeholder="Masukkan nomor induk pegawai" 
+            value=""
+        />
+    </div>
+
+    <div class="mb-4">
+        <label 
+            data-slot="label" 
+            class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+        >
+            Telepon *
+        </label>
+        
+        <input 
+            type="tel" 
+            name="telepon"
+            class="mt-1.5 w-full px-3 py-2 rounded-md border border-[#E5E7EB] bg-white text-sm outline-none focus:border-[#1A2B5C] focus:ring-2 focus:ring-[#1A2B5C]/20" 
+            placeholder="Contoh: 08123456789" 
+            value=""
+        />
+    </div>
+
+    <div class="mb-4">
+        <label 
+            data-slot="label" 
+            class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+        >
+            Email *
+        </label>
+        
+        <input 
+            type="email" 
+            name="email"
+            autocomplete="off"
+            class="mt-1.5 w-full px-3 py-2 rounded-md border border-[#E5E7EB] bg-white text-sm outline-none focus:border-[#1A2B5C] focus:ring-2 focus:ring-[#1A2B5C]/20" 
+            placeholder="email@simkom-bali.ac.id" 
+            value=""
+        />
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+        <div>
+            <label 
+                data-slot="label" 
+                class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+            >
+                Password *
+            </label>
+            
+            <input 
+                type="password" 
+                name="password"
+                autocomplete="new-password"
+                class="mt-1.5 w-full px-3 py-2 rounded-md border border-[#E5E7EB] bg-white text-sm outline-none focus:border-[#1A2B5C] focus:ring-2 focus:ring-[#1A2B5C]/20" 
+                placeholder="Min. 8 karakter" 
+                value=""
+            />
+        </div>
+
+        <div>
+            <label 
+                data-slot="label" 
+                class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+            >
+                Konfirmasi Password *
+            </label>
+            
+            <input 
+                type="password" 
+                name="password_confirmation"
+                autocomplete="new-password"
+                class="mt-1.5 w-full px-3 py-2 rounded-md border border-[#E5E7EB] bg-white text-sm outline-none focus:border-[#1A2B5C] focus:ring-2 focus:ring-[#1A2B5C]/20" 
+                placeholder="Ulangi password" 
+                value=""
+            />
+        </div>
+    </div>
+</div>
+
+                
                 <div x-show="role == 'Pengurus' && id_organisasi !== '-'">
                     <label class="flex items-center gap-2 text-sm leading-none font-medium select-none">Jabatan *</label>
                     
