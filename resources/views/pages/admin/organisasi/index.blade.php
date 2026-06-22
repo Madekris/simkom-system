@@ -41,7 +41,7 @@
             })
             .then(response => {
                 console.log('Data sukses diterima dari database:', response);
-                this.ormawaKegiatans = response.data || [];
+                this.ormawaKegiatans = response || [];
                 this.isLoading = false;
             })
             .catch(err => {
@@ -93,6 +93,7 @@
                             @php
                                 $hitungAnggota = DB::table('anggota_organisasis')
                                     ->where('id_organisasi', $o->id)
+                                    ->where('status', 'aktif')
                                     ->where('status', 'aktif')
                                     ->count();
                             @endphp
@@ -409,6 +410,14 @@
         } else {
             content.classList.add('hidden');
             arrow.classList.remove('rotate-180');
+        }
+    }
+
+    // FUNGSI UTAMA UNTUK MENGAKTIFKAN KEMBALI ORMAWA YANG DIARSIPKAN (GET METHOD)
+    function pulihkanOrmawa(id) {
+        {
+            // Mengarahkan langsung ke URL rute GET Laravel sesuai struktur web.php
+            window.location.href = `/admin/organisasi/pulihkan/${id}`;
         }
     }
 </script>
