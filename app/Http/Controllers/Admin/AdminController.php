@@ -321,33 +321,76 @@ class AdminController extends Controller
         }
     }
 
-    public function getAnggota($id)
-    {
-        try {
-            $userIds = DB::table('anggota_organisasis')
-                ->where('id_organisasi', (int) $id)
-                ->where('status', 'aktif')
-                ->pluck('id_user')
-                ->toArray();
 
-            $anggota = DB::table('mahasiswas')
-                ->whereIn('id_user', $userIds)
-                ->select('id_user as id', 'nama', 'nim')
-                ->orderBy('nama', 'asc')
+
+public function getDokumen($id)
+{
+    try {
+        // 1. Ambil semua kegiatan milik organisasi ini langsung dari tabel 'kegiatans'
+        $kegiatans = DB::table('kegiatans')
+            ->where('id_organisasi', $id)
+            ->get();
+
+        $response = [];
+
+        // 2. Iterasi setiap kegiatan untuk mencari dokumennya
+        foreach ($kegiatans as $kegiatan) {
+            
+            // Ambil semua dokumen dari tabel 'dokumen_kegiatans' berdasarkan id_kegiatan
+            $dokumens = DB::table('dokumen_kegiatans')
+                ->where('id_kegiatan', $kegiatan->id)
                 ->get();
 
-            return response()->json([
-                'status' => 'success',
-                'data'   => $anggota,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => $e->getMessage(),
-                'data'    => [
-                    ['id' => '', 'nama' => 'Error: ' . $e->getMessage(), 'nim' => ''],
-                ],
-            ], 200);
+            $daftarDokumen = [];
+            foreach ($dokumens as $doc) {
+                // Normalisasi tipe untuk warna badge di UI Blade
+                $tipeBadge = 'LAPORAN';
+                $jenisStr = strtolower($doc->jenis_dokumen);
+                if (str_contains($jenisStr, 'proposal')) {
+                    $tipeBadge = 'PROPOSAL';
+                } elseif (str_contains($jenisStr, 'rab')) {
+                    $tipeBadge = 'RAB';
+                }
+
+                $daftarDokumen[] = [
+                    'nama_file'  => $doc->nama_file,
+                    'tipe'       => $tipeBadge,
+                    'path_url'   => $doc->path_url,
+                    // Format tanggal yang aman dari string database
+                    'created_at' => $doc->created_at ? date('d M Y', strtotime($doc->created_at)) : '-'
+                ];
+            }
+
+            // Masukkan ke response jika kegiatan ini memiliki minimal 1 dokumen
+            if (count($daftarDokumen) > 0) {
+                
+                // Ambil tahun periode secara manual dari tabel periode jika ada relasinya
+                $periode = DB::table('periode_kepengurusans')
+                    ->where('id', $kegiatan->id_periode)
+                    ->first();
+                
+                $thnMulai = $periode->tahun_mulai ?? '2025';
+                $thnSelesai = $periode->tahun_selesai ?? '2026';
+
+                $response[] = [
+                    'nama_kegiatan' => $kegiatan->judul_kegiatan,
+                    'periode'       => $thnMulai . '/' . $thnSelesai,
+                    'dokumen'       => $daftarDokumen
+                ];
+            }
         }
+
+        // Kembalikan data array murni ke AlpineJS
+        return response()->json($response);
+
+    } catch (\Exception $e) {
+        // Jika ada kesalahan, log akan mencatat detail spesifiknya
+        \Log::error('Gagal memuat dokumen lewat DB Query: ' . $e->getMessage());
+        
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+        ], 500);
     }
+}
 }
