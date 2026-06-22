@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Mahasiswa;
 
+use App\Http\Controllers\Controller;
 use App\Models\Kegiatan;
 use App\Models\PendaftaranPesertaKegiatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class PendaftaranPesertaController extends Controller
+class PendaftaranPeserta extends Controller
 {
     /**
      * Mengamankan pendaftaran peserta dengan validasi kuota waktu-nyata

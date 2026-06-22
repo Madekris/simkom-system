@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Bendahara;
+namespace App\Http\Controllers\Pembina;
 
 use App\Http\Controllers\Controller;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -15,7 +15,7 @@ class LogAktivitas extends Controller
                         ->orderBy('created_at', 'desc')
                         ->paginate(20);
 
-        return view('pages.bendahara.log-aktivitas', compact('logs'));
+        return view('pages.pembina.log-aktivitas', compact('logs'));
     }
 
     public function exportPdf()
@@ -27,11 +27,11 @@ class LogAktivitas extends Controller
         $pdf = Pdf::loadView('pages.cetak.log-aktivitas-pdf', [
             'logs'     => $logs,
             'namaUser' => Auth::user()->name,
-            'role'     => 'Bendahara',
-            'judul'    => 'Log Aktivitas Bendahara',
+            'role'     => 'Pembina',
+            'judul'    => 'Log Aktivitas Pembina',
             'isAdmin'  => false,
         ])->setPaper('a4', 'portrait');
 
-        return $pdf->download('log-aktivitas-bendahara-' . now()->format('Y-m-d') . '.pdf');
+        return $pdf->download('log-aktivitas-pembina-' . now()->format('Y-m-d') . '.pdf');
     }
 }

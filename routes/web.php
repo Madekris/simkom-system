@@ -4,15 +4,19 @@ use App\Http\Controllers\Auth\Login;
 use App\Http\Controllers\Auth\Registrasi;
 use App\Http\Controllers\Mahasiswa\Dashboard as MahasiswaDashboard;
 use App\Http\Controllers\Mahasiswa\KegiatanSaya as MahasiswaKegiatanSaya;
-use App\Http\Controllers\Mahasiswa\PendaftaranPeserta; 
+use App\Http\Controllers\Mahasiswa\PendaftaranPeserta;
 use App\Http\Controllers\Pengurus\VerifikasiController;
-use App\Http\Controllers\Pengurus\OrganisasiController; 
+use App\Http\Controllers\Pengurus\OrganisasiController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\KeuanganOrmawa as AdminKeuanganOrmawa;
 use App\Http\Controllers\Bendahara\InputKeuangan as BendaharaInputKeuangan;
 use App\Http\Controllers\Bendahara\Dashboard as BendaharaDashboard;
 use App\Http\Controllers\Bendahara\InfoOrmawa;
 use App\Http\Controllers\Bendahara\LogAktivitas as BendaharaLogAktivitas;
+use App\Http\Controllers\Mahasiswa\LogAktivitas as MahasiswaLogAktivitas;
+use App\Http\Controllers\Pengurus\LogAktivitas as PengurusLogAktivitas;
+use App\Http\Controllers\Pembina\LogAktivitas as PembinaLogAktivitas;
+use App\Http\Controllers\Admin\LogAktivitas as AdminLogAktivitas;
 use App\Http\Controllers\Pembina\KeuanganBinaan as PembinaKeuanganBinaan;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Pembina\RiwayatKegiatan;
@@ -21,7 +25,7 @@ use App\Http\Controllers\Pengurus\Kegiatan as PengurusKegiatan;
 use App\Http\Controllers\Pengurus\Keuangan as PengurusKeuangan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DokumenKegiatan;
-use App\Http\Controllers\Pengurus\DokumenController;    
+use App\Http\Controllers\Pengurus\DokumenController;
 
 
 // ==========================================
@@ -48,29 +52,33 @@ Route::middleware(['auth'])->group(function () {
     // 1. AREA MAHASISWA (Hanya bisa diakses oleh role: mahasiswa)
     Route::prefix('mahasiswa')
      ->name('mahasiswa.')
-     ->middleware(['role:mahasiswa']) 
+     ->middleware(['role:mahasiswa'])
      ->group(function () {
          Route::get('/dashboard', [MahasiswaDashboard::class, 'index'])->name('dashboard');
          Route::get('/organisasi', [MahasiswaDashboard::class, 'organisasi'])->name('organisasi.index');
-         
+
          // KUNCI FIX: Rute DAFTAR HARUS DI ATAS rute DETAIL!
          Route::get('/organisasi/{id}/daftar', [MahasiswaDashboard::class, 'pendaftaran'])->name('organisasi.daftar');
          Route::post('/organisasi/daftar', [MahasiswaDashboard::class, 'store'])->name('organisasi.store');
-         
-         // Rute DETAIL
-         Route::get('/organisasi/{id}', [MahasiswaDashboard::class, 'show'])->name('organisasi.show'); 
 
-         // RUTE BARU: KEGIATAN SAYA 
+         // Rute DETAIL
+         Route::get('/organisasi/{id}', [MahasiswaDashboard::class, 'show'])->name('organisasi.show');
+
+         // RUTE BARU: KEGIATAN SAYA
          Route::get('/kegiatan-saya', [MahasiswaKegiatanSaya::class, 'index'])->name('kegiatan-saya');
          Route::get('/kegiatan-saya/{id}', [MahasiswaKegiatanSaya::class, 'show'])->name('kegiatan-saya.show');
 
          Route::post('/kegiatan/daftar', [PendaftaranPeserta::class, 'daftar'])->name('kegiatan.daftar');
+
+         // Log Aktivitas (hanya milik user sendiri)
+         Route::get('/log-aktivitas', [MahasiswaLogAktivitas::class, 'index'])->name('log-aktivitas.index');
+         Route::get('/log-aktivitas/export-pdf', [MahasiswaLogAktivitas::class, 'exportPdf'])->name('log-aktivitas.export-pdf');
      });
 
     // 2. AREA PENGURUS (Hanya bisa diakses oleh role: pengurus)
     Route::prefix('pengurus')
          ->name('pengurus.')
-         ->middleware(['role:pengurus']) 
+         ->middleware(['role:pengurus'])
          ->group(function () {
             Route::get('/keuangan/export/{id}', [PengurusKeuangan::class, 'export'])->name('keuangan.export');
             Route::get('/dashboard', [PengurusDashboard::class, 'index'])->name('dashboard.index');
@@ -81,20 +89,24 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/dokumen/create', [DokumenController::class, 'create'])->name('dokumen.create');
             Route::post('/dokumen', [DokumenController::class, 'store'])->name('dokumen.store');
             Route::get('/dokumen/download/{id}', [DokumenController::class, 'download'])->name('dokumen.download');
-                 
+
             // Kegiatan
             Route::get('/kegiatan', [PengurusKegiatan::class, 'index'])->name('kegiatan.index');
             Route::get('/kegiatan/create', [PengurusKegiatan::class, 'create'])->name('kegiatan.create');
             Route::post('/kegiatan/store', [PengurusKegiatan::class, 'store'])->name('kegiatan.store');
-        
-             // Verifikasi & Anggota
-             Route::get('/verifikasi', [VerifikasiController::class, 'index'])->name('verifikasi.index');
-             Route::post('/verifikasi/{id}', [VerifikasiController::class, 'verifikasi'])->name('verifikasi'); 
-             
-             // Manajemen Anggota Internal
-             Route::put('/anggota/{id}', [VerifikasiController::class, 'updateAnggota'])->name('anggota.update');
-             Route::post('/anggota/{id}/arsip', [VerifikasiController::class, 'arsip'])->name('anggota.arsip');
-             Route::post('/anggota/{id}/restore', [VerifikasiController::class, 'restore'])->name('anggota.restore');
+
+            // Verifikasi & Anggota
+            Route::get('/verifikasi', [VerifikasiController::class, 'index'])->name('verifikasi.index');
+            Route::post('/verifikasi/{id}', [VerifikasiController::class, 'verifikasi'])->name('verifikasi');
+
+            // Manajemen Anggota Internal
+            Route::put('/anggota/{id}', [VerifikasiController::class, 'updateAnggota'])->name('anggota.update');
+            Route::post('/anggota/{id}/arsip', [VerifikasiController::class, 'arsip'])->name('anggota.arsip');
+            Route::post('/anggota/{id}/restore', [VerifikasiController::class, 'restore'])->name('anggota.restore');
+
+            // Log Aktivitas (hanya milik user sendiri)
+            Route::get('/log-aktivitas', [PengurusLogAktivitas::class, 'index'])->name('log-aktivitas.index');
+            Route::get('/log-aktivitas/export-pdf', [PengurusLogAktivitas::class, 'exportPdf'])->name('log-aktivitas.export-pdf');
     });
 
     // 3. AREA BENDAHARA
@@ -107,7 +119,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/input-keuangan', [BendaharaInputKeuangan::class, 'store'])->name('input-keuangan.store');
         Route::get('/input-keuangan/export', [BendaharaInputKeuangan::class, 'exportExcel'])->name('input-keuangan.export');
 
+        // Log Aktivitas (hanya milik user sendiri)
         Route::get('/log-aktivitas', [BendaharaLogAktivitas::class, 'index'])->name('log-aktivitas.index');
+        Route::get('/log-aktivitas/export-pdf', [BendaharaLogAktivitas::class, 'exportPdf'])->name('log-aktivitas.export-pdf');
     });
 
     // Rute Edit Utama Profil Ormawa (Oleh Pengurus/Ketua Umum)
@@ -119,18 +133,22 @@ Route::middleware(['auth'])->group(function () {
         ->name('pembina.')
         ->middleware(['role:pembina'])
         ->group(function () {
-            Route::get('/dashboard', [RiwayatKegiatan::class, 'dashboard'])->name('dashboard'); 
+            Route::get('/dashboard', [RiwayatKegiatan::class, 'dashboard'])->name('dashboard');
             Route::get('/keuangan-binaan', [PembinaKeuanganBinaan::class, 'index'])->name('keuangan-binaan.index');
             Route::resource('riwayat-kegiatan', RiwayatKegiatan::class)->parameters([
                 'riwayat-kegiatan' => 'id'
             ]);
+
+            // Log Aktivitas (hanya milik user sendiri)
+            Route::get('/log-aktivitas', [PembinaLogAktivitas::class, 'index'])->name('log-aktivitas.index');
+            Route::get('/log-aktivitas/export-pdf', [PembinaLogAktivitas::class, 'exportPdf'])->name('log-aktivitas.export-pdf');
     });
 
     // 5. AREA ADMIN GLOBAL (Super Admin)
-Route::prefix('admin')
-    ->name('admin.')
-    ->middleware(['role:admin,pengurus,pembina']) // Gunakan koma, bukan pipe (|)
-    ->group(function () {
+    Route::prefix('admin')
+        ->name('admin.')
+        ->middleware(['role:admin,pengurus,pembina']) // Gunakan koma, bukan pipe (|)
+        ->group(function () {
             Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
             // Persetujuan Proposal/Kegiatan
@@ -147,18 +165,20 @@ Route::prefix('admin')
             Route::get('/organisasi/{id}/edit', [AdminController::class, 'edit'])->name('organisasi.edit');
             Route::put('/organisasi/{id}', [AdminController::class, 'update'])->name('organisasi.update');
             Route::post('/organisasi/{id}/toggle', [AdminController::class, 'toggleStatus'])->name('organisasi.toggle');
-            
+
             // FIX KEARSIPAN: Diubah ke POST agar sinkron dengan AJAX Fetch API Anda
             Route::post('/organisasi/arsipkan/{id}', [AdminController::class, 'arsipkan'])->name('organisasi.arsipkan');
             Route::get('/organisasi/pulihkan/{id}', [AdminController::class, 'pulihkan'])->name('organisasi.pulihkan');
-            
+
             // Utilitas Anggota & Dokumen Ormawa tertentu
             Route::get('/organisasi/{id}/anggota', [AdminController::class, 'getAnggota'])->name('organisasi.anggota');
-            
-            // FIX: Menyesuaikan endpoint URL akhir dari "/dokumen" menjadi "/dokumen-list" agar klop dengan JavaScript Blade Anda
-            // SESUDAH DIUBAH:
             Route::get('/organisasi/{id}/dokumen', [AdminController::class, 'getDokumen'])->name('organisasi.dokumen');
-            
+
+            // Log Aktivitas Sistem (semua user) — KHUSUS ADMIN
+            Route::middleware('role:admin')->group(function () {
+                Route::get('/log-aktivitas', [AdminLogAktivitas::class, 'index'])->name('log-aktivitas.index');
+                Route::get('/log-aktivitas/export-pdf', [AdminLogAktivitas::class, 'exportPdf'])->name('log-aktivitas.export-pdf');
+            });
     });
 
-});
+}); // Penutup Middleware Auth Utama

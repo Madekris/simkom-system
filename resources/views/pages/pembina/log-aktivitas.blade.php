@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
 @section('topbar_title', 'Log Aktivitas')
-@section('topbar_subtitle', 'Riwayat input transaksi & laporan keuangan Anda')
+@section('topbar_subtitle', 'Riwayat tindakan Anda sebagai Pembina di sistem')
 
 @section('topbar_actions')
-    <a href="{{ route('bendahara.log-aktivitas.export-pdf') }}"
+    <a href="{{ route('pembina.log-aktivitas.export-pdf') }}"
        class="inline-flex items-center justify-center text-sm font-medium transition-all h-9 rounded-lg px-4 gap-2 border border-[#E5E7EB] bg-white text-[#1C1E2C] hover:bg-[#F7F8FC] shadow-sm">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-[#6B7280]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>

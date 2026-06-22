@@ -172,7 +172,7 @@
                         <form action="{{ route('admin.persetujuan.persetujuan', ['id' => $kegiatan->id]) }}" method="POST">
                             @csrf
                             <input type="hidden" name="status" value="Mendatang">
-                            <button data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none rounded-md px-3 bg-[#22C55E] hover:bg-[#16A34A] text-white h-8">Setujui</button>
+                            <button type="submit" data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none rounded-md px-3 bg-[#22C55E] hover:bg-[#16A34A] text-white h-8">Setujui</button>
                         </form>
                     </div>
                 </div>

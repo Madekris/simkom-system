@@ -8,11 +8,11 @@ use Spatie\Activitylog\LogOptions;
 
 class Kegiatan extends Model
 {
+    use LogsActivity;
+
     protected $table = 'kegiatans';
 
     public $timestamps = true;
-
-    protected $guarded = ['id'];
 
     protected $fillable = [
         'id_organisasi',
@@ -24,35 +24,8 @@ class Kegiatan extends Model
         'lokasi',
         'kuota_peserta',
         'status',
-        'evaluasi_kegiatan'
+        'evaluasi_kegiatan',
     ];
-
-    public function organisasi()
-    {
-        return $this->belongsTo(Organisasi::class, 'id_organisasi');
-    }
-
-    public function periode()
-    {
-        return $this->belongsTo(PeriodeKepengurusan::class, 'id_periode');
-    }
-
-    // FIX: Nama fungsi diubah ke jamak 'dokumenKegiatans' agar pas dengan AdminController
-    public function dokumenKegiatans()
-    {
-        return $this->hasMany(DokumenKegiatan::class, 'id_kegiatan', 'id');
-    }
-
-    public function keuanganKegiatan()
-    {
-        return $this->hasMany(KeuanganKegiatan::class, 'id_kegiatan');
-    }
-
-    public function pendaftaranPesertaKegiatan()
-    {
-        return $this->hasMany(PendaftaranPesertaKegiatan::class, 'id_kegiatan');
-    }
-}
 
     public function getActivitylogOptions(): LogOptions
     {
@@ -61,7 +34,14 @@ class Kegiatan extends Model
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('manajemen_kegiatan') // Dilakukan oleh Pengurus
-            ->setDescriptionForEvent(fn(string $eventName) => "Kegiatan '{$this->judul_kegiatan}' telah di {$eventName}");
+            ->setDescriptionForEvent(function (string $eventName) {
+                return match ($eventName) {
+                    'created' => "Kegiatan '{$this->judul_kegiatan}' berhasil dibuat dan menunggu persetujuan",
+                    'updated' => "Kegiatan '{$this->judul_kegiatan}' berhasil diperbarui",
+                    'deleted' => "Kegiatan '{$this->judul_kegiatan}' telah dihapus",
+                    default   => "Kegiatan '{$this->judul_kegiatan}' mengalami perubahan: {$eventName}",
+                };
+            });
     }
 
     public function organisasi()
@@ -74,6 +54,13 @@ class Kegiatan extends Model
         return $this->belongsTo(PeriodeKepengurusan::class, 'id_periode');
     }
 
+    // Nama jamak 'dokumenKegiatans' dipakai oleh AdminController
+    public function dokumenKegiatans()
+    {
+        return $this->hasMany(DokumenKegiatan::class, 'id_kegiatan', 'id');
+    }
+
+    // Alias tunggal untuk pemanggilan lama
     public function dokumenKegiatan()
     {
         return $this->hasMany(DokumenKegiatan::class, 'id_kegiatan');
