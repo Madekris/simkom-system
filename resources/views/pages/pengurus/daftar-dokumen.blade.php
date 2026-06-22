@@ -68,8 +68,8 @@
     <div class="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden shadow-sm">
 
         <div class="flex justify-end p-5 border-b">
-            {{-- PERBAIKAN FIXED: Menggunakan url() langsung untuk tombol Upload --}}
-            <a href="{{ url('/dokumen/create') }}" class="inline-flex items-center justify-center gap-2 text-white font-semibold shadow-sm transition-colors hover:bg-[#d88e15]" style="background-color: #f0a929; border-radius: 8px; height: 38px; padding: 0 16px; font-size: 0.875rem;">
+            {{-- FIX: Mengubah url() menjadi route() agar sinkron dengan grup prefix 'pengurus' --}}
+            <a href="{{ route('pengurus.dokumen.create') }}" class="inline-flex items-center justify-center gap-2 text-white font-semibold shadow-sm transition-colors hover:bg-[#d88e15]" style="background-color: #f0a929; border-radius: 8px; height: 38px; padding: 0 16px; font-size: 0.875rem;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                     <polyline points="17 8 12 3 7 8"></polyline>
@@ -117,20 +117,21 @@
                             <td class="p-4 text-gray-500 text-xs">
                                 2.4 MB
                             </td>
-                            <td class="p-4 text-gray-500 text-xs">
-                                {{ $doc->created_at ? $doc->created_at->translatedFormat('j M Y') : '-' }}
+                            <td>
+                                {{ $doc->created_at ? \Carbon\Carbon::parse($doc->created_at)->translatedFormat('j M Y') : '-' }}
                             </td>
                             <td class="p-4">
-    <div class="flex items-center justify-center">
-        <a href="{{ route('dokumen.download', $doc->id) }}" class="text-gray-400 hover:text-[#1A2B5C] transition-colors" title="Download Berkas">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" x2="12" y1="15" y2="3"></line>
-            </svg>
-        </a>
-    </div>
-</td>
+                                <div class="flex items-center justify-center">
+                                    {{-- FIX: Mengarahkan download berkas ke route download milik pengurus --}}
+                                    <a href="{{ route('pengurus.dokumen.download', $doc->id) }}" class="text-gray-400 hover:text-[#1A2B5C] transition-colors" title="Download Berkas">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                            <polyline points="7 10 12 15 17 10"></polyline>
+                                            <line x1="12" x2="12" y1="15" y2="3"></line>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </td>
                         </tr>
                     @empty
                         <tr>
