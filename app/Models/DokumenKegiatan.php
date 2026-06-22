@@ -8,8 +8,12 @@ use Spatie\Activitylog\LogOptions;
 
 class DokumenKegiatan extends Model
 {
-
     protected $table = 'dokumen_kegiatans';
+
+    protected $casts = [
+    'created_at' => 'datetime',
+    'updated_at' => 'datetime',
+];
     
     protected $fillable = [
         'id_kegiatan', 
@@ -18,12 +22,11 @@ class DokumenKegiatan extends Model
         'path_url'
     ];
 
-    // Daftarkan kolom deleted_at agar dikenali sebagai komponen tanggal oleh Laravel
     protected $dates = ['deleted_at'];
 
     public function kegiatan()
     {
-        // Parameter: NamaModel, Foreign_Key_Tabel_Ini, Local_Key_Tabel_Target
-        return $this->belongsTo(Kegiatan::class, 'id_kegiatan', 'id_kegiatan');
+        // Parameter ketiga diubah menjadi 'id' (Primary Key tabel kegiatans)
+        return $this->belongsTo(Kegiatan::class, 'id_kegiatan', 'id');
     }
 }

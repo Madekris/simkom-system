@@ -4,7 +4,7 @@
 @section('topbar_title', 'Dashboard Pengurus')
 
 {{-- Isi Subtitle Topbar (Opsional) --}}
-@section('topbar_subtitle', $ormawa->first()->nama)
+@section('topbar_subtitle', $ormawa->first()?->nama ?? 'Nama Ormawa Belum Diatur')
 
 @section('content')
 

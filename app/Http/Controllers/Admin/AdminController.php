@@ -11,7 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
@@ -20,17 +20,16 @@ class AdminController extends Controller
     {
         $total_ormawa = Organisasi::count();
         $totalAnggota = AnggotaOrganisasi::where('status', 'aktif')->count();
-
-        // dd($totalAnggota);
-        $kegiatanAktif = Kegiatan::whereIn('status', ['Belangsung', 'Mendatang'])->count();
-        $persetujuanKegiatan = Kegiatan::where('status', 'Pending');
+        $kegiatanAktif = Kegiatan::whereIn('status', ['Berlangsung', 'Mendatang'])->count();
+        
+        $persetujuanKegiatanCount = Kegiatan::where('status', 'Pending')->count();
         
         $ormawaNonaktif = Organisasi::where('status', 'nonaktif')->count();
 
-        $tanggalMulai = Carbon::now()->subMonths(5)->startOfMonth(); // Awal bulan dari 6 bulan lalu (Januari 2026)
+        $tanggalMulai = Carbon::now()->subMonths(5)->startOfMonth(); 
         $tanggalAkhir = Carbon::now()->endOfMonth();
 
-        // Ambil data kegiatan dari bulan 1 (Jan) sampai 6 (Jun) di tahun berjalan
+        // Ambil data kegiatan dari bulan dalam rentang tahun berjalan
         $kegiatanPerBulan = Kegiatan::selectRaw("DATE_FORMAT(tanggal_kegiatan, '%Y-%m') as bulan_tahun, COUNT(*) as total")
             ->whereBetween('tanggal_kegiatan', [$tanggalMulai->format('Y-m-d'), $tanggalAkhir->format('Y-m-d')])
             ->groupBy('bulan_tahun')
@@ -39,30 +38,25 @@ class AdminController extends Controller
             ->toArray();
 
         $labels = [];
-        // Menyusun data agar pas dengan 6 indeks baris chart (Jan-Jun) meskipun ada bulan yang kosong (0)
         $chartData = [];
         $berjalan = $tanggalMulai->copy();
+        
         while ($berjalan <= $tanggalAkhir) {
-            $key = $berjalan->format('Y-m'); // Format: 2026-01, 2026-02, dst
-            
-            // Masukkan nama bulan singkat ke dalam array Label Chart (Jan, Feb, Mar...)
+            $key = $berjalan->format('Y-m'); 
             $labels[] = $berjalan->translatedFormat('M'); 
-            
-            // Masukkan total kegiatan (jika tidak ada kegiatan, otomatis 0)
             $chartData[] = $kegiatanPerBulan[$key] ?? 0;
-            
-            $berjalan->addMonth(); // Geser ke bulan berikutnya
+            $berjalan->addMonth(); 
         }
-        // dd($persetujuanKegiatan->get());
+
         $kegiatanPending = Kegiatan::with('organisasi')->where('status', 'Pending')->get();
 
         $data = [
-            'total_ormawa'       => $total_ormawa,
-            'total_anggota'      => $totalAnggota, 
-            'kegiatan_aktif'     => $kegiatanAktif,
-            'pending'            => $persetujuanKegiatan->count(),
-            'chartData'          => $chartData,
-            'labels'             => $labels,
+            'total_ormawa'      => $total_ormawa,
+            'total_anggota'     => $totalAnggota, 
+            'kegiatan_aktif'    => $kegiatanAktif,
+            'pending'           => $persetujuanKegiatanCount,
+            'chartData'         => $chartData,
+            'labels'            => $labels,
             'ormawa_aktif'      => ($total_ormawa - $ormawaNonaktif),
             'ormawa_nonaktif'   => $ormawaNonaktif,
             'kegiatan_pending'  => $kegiatanPending
@@ -73,9 +67,8 @@ class AdminController extends Controller
 
     public function persetujuan(Request $request, string $id)
     {
-        $status = $request->input('status'); // Atau $request['status']
+        $status = $request->input('status'); 
 
-        // Melempar argumen dalam bentuk array []
         Kegiatan::where('id', $id)->update([
             'status' => $status
         ]);
@@ -86,30 +79,51 @@ class AdminController extends Controller
     // 2. Menampilkan daftar organisasi (Aktif & Diarsipkan terpisah)
     public function index(Request $request)
     {
-        // 1. Ambil data ormawa yang statusnya AKTIF saja untuk tabel utama
-        $organisasis = Organisasi::with('ketua')->where('status', 'aktif')->get();
-        
-        // 2. Ambil data ormawa yang DIARSIPKAN untuk bagian bawah accordion
+        // Eager load 'kegiatan' beserta relasi 'dokumenKegiatans' di dalamnya
+        $organisasis = Organisasi::with(['ketua', 'kegiatan.dokumenKegiatans'])
+            ->where('status', 'aktif')
+            ->get();
+
+        // Format ulang data kegiatan ormawa agar cocok dengan struktur modal AlpineJS di View
+        foreach ($organisasis as $o) {
+            $formattedKegiatan = [];
+            foreach ($o->kegiatan as $k) {
+                $dokumen = [];
+                
+                // Ambil berkas-berkas secara dinamis dari hasil join tabel dokumen_kegiatans
+                if ($k->dokumenKegiatans && $k->dokumenKegiatans->count() > 0) {
+                    foreach ($k->dokumenKegiatans as $doc) {
+                        $dokumen[] = [
+                            'id' => $doc->id,
+                            'nama_file' => $doc->nama_file,
+                            'jenis_dokumen' => $doc->jenis_dokumen, // Berisi value: proposal, rab, lpj_keuangan, dokumentasi
+                            'path_url' => $doc->path_url
+                        ];
+                    }
+                }
+
+                $formattedKegiatan[] = [
+                    'id' => $k->id,
+                    'judul_kegiatan' => $k->judul_kegiatan, // PERBAIKAN: Diubah dari $k->nama ke $k->judul_kegiatan sesuai kolom DB
+                    'dokumen_kegiatans' => $dokumen // Dilempar ke modal template loop x-for
+                ];
+            }
+            // Simpan hasil mapping ke atribut baru
+            $o->formatted_kegiatans = $formattedKegiatan;
+        }
+
         $organisasis_diarsipkan = Organisasi::with('ketua')->where('status', 'diarsipkan')->get();
-        
-        // 3. Ambil data mahasiswa untuk keperluan modal dropdown
         $mahasiswas = DB::table('mahasiswas')->get(); 
-        
-        // PERBAIKAN TYPO: Mengubah 'jenis_organisasias' menjadi nama tabel database yang benar
         $jenis_organisasis = DB::table('jenis_organisasis')->get(); 
 
         $oView = [];
         $idOrg = $request->id;
 
         if ($idOrg) {
-            $oView = Organisasi::with(['jenisOrganisasi', 'ketua.user.mahasiswa', 'pembina.user.pembina', 'anggotaOrganisasi', 'periode', 'kegiatan'])
+            $oView = Organisasi::with(['jenisOrganisasi', 'ketua.user.mahasiswa', 'pembina.user.pembina', 'anggotaOrganisasi', 'periode', 'kegiatan.dokumenKegiatans'])
                 ->findOrFail($idOrg);
-            
-                // dd($oView->toArray());
         }
 
-
-        // Kirim semua variabel ke view index
         return view('pages.admin.organisasi.index', compact(
             'organisasis', 
             'organisasis_diarsipkan', 
@@ -119,59 +133,55 @@ class AdminController extends Controller
         ));
     }
 
-    // 3. Menampilkan form tambah
-public function store(Request $request)
-{
-    $request->validate([
-        'id_jenis_organisasi' => 'required|integer',
-        'nama'                => 'required|string|max:255|unique:organisasis,nama',
-        'deskripsi'           => 'nullable|string',
-        'visi'                => 'nullable|string',
-        'misi'                => 'nullable|string',
-        'mahasiswa_id'        => 'required|integer', 
-        'ad_art'              => 'required|file|mimes:pdf,doc,docx|max:5120', 
-    ]);
-
-    $adArtPath = null;
-    if ($request->hasFile('ad_art')) {
-        $adArtPath = $request->file('ad_art')->store('organisasi/ad_art', 'public');
-    }
-
-    DB::transaction(function () use ($request, $adArtPath) {
-        $organisasi = Organisasi::create([
-            'id_jenis_organisasi' => $request->id_jenis_organisasi,
-            'nama'                => $request->nama,
-            'deskripsi'           => $request->deskripsi,
-            'visi'                => $request->visi,
-            'misi'                => $request->misi,
-            'ad_art'              => $adArtPath,
-            'status'              => 'aktif', 
+    // 3. Menyimpan data organisasi baru
+    public function store(Request $request)
+    {
+        $request->validate([
+            'id_jenis_organisasi' => 'required|integer',
+            'nama'                => 'required|string|max:255|unique:organisasis,nama',
+            'deskripsi'           => 'nullable|string',
+            'visi'                => 'nullable|string',
+            'misi'                => 'nullable|string',
+            'mahasiswa_id'        => 'required|integer', 
+            'ad_art'              => 'required|file|mimes:pdf,doc,docx|max:5120', 
         ]);
 
-        // PERBAIKAN: Nama tabel dan nama kolom harus sesuai dengan database
-// Di dalam DB::transaction pada AdminController.php
+        $adArtPath = null;
+        if ($request->hasFile('ad_art')) {
+            $adArtPath = $request->file('ad_art')->store('organisasi/ad_art', 'public');
+        }
 
+        DB::transaction(function () use ($request, $adArtPath) {
+            $organisasi = Organisasi::create([
+                'id_jenis_organisasi' => $request->id_jenis_organisasi,
+                'nama'                => $request->nama,
+                'deskripsi'           => $request->deskripsi,
+                'visi'                => $request->visi,
+                'misi'                => $request->misi,
+                'ad_art'              => $adArtPath,
+                'status'              => 'aktif', 
+            ]);
 
-        DB::table('anggota_organisasis')->insert([
-            'id_organisasi' => $organisasi->id,
-            'id_user'       => $request->mahasiswa_id, 
-            'jabatan'       => 'Ketua',
-            'status'        => 'aktif',
-            'id_periode'    => 1, // <--- TAMBAHKAN INI. Sesuaikan dengan ID periode yang sedang aktif
-            'created_at'    => now(),
-            'updated_at'    => now(),
-        ]);
+            DB::table('anggota_organisasis')->insert([
+                'id_organisasi' => $organisasi->id,
+                'id_user'       => $request->mahasiswa_id, 
+                'jabatan'       => 'Ketua',
+                'status'        => 'aktif',
+                'id_periode'    => 1, 
+                'created_at'    => now(),
+                'updated_at'    => now(),
+            ]);
         });
 
-    return redirect()->route('admin.organisasi.index')->with('success', 'Organisasi baru berhasil ditambahkan!');
-}
+        return redirect()->route('admin.organisasi.index')->with('success', 'Organisasi baru berhasil ditambahkan!');
+    }
 
-public function create()
-{
-    $mahasiswas = \App\Models\Mahasiswa::all(); // Pastikan Model-nya benar
-    $jenis_organisasis = \App\Models\JenisOrganisasi::all(); 
-    return view('pages.admin.organisasi.create', compact('mahasiswas', 'jenis_organisasis'));
-}
+    public function create()
+    {
+        $mahasiswas = \App\Models\Mahasiswa::all(); 
+        $jenis_organisasis = \App\Models\JenisOrganisasi::all(); 
+        return view('pages.admin.organisasi.create', compact('mahasiswas', 'jenis_organisasis'));
+    }
 
     // 5. Menampilkan form edit
     public function edit($id)
@@ -208,13 +218,38 @@ public function create()
         $validatedData['ad_art'] = $request->file('ad_art')->store('organisasi/ad_art', 'public');
     }
 
-   DB::transaction(function () use ($org, $validatedData, $request, $id) {
-    $org->update($validatedData);
+        DB::transaction(function () use ($org, $validatedData, $request, $id) {
+            $org->update($validatedData);
 
-    $ketuaLama = DB::table('anggota_organisasis')
+            $ketuaLama = DB::table('anggota_organisasis')
+                            ->where('id_organisasi', $id)
+                            ->where('jabatan', 'Ketua')
+                            ->first();
+
+            $idPeriode = \App\Models\PeriodeKepengurusan::where('status_periode', 'aktif')->value('id') ?? 1;
+
+            if ($ketuaLama) {
+                DB::table('anggota_organisasis')
                     ->where('id_organisasi', $id)
                     ->where('jabatan', 'Ketua')
-                    ->first();
+                    ->update([
+                        'id_user'      => $request->mahasiswa_id,
+                        'status'       => 'aktif',
+                        'id_periode'   => $idPeriode, 
+                        'updated_at'   => now()
+                    ]);
+            } else {
+                DB::table('anggota_organisasis')->insert([
+                    'id_organisasi' => $id,
+                    'id_user'       => $request->mahasiswa_id,
+                    'jabatan'       => 'Ketua',
+                    'status'        => 'aktif',
+                    'id_periode'    => $idPeriode, 
+                    'created_at'    => now(),
+                    'updated_at'    => now()
+                ]);
+            }
+        });
 
     // 1. CARI PERIODE AKTIF YANG BENAR-BENAR MILIK ORGANISASI INI
     $periodeAktif = DB::table('periode_kepengurusans')
@@ -269,96 +304,113 @@ public function create()
         return back()->with('success', 'Status organisasi berhasil diubah.');
     }
 
-    // 8. Fitur Mengarsipkan Data (Status berubah jadi 'diarsipkan')
-
-    public function archive($id)
-    {
-        $org = Organisasi::findOrFail($id);
-        $org->status = 'diarsipkan';
-        $org->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Data ' . $org->nama . ' berhasil diarsipkan.'
-        ]);
-    }
-
-    // 9. Fitur Mengembalikan Data dari Arsip (Opsional)
-    public function restoreFromArchive($id)
-    {
-        $org = Organisasi::findOrFail($id);
-        $org->status = 'aktif';
-        $org->save();
-
-        return redirect()->route('admin.organisasi.index')->with('success', 'Data organisasi berhasil diaktifkan kembali!');
-    }
-
-    // 10. Alias untuk rute arsip (menghubungkan rute 'arsipkan' ke fungsi 'archive')
+    // 8. Fitur Mengarsipkan Data
     public function arsipkan(string $id)
     {
         try {
-            // Find data organisasi
             $organisasi = Organisasi::findOrFail($id);
-            
-            // Cukup ubah status organisasi menjadi diarsipkan
-            // Ini menghindari error 'visi cannot be null' karena tidak memicu proses insert baru
             $organisasi->status = 'diarsipkan';
             $organisasi->save();
 
-            return redirect()->back()->with('success', 'Organisasi berhasil diarsipkan kembali.');
+            return redirect()->back()->with('success', 'Organisasi ' . $organisasi->nama . ' berhasil diarsipkan.');
 
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal memulihkan data: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengarsipkan data: ' . $e->getMessage());
         }
     }
 }
 
-    // 11. Alias untuk rute pulihkan (jika rute web.php memanggil 'pulihkan')
+    // 9. Fitur Mengembalikan Data dari Arsip
     public function pulihkan(string $id)
     {
         try {
-            // Find data organisasi
             $organisasi = Organisasi::findOrFail($id);
-            
-            // Kembalikan status ke aktif
             $organisasi->status = 'aktif';
             $organisasi->save();
 
-            // Mengembalikan ke halaman sebelumnya dengan pesan sukses
-            return redirect()->back()->with('success', 'Organisasi berhasil diaktifkan kembali.');
+            return redirect()->back()->with('success', 'Organisasi ' . $organisasi->nama . ' berhasil diaktifkan kembali.');
             
         } catch (\Exception $e) {
-            // Mengembalikan ke halaman sebelumnya dengan pesan error
             return redirect()->back()->with('error', 'Gagal memulihkan data: ' . $e->getMessage());
         }
     }
 
+    // 10. Mengambil JSON berkas file internal Ormawa (AJAX)
+// 10. Mengambil JSON berkas file internal Ormawa (AJAX)
+    public function getDokumen($id)
+    {
+        $user = auth()->user();
+
+        // Pengecekan kolom 'role' langsung
+        $isAdmin = $user->role === 'admin';
+
+        if (!$isAdmin) {
+            $isAuthorized = \App\Models\AnggotaOrganisasi::where('id_organisasi', $id)
+                ->where('id_user', $user->id)
+                ->exists();
+                
+            if (!$isAuthorized) {
+                return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
+            }
+        }
+
+        $kegiatan = \App\Models\Kegiatan::with('dokumenKegiatans')
+            ->where('id_organisasi', $id)
+            ->orderBy('tanggal_kegiatan', 'desc')
+            ->get();
+
+        // Jika kegiatan kosong, kita kembalikan data kosong agar modal tidak error
+        if ($kegiatan->isEmpty()) {
+            return response()->json(['status' => 'success', 'data' => []]);
+        }
+
+        $daftarKegiatan = [];
+        foreach ($kegiatan as $k) {
+            $dokumen = [];
+            foreach ($k->dokumenKegiatans as $d) {
+                // KUNCI PERBAIKAN: Bersihkan substring '/storage/' atau 'storage/' jika sudah ada di database 
+                // agar saat digabungkan dengan asset() tidak menghasilkan url ganda (/storage/storage/)
+                $cleanPath = ltrim($d->path_url, '/');
+                if (strpos($cleanPath, 'storage/') === 0) {
+                    $cleanPath = substr($cleanPath, 8); // hapus string 'storage/' di depan
+                }
+
+                $dokumen[] = [
+                    'id' => $d->id,
+                    'nama_file' => $d->nama_file,
+                    'jenis_dokumen' => $d->jenis_dokumen, 
+                    // Menghasilkan output bersih: storage/dokumen_kegiatan/nama_file.docx
+                    'path_url' => 'storage/' . $cleanPath,
+                    'tipe' => ucfirst(str_replace('_', ' ', $d->jenis_dokumen)),
+                    'url' => asset('storage/' . $cleanPath)
+                ];
+            }
+
+            $daftarKegiatan[] = [
+                'id' => $k->id,
+                'nama_kegiatan' => $k->judul_kegiatan,
+                'judul_kegiatan' => $k->judul_kegiatan,
+                'periode' => \Illuminate\Support\Carbon::parse($k->tanggal_kegiatan)->year,
+                'dokumen' => $dokumen,
+            ];
+        }
+
         return response()->json([
-            'success' => true,
-            'message' => 'Organisasi berhasil diaktifkan kembali.'
+            'status' => 'success',
+            'data' => $daftarKegiatan
         ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Gagal memulihkan data: ' . $e->getMessage()
-        ], 500);
     }
-}
-    /**
-     * PERBAIKAN: Mengambil daftar anggota organisasi yang aktif dalam bentuk struktur JSON pembungkus 'data'
-     * Mendukung pembacaan Javascript modal agar dropdown tidak menampilkan pesan "Gagal memuat..."
-     */
-public function getAnggota($id)
+
+    // 11. Mengambil API data Anggota Aktif Ormawa tertentu (AJAX)
+    public function getAnggota($id)
     {
         try {
-            // 1. Ambil id_user dari tabel anggota_organisasis (NAMA TABEL SUDAH DIPERBAIKI)
             $userIds = DB::table('anggota_organisasis')
                 ->where('id_organisasi', (int)$id)
                 ->where('status', 'aktif')
                 ->pluck('id_user')
                 ->toArray();
 
-            // 2. Ambil data mahasiswa berdasarkan array id_user di atas
             $anggota = DB::table('mahasiswas')
                 ->whereIn('id_user', $userIds)
                 ->select('id_user as id', 'nama', 'nim')

@@ -9,7 +9,7 @@
             <div>
                 <h3 class="text-lg font-bold text-[#1A2B5C]" style="letter-spacing: -0.01em;">Upload Dokumen Kegiatan</h3>
             </div>
-            <a href="{{ route('pengurus.dokumen') }}" class="text-[#9CA3AF] hover:text-gray-600 transition-colors pt-1">
+            <a href="{{ route('pengurus.dokumen.create') }}" class="text-[#9CA3AF] hover:text-gray-600 transition-colors pt-1">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -19,7 +19,7 @@
 
         <div class="h-[1px] w-full bg-[#E5E7EB]"></div>
 
-        <form action="{{ route('DokumenKegiatan.upload') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('pengurus.dokumen.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="id_kegiatan" value="{{ $kegiatan->id ?? 1 }}">
 
@@ -81,7 +81,7 @@
             </div>
 
             <div class="px-6 py-4 bg-white flex justify-end items-center gap-3" style="border-top: 1px solid #E5E7EB;">
-                <a href="{{ route('pengurus.dokumen') }}" 
+                <a href="{{ route('pengurus.dokumen.create') }}" 
                     class="inline-flex items-center justify-center rounded-md text-xs font-medium border border-[#E5E7EB] bg-white text-gray-700 hover:bg-gray-50 transition-colors"
                     style="height: 32px; padding: 0 16px;">
                     Batal
