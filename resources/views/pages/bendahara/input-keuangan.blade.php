@@ -6,42 +6,63 @@
 {{-- Isi Subtitle Topbar (Opsional) --}}
 @section('topbar_subtitle', 'Catat transaksi pemasukan & pengeluaran')
 
-{{-- Isi Tombol / Aksi di Sebelah Kanan (Opsional) --}}
+{{-- Isi Tombol / Aksi di Sebelah Kanan (Dropdown PDF & Excel) --}}
 @section('topbar_actions')
-    <a href="{{ route('bendahara.input-keuangan.export') }}" 
-    class="inline-flex items-center justify-center text-sm font-medium transition-all h-9 rounded-lg px-4 gap-2 border border-[#E5E7EB] bg-white text-[#1C1E2C] hover:bg-[#F7F8FC] shadow-sm decoration-none"
-    title="Download Laporan Excel Bulan Ini">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-[#6B7280]">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" x2="12" y1="15" y2="3"></line>
-        </svg> 
-        Export Bulan Ini
-    </a>
+    <div x-data="{ open: false }" @click.away="open = false" class="relative inline-block text-left">
+        <button @click="open = !open" type="button"
+            class="inline-flex items-center justify-center text-sm font-medium transition-all h-9 rounded-lg px-4 gap-2 border border-[#E5E7EB] bg-white text-[#1C1E2C] hover:bg-[#F7F8FC] shadow-sm cursor-pointer outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-[#1A2B5C]">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" x2="12" y1="15" y2="3"></line>
+            </svg> 
+            Export Bulan Ini
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-200 text-gray-400" :class="open ? 'rotate-180' : ''"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+
+        <div x-show="open" 
+             x-transition:enter="transition ease-out duration-100"
+             x-transition:enter-start="transform opacity-0 scale-95"
+             x-transition:enter-end="transform opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-75"
+             x-transition:leave-start="transform opacity-100 scale-100"
+             x-transition:leave-end="transform opacity-0 scale-95"
+             class="absolute right-0 mt-2 w-44 rounded-xl shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none z-50" 
+             style="display: none;">
+            <div class="py-1">
+                {{-- Pilihan Cetak PDF --}}
+                <a href="{{ route('bendahara.input-keuangan.export', ['format' => 'pdf']) }}" 
+                   class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 gap-2 font-medium decoration-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 15h3a1.5 1.5 0 0 0 0-3H9v6"/><path d="M12 12v3"/></svg>
+                    Cetak ke PDF
+                </a>
+                {{-- Pilihan Unduh Excel --}}
+                <a href="{{ route('bendahara.input-keuangan.export', ['format' => 'excel']) }}" 
+                   class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 gap-2 font-medium decoration-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 12h4v6"/><path d="M12 15H8"/></svg>
+                    Unduh Excel
+                </a>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('content')
 
 @php
-
     $totalMasuk = 0;
     $totalKeluar = 0;
 
     foreach ($semuaTransaksi as $keuangan) {
-        
-        // Logika penambahan dipindahkan ke DALAM loop keuangan
         if ($keuangan->jenis_transaksi === 'pemasukan') {
             $totalMasuk += $keuangan->nominal;
         } elseif ($keuangan->jenis_transaksi === 'pengeluaran') {
             $totalKeluar += $keuangan->nominal;
         }
-        
     }
-
 
     $selisih = $totalMasuk - $totalKeluar;
 @endphp
-
 
 <div class="p-4 sm:p-6 lg:p-8 grid grid-cols-3 gap-5">
     <div x-data="{ 
@@ -157,7 +178,6 @@
                 <label class="block text-sm font-medium text-[#1C1E2C]">Bukti (Foto/Struk) <span class="text-[#EF4444]">*</span></label>
                 
                 <label class="mt-1.5 border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all group block {{ $errors->has('bukti') ? 'border-[#EF4444] bg-[#EF4444]/5' : 'border-[#E5E7EB] hover:border-[#1A2B5C] hover:bg-[#F7F8FC]' }}">
-                    
                     <input type="file" 
                         name="bukti" 
                         id="bukti" 
@@ -172,7 +192,6 @@
                             <polyline points="17 8 12 3 7 8"></polyline>
                             <line x1="12" x2="12" y1="3" y2="15"></line>
                         </svg>
-                        
                         <span class="block text-xs font-medium transition-colors {{ $errors->has('bukti') ? 'text-[#EF4444]' : 'text-[#6B7280] group-hover:text-[#1A2B5C]' }}">
                             Klik untuk upload bukti (wajib)
                         </span>
@@ -199,7 +218,6 @@
                         </p>
                         <span x-text="fileName" class="block text-xs font-semibold text-[#1C1E2C] truncate max-w-xs mx-auto"></span>
                     </div>
-
                 </label>
 
                 <template x-if="hasOldFile">
@@ -207,7 +225,6 @@
                         ℹ️ Berkas lama tersimpan aman. Klik kotak jika ingin mengganti berkas baru.
                     </div>
                 </template>
-
                 @error('bukti') <span class="text-xs text-[#EF4444] mt-1 block">{{ $message }}</span> @enderror
             </div>
 
@@ -222,41 +239,31 @@
     </div>
 
     <div class="bg-white rounded-xl border border-[#E5E7EB] shadow-[0_2px_12px_rgba(0,0,0,0.04)] p-6 col-span-2">
-
-        <div x-data="{ selectedKegiatan: '' }">
+        <div>
             <div class="flex items-center justify-between mb-4">
                 <h3 class="font-bold text-[#1C1E2C]">Riwayat Transaksi</h3>
                 
                 <div class="flex items-center gap-2">
-                    <div class="relative">
-                        <form id="filterForm" action="{{ route('bendahara.input-keuangan.create') }}" method="GET">
-                            <div class="relative">
-                                <select name="id_kegiatan" 
-                                        {{-- Memicu submit form otomatis saat opsi diubah --}}
-                                        onchange="document.getElementById('filterForm').submit()"
-                                        class="appearance-none bg-white border border-[#E5E7EB] text-sm font-medium text-[#1C1E2C] h-8 rounded-md pl-3 pr-8 outline-none focus:border-[#1A2B5C] focus:ring-[#1A2B5C] transition-all cursor-pointer">
-                                    
-                                    <option value="">Semua Kegiatan</option>
-                                    @foreach($kegiatanOrganisasi as $kegiatan)
-                                        {{-- Mempertahankan opsi yang dipilih menggunakan request() --}}
-                                        <option value="{{ $kegiatan['id'] }}" {{ request('id_kegiatan') == $kegiatan['id'] ? 'selected' : '' }}>
-                                            {{ $kegiatan['judul_kegiatan'] }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                
-                                <div class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-gray-400">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                                </div>
+                    <form id="filterForm" action="{{ route('bendahara.input-keuangan.create') }}" method="GET">
+                        <div class="relative">
+                            <select name="id_kegiatan" 
+                                    onchange="document.getElementById('filterForm').submit()"
+                                    class="appearance-none bg-white border border-[#E5E7EB] text-sm font-medium text-[#1C1E2C] h-8 rounded-md pl-3 pr-8 outline-none focus:border-[#1A2B5C] focus:ring-[#1A2B5C] transition-all cursor-pointer">
+                                <option value="">Semua Kegiatan</option>
+                                @foreach($kegiatanOrganisasi as $kegiatan)
+                                    <option value="{{ $kegiatan['id'] }}" {{ request('id_kegiatan') == $kegiatan['id'] ? 'selected' : '' }}>
+                                        {{ $kegiatan['judul_kegiatan'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                             </div>
-                        </form>
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-gray-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                         </div>
-                    </div>
+                    </form>
 
-                    <a  href="{{ route('bendahara.input-keuangan.create') }}"
-                        class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all border border-[#E5E7EB] bg-white text-[#1C1E2C] hover:bg-gray-50 h-8 rounded-md gap-1.5 px-3 cursor-pointer outline-none">
+                    <a href="{{ route('bendahara.input-keuangan.create') }}"
+                        class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all border border-[#E5E7EB] bg-white text-[#1C1E2C] hover:bg-gray-50 h-8 rounded-md gap-1.5 px-3 cursor-pointer outline-none decoration-none">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"></path></svg> 
                         Clear
                     </a>
@@ -275,11 +282,9 @@
             </div>
             <div class="bg-white rounded-xl border p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] transition-all
                 {{ $selisih >= 0 ? 'bg-[#DCFCE7]/40 border-[#DCFCE7]' : 'bg-[#FEE2E2]/40 border-[#FEE2E2]' }}">
-                
                 <div class="text-xs font-semibold uppercase {{ $selisih >= 0 ? 'text-[#166534]' : 'text-[#991B1B]' }}">
                     Selisih (Saldo)
                 </div>
-                
                 <div class="text-xl font-bold mt-1 {{ $selisih >= 0 ? 'text-[#166534]' : 'text-[#991B1B]' }}">
                     {{ $selisih >= 0 ? '+' : '' }}Rp {{ number_format($selisih, 0, ',', '.') }}
                 </div>
@@ -297,15 +302,14 @@
                 </tr>
             </thead>
             <tbody>
-
-                @foreach ($semuaTransaksi as $transaksi)
+                @forelse ($semuaTransaksi as $transaksi)
                     @php
                         $dataKegiatan = $kegiatan->where('id', $transaksi->id_kegiatan)->first();
                     @endphp
 
                     <tr class="border-t border-[#E5E7EB]">
                         <td class="px-4 py-3 text-[#6B7280]">{{ $transaksi['created_at'] }}</td>
-                        <td class="px-4 py-3 text-[#6B7280]">{{ $dataKegiatan['judul_kegiatan'] }}</td>
+                        <td class="px-4 py-3 text-[#6B7280]">{{ $dataKegiatan['judul_kegiatan'] ?? '-' }}</td>
                         <td class="px-4 py-3 font-semibold text-[#1C1E2C]">{{ $transaksi['keterangan'] }}</td>
                         
                         <td class="px-4 py-3 text-right font-bold {{ $transaksi['jenis_transaksi'] === 'pemasukan' ? 'text-[#22C55E]' : 'text-[#EF4444]' }}">
@@ -313,33 +317,42 @@
                         </td>
                         
                         <td class="px-4 py-3 text-center flex flex-row justify-center gap-1">
-                            <button 
-                                data-slot="button" 
-                                class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-[#1A2B5C]/10 rounded-md gap-1.5 px-1 has-[&gt;svg]:px-1 text-[#1A2B5C] h-7 cursor-pointer" title="{{ $transaksi['bukti'] }}"
+                            <button class="hover:bg-[#1A2B5C]/10 rounded-md p-1 text-[#1A2B5C] h-7 w-7 inline-flex items-center justify-center cursor-pointer border-0 bg-transparent" 
+                                title="Lihat Bukti"
                                 @click="$dispatch('open-preview', { 
                                     url: '{{ asset('storage/' . $transaksi['bukti_pembayaran']) }}', 
                                     isPdf: {{ Str::endsWith($transaksi['bukti_pembayaran'], '.pdf') ? 'true' : 'false' }}
-                                })"
-                                data-slot="button" 
-                                title="Lihat Bukti" 
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-paperclip w-3 h-3 mr-1"><path d="M13.234 20.252 21 12.3"></path><path d="m16 6-8.414 8.586a2 2 0 0 0 0 2.828 2 2 0 0 0 2.828 0l8.414-8.586a4 4 0 0 0 0-5.656 4 4 0 0 0-5.656 0l-8.415 8.585a6 6 0 1 0 8.486 8.486"></path></svg>
+                                })">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3"><path d="M13.234 20.252 21 12.3"></path><path d="m16 6-8.414 8.586a2 2 0 0 0 0 2.828 2 2 0 0 0 2.828 0l8.414-8.586a4 4 0 0 0 0-5.656 4 4 0 0 0-5.656 0l-8.415 8.585a6 6 0 1 0 8.486 8.486"></path></svg>
                             </button>
                             
-                            <a href="{{ asset('storage/' . $transaksi['bukti_pembayaran']) }}" download="Bukti_{{ $transaksi['id'] }}" data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive hover:bg-[#1A2B5C]/10 rounded-md gap-1.5 px-1 has-[&gt;svg]:px-1 text-[#1A2B5C] h-7 cursor-pointer" title="{{ $transaksi['bukti'] }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download w-3 h-3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>
+                            <a href="{{ asset('storage/' . $transaksi['bukti_pembayaran']) }}" download="Bukti_{{ $transaksi['id'] }}" 
+                               class="hover:bg-[#1A2B5C]/10 rounded-md p-1 text-[#1A2B5C] h-7 w-7 inline-flex items-center justify-center decoration-none" 
+                               title="Download Bukti">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>
                             </a>
-
                         </td>
                     </tr>
-
-                @endforeach
-        
-
-                <img src="assets/bukti_pembayaran/bukti_1781622895.png" alt="">
+                @empty
+                    <tr>
+                        <td colspan="5" class="px-4 py-16 text-center">
+                            <div class="flex flex-col items-center justify-center">
+                                <div class="p-4 bg-gray-50 rounded-full mb-4 text-gray-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-12 h-12">
+                                        <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2" />
+                                        <path d="M16 11h.01" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-base font-bold text-[#1C1E2C] mb-1">Belum Ada Transaksi</h3>
+                                <p class="text-sm text-[#6B7280] max-w-sm">
+                                    Riwayat pemasukan atau pengeluaran kas belum tercatat. Silakan gunakan menu di sebelah kiri untuk menambah transaksi baru.
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 </div>
-
 @endsection

@@ -1,66 +1,71 @@
 <?php
 
-namespace App\Http\Controllers\Mahasiswa;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Models\Organisasi;
-use App\Models\PendaftaranAnggota;
+use App\Models\Kegiatan;
+use App\Models\PendaftaranPesertaKegiatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
-class PendaftaranController extends Controller
+class PendaftaranPesertaController extends Controller
 {
-    public function index()
-    {
-        $riwayat = PendaftaranAnggota::with('organisasi')
-            ->where('id_user', Auth::id())
-            ->latest()
-            ->get();
-
-        return view('pages.mahasiswa.pendaftaran_riwayat', compact('riwayat'));
-    }
-
-    public function create()
-    {
-        $organisasi = Organisasi::all();
-        $user = Auth::user()->load('mahasiswa.programStudi');
-
-        return view('pages.mahasiswa.pendaftaran_form', compact('organisasi', 'user'));
-    }
-
-    public function store(Request $request)
+    /**
+     * Memproses pendaftaran kegiatan secara instan tanpa verifikasi pengurus
+     */
+    public function daftar(Request $request)
     {
         $request->validate([
-            'id_organisasi'     => 'required|exists:organisasis,id',
-            'dokumen_pendukung' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'keterangan'        => 'nullable|string'
+            'id_kegiatan' => 'required|exists:kegiatans,id',
         ]);
 
         $userId = Auth::id();
 
-        // PERBAIKAN: Gunakan 'pending' agar sesuai dengan enum di database
-        $isRegistered = PendaftaranAnggota::where('id_user', $userId)
-            ->where('id_organisasi', $request->id_organisasi)
-            ->where('status', 'pending')
+        // 1. Validasi awal: Cek apakah user sudah pernah mendaftar (baik diterima maupun ditolak)
+        $sudahDaftar = PendaftaranPesertaKegiatan::where('id_kegiatan', $request->id_kegiatan)
+            ->where('id_user', $userId)
             ->exists();
 
-        if ($isRegistered) {
-            return redirect()->back()->withErrors(['id_organisasi' => 'Anda sudah mengirimkan pengajuan untuk organisasi ini.']);
+        if ($sudahDaftar) {
+            return redirect()->back()->with('error', 'Anda sudah melakukan pendaftaran pada kegiatan ini.');
         }
 
-        $pathDoc = null;
-        if ($request->hasFile('dokumen_pendukung')) {
-            $pathDoc = $request->file('dokumen_pendukung')->store('dokumen_pendaftaran', 'public');
+        // Memulai transaksi database agar perhitungan kuota akurat secara real-time
+        DB::beginTransaction();
+        try {
+            // Mengunci baris data kegiatan pilihan untuk menghindari manipulasi kuota simultan
+            $kegiatan = Kegiatan::lockForUpdate()->find($request->id_kegiatan);
+
+            // Hitung jumlah peserta yang saat ini sudah berhasil masuk/terdaftar
+            $pendaftarDiterima = PendaftaranPesertaKegiatan::where('id_kegiatan', $kegiatan->id)
+                ->where('status', 'diterima')
+                ->count();
+
+            // 2. Kondisi jika Kuota Penuh -> Status otomatis "ditolak"
+            if ($pendaftarDiterima >= $kegiatan->kuota) {
+                PendaftaranPesertaKegiatan::create([
+                    'id_kegiatan' => $kegiatan->id,
+                    'id_user' => $userId,
+                    'status' => 'ditolak', // Otomatis ditolak karena kuota habis
+                ]);
+
+                DB::commit();
+                return redirect()->back()->with('error', 'Pendaftaran gagal. Kuota kegiatan ini sudah penuh!');
+            }
+
+            // 3. Kondisi jika Kuota Masih Ada -> Langsung "diterima" tanpa verifikasi pengurus
+            PendaftaranPesertaKegiatan::create([
+                'id_kegiatan' => $kegiatan->id,
+                'id_user' => $userId,
+                'status' => 'diterima', // Langsung aktif / terdaftar
+            ]);
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Selamat! Anda berhasil terdaftar pada kegiatan ini.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Terjadi kegagalan sistem, silakan coba beberapa saat lagi.');
         }
-
-        PendaftaranAnggota::create([
-            'id_user'           => $userId,
-            'id_organisasi'     => $request->id_organisasi,
-            'dokumen_pendukung' => $pathDoc,
-            'status'            => 'pending', // Konsisten dengan VerifikasiController
-            'keterangan'        => $request->keterangan ?? '-'
-        ]);
-
-        return redirect()->route('mahasiswa.pendaftaran.index')->with('success', 'Pendaftaran Anda berhasil dikirim!');
     }
 }

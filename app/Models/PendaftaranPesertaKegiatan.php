@@ -2,15 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
 class PendaftaranPesertaKegiatan extends Model
 {
-    use LogsActivity;
 
-    protected $guarded = ['id'];
+    // Definisikan nama tabel secara eksplisit jika tidak menggunakan default singular-plural otomatis
+    protected $table = 'pendaftaran_peserta_kegiatans';
+
+    protected $fillable = [
+        'id_kegiatan',
+        'id_user',
+        'status',
+    ];
 
     public function getActivitylogOptions(): LogOptions
     {

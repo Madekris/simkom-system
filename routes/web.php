@@ -8,18 +8,23 @@ use App\Http\Controllers\Pengurus\VerifikasiController;
 use App\Http\Controllers\Pengurus\OrganisasiController; 
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\KeuanganOrmawa as AdminKeuanganOrmawa;
+use App\Http\Controllers\Admin\Pengguna as AdminPengguna;
+use App\Http\Controllers\Admin\SemuaKegiatan  as AdminSemuaKegiatan;
 use App\Http\Controllers\Bendahara\InputKeuangan as BendaharaInputKeuangan;
 use App\Http\Controllers\Bendahara\Dashboard as BendaharaDashboard;
 use App\Http\Controllers\Bendahara\InfoOrmawa;
 use App\Http\Controllers\Bendahara\LogAktivitas as BendaharaLogAktivitas;
 use App\Http\Controllers\Mahasiswa\DaftarKegiatan as MahasiswaDaftarKegiatan;
 use App\Http\Controllers\Pembina\KeuanganBinaan as PembinaKeuanganBinaan;
+use App\Http\Controllers\Pembina\OrmawaBinaan as PembinaOrmawaBinaan;
+use App\Http\Controllers\Pembina\PersetujuanKegiatan as PembinaPersetujuanKegiatan;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Pembina\RiwayatKegiatan;
 use App\Http\Controllers\Pengurus\Dashboard as PengurusDashboard;
 use App\Http\Controllers\Pengurus\Kegiatan as PengurusKegiatan;
 use App\Http\Controllers\Pengurus\Keuangan as PengurusKeuangan;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\DokumenKegiatan;
 
 
 // ==========================================
@@ -39,7 +44,19 @@ Route::post('/register', [Registrasi::class, 'store']);
 // ==========================================
 Route::middleware(['auth'])->group(function () {
 
+    Route::get('/dokumen', [DokumenKegiatan::class, 'index'])->name('pengurus.dokumen');
+
+
+    // Rute untuk manajemen dokumen kegiatan (hanya untuk pembina, bendahara, pengurus)
+    Route::get('/dokumen/create', [DokumenKegiatan::class, 'create'])->name('DokumenKegiatan.create');
+    Route::post('/dokumen/upload', [DokumenKegiatan::class, 'upload'])->name('DokumenKegiatan.upload');
+    // Route untuk mendownload berkas file fisik dokumen
+    Route::get('/dokumen/download/{id}', [DokumenKegiatan::class, 'download'])->name('dokumen.download');
+    Route::delete('/dokumen/delete/{id}', [DokumenKegiatan::class, 'destroy'])->name('DokumenKegiatan.destroy');
+
     // 1. AREA MAHASISWA (Hanya bisa diakses oleh role: mahasiswa)
+    Route::get('/keuangan/export/{id}', [PengurusKeuangan::class, 'export'])->name('keuangan.export');
+    
     Route::prefix('mahasiswa')
      ->name('mahasiswa.')
      ->middleware(['role:mahasiswa']) // <-- Proteksi Role
@@ -63,6 +80,7 @@ Route::middleware(['auth'])->group(function () {
          Route::get('/kegiatan-saya', [MahasiswaKegiatanSaya::class, 'index'])->name('kegiatan-saya');
          // TAMBAHAN RUTE UNTUK DETAIL API (ALPINJS AJAX)
          Route::get('/kegiatan-saya/{id}', [MahasiswaKegiatanSaya::class, 'show'])->name('kegiatan-saya.show');
+
      });
 
     // 2. AREA PENGURUS (Hanya bisa diakses oleh role: pengurus)
@@ -70,7 +88,7 @@ Route::middleware(['auth'])->group(function () {
          ->name('pengurus.')
          ->middleware(['role:pengurus']) // <-- Proteksi Role
          ->group(function () {
-            Route::get('/keuangan/export/{id}', [PengurusKeuangan::class, 'export'])->name('keuangan.export');
+            Route::get('/keuangan/export/{id}/{format}', [PengurusKeuangan::class, 'export'])->name('keuangan.export');
             
             Route::get('/dashboard', [PengurusDashboard::class, 'index'])->name('dashboard.index');
 
@@ -105,7 +123,10 @@ Route::middleware(['auth'])->group(function () {
         // Input keuangan
         Route::get('/input-keuangan', [BendaharaInputKeuangan::class, 'create'])->name('input-keuangan.create');
         Route::post('/input-keuangan', [BendaharaInputKeuangan::class, 'store'])->name('input-keuangan.store');
-        Route::get('/input-keuangan/export', [BendaharaInputKeuangan::class, 'exportExcel'])->name('input-keuangan.export');
+        Route::get('/input-keuangan/export/{format}', [BendaharaInputKeuangan::class, 'export'])->name('input-keuangan.export');
+
+        // Laporan
+        Route::get('/laporan', [PengurusKeuangan::class, 'index'])->name('laporan.index');
 
         // Log aktivitas
         Route::get('/log-aktivitas', [BendaharaLogAktivitas::class, 'index'])->name('log-aktivitas.index');
@@ -127,6 +148,14 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('riwayat-kegiatan', RiwayatKegiatan::class)->parameters([
             'riwayat-kegiatan' => 'id'
         ]);
+
+        // Ormawa binaa
+        Route::get('ormawa-binaan', [PembinaOrmawaBinaan::class, 'index'])->name('ormawa-binaan.index');
+        Route::post('setStatus/{id}', [PembinaOrmawaBinaan::class, 'setStatus'])->name('setStatus.setStatus');
+
+        // Persetujuan kegiatan
+        Route::get('pesetujuan-kegiatan', [PembinaPersetujuanKegiatan::class, 'index'])->name('persetujuan-kegiatan.index');
+        Route::patch('setStatus/{id}', [PembinaPersetujuanKegiatan::class, 'setStatus'])->name('setStatus.setStatus');
     });
 
     Route::prefix('admin')
@@ -135,7 +164,8 @@ Route::middleware(['auth'])->group(function () {
         ->group(function () {
         // Dashboard Utama Admin
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-        
+        Route::post('/persetujuan/{id}', [AdminController::class, 'persetujuan'])->name('persetujuan.persetujuan');
+
         // Fitur Keuangan ormawa & export
         Route::get('/keuangan-ormawa', [AdminKeuanganOrmawa::class, 'index'])->name('keuangan-ormawa.index');
         Route::get('/keuangan-ormawa/export', [AdminKeuanganOrmawa::class, 'exportExcel'])->name('keuangan-ormawa.export');
@@ -152,9 +182,17 @@ Route::middleware(['auth'])->group(function () {
         
         // Fitur Kearsipan Organisasi via Admin
         Route::post('/organisasi/arsipkan/{id}', [AdminController::class, 'arsipkan'])->name('organisasi.arsipkan');
-        Route::post('/organisasi/pulihkan/{id}', [AdminController::class, 'pulihkan'])->name('organisasi.pulihkan');
+        Route::get('/organisasi/pulihkan/{id}', [AdminController::class, 'pulihkan'])->name('organisasi.pulihkan');
         
         Route::get('/organisasi/{id}/anggota', [AdminController::class, 'getAnggota'])->name('organisasi.anggota');
+
+        // Semua kegiatan
+        Route::get('/semua-kegiatan', [AdminSemuaKegiatan::class, 'index'])->name('semua-kegiatan.index');
+
+
+        //Pengguna
+        Route::get('/pengguna', [AdminPengguna::class, 'index'])->name('pengguna.index');
+        Route::put('/pengguna/{id}', [AdminPengguna::class, 'update'])->name('pengguna.update');
     });
 
 }); // Penutup Middleware Auth Utama

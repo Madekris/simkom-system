@@ -12,6 +12,10 @@ use Illuminate\Support\Str;
 
 class Kegiatan extends Controller
 {
+    protected $table = 'kegiatans';
+    
+    // TAMBAHKAN BARIS INI: Beritahu Laravel kalau primary key-nya bukan 'id'
+    protected $primaryKey = 'id_kegiatan';
     /**
      * Menampilkan daftar semua kegiatan ormawa.
      */

@@ -8,22 +8,22 @@ use Spatie\Activitylog\LogOptions;
 
 class DokumenKegiatan extends Model
 {
-    use LogsActivity;
 
-    protected $guarded = ['id'];
+    protected $table = 'dokumen_kegiatans';
+    
+    protected $fillable = [
+        'id_kegiatan', 
+        'jenis_dokumen', 
+        'nama_file', 
+        'path_url'
+    ];
 
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logUnguarded()
-            ->logOnlyDirty()
-            ->dontSubmitEmptyLogs()
-            ->useLogName('dokumen_kegiatan')
-            ->setDescriptionForEvent(fn(string $eventName) => "Dokumen Kegiatan telah di {$eventName}");
-    }
+    // Daftarkan kolom deleted_at agar dikenali sebagai komponen tanggal oleh Laravel
+    protected $dates = ['deleted_at'];
 
     public function kegiatan()
     {
-        return $this->belongsTo(Kegiatan::class, 'id_kegiatan');
+        // Parameter: NamaModel, Foreign_Key_Tabel_Ini, Local_Key_Tabel_Target
+        return $this->belongsTo(Kegiatan::class, 'id_kegiatan', 'id_kegiatan');
     }
 }

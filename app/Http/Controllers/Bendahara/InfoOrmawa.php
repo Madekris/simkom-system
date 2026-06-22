@@ -64,15 +64,17 @@ class InfoOrmawa extends Controller
         $pembinaData = AnggotaOrganisasi::where('id_organisasi', $idOrganisasi)
             ->where('jabatan', 'Pembina')
             ->first();
+        
 
         $pembina = '-';
         if($pembinaData){
-            $namaPembina = Pembina::find($pembinaData->id_user);
+            $namaPembina = Pembina::where('id_user', $pembinaData->id_user)->first();
             if($namaPembina){
                 $pembina = $namaPembina->nama;
             }
         }
         
+            // dd($pembina);
 
         if ($ketuaData && $ketuaData->periode) {
             // Cara 1: Menggunakan kurung kurawal tunggal di dalam string (Perbaikan typo 'tahun')

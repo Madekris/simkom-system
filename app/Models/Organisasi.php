@@ -52,6 +52,15 @@ class Organisasi extends Model
         return $this->hasMany(PendaftaranAnggota::class, 'id_organisasi');
     }
 
+    public function periode(): HasMany
+    {
+        return $this->hasMany(PeriodeKepengurusan::class, 'id_organisasi')->where('status_periode', 'aktif');
+    }
+
+
+    /**
+     * Relasi ke model AnggotaOrganisasi (Semua Anggota)
+     */
     public function anggotaOrganisasi(): HasMany
     {
         return $this->hasMany(AnggotaOrganisasi::class, 'id_organisasi');
@@ -64,6 +73,27 @@ class Organisasi extends Model
             ->where('status', 'aktif');
     }
 
+    public function wakil()
+    {
+        // Menggunakan hasOneThrough atau join manual agar langsung sampai ke tabel mahasiswa
+        return $this->hasOne(AnggotaOrganisasi::class, 'id_organisasi')
+            ->where('jabatan', 'Wakil Ketua')
+            ->where('status', 'aktif');
+            // Catatan: Jika ingin langsung ambil nama, di Blade gunakan $o->ketua->mahasiswa->nama
+    }
+
+    public function sekre()
+    {
+        // Menggunakan hasOneThrough atau join manual agar langsung sampai ke tabel mahasiswa
+        return $this->hasOne(AnggotaOrganisasi::class, 'id_organisasi')
+            ->where('jabatan', 'Sekretaris')
+            ->where('status', 'aktif');
+            // Catatan: Jika ingin langsung ambil nama, di Blade gunakan $o->ketua->mahasiswa->nama
+    }
+
+    /**
+     * Relasi khusus untuk mengambil Pengurus yang aktif
+     */
     public function pengurus(): HasOne
     {
         return $this->hasOne(AnggotaOrganisasi::class, 'id_organisasi')
@@ -75,6 +105,13 @@ class Organisasi extends Model
     {
         return $this->hasOne(AnggotaOrganisasi::class, 'id_organisasi')
             ->where('jabatan', 'Bendahara')
+            ->where('status', 'aktif');
+    }
+
+    public function pembina(): HasOne
+    {
+        return $this->hasOne(AnggotaOrganisasi::class, 'id_organisasi')
+            ->where('jabatan', 'Pembina')
             ->where('status', 'aktif');
     }
 

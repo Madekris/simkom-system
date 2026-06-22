@@ -13,18 +13,46 @@ class DaftarKegiatan extends Controller
     public function index ()
     {
 
+        $kegiatanSaya = Auth::user()->pendaftaranKegiatan()
+            // 1. Sesuaikan dengan nama tabel pivot asli di database
+            ->where('pendaftaran_peserta_kegiatans.status', 'Pendaftaran berhasil') 
+            
+            // 2. Sesuaikan nama tabel kegiatan dengan bentuk jamak (kegiatans)
+            ->where('kegiatans.status', 'Mendatang') 
+            
+            ->with('organisasi')
+            
+            // 3. Pastikan order by juga mengarah ke tabel kegiatans
+            ->orderBy('kegiatans.tanggal_kegiatan', 'asc') 
+            ->get();
+
+        // dd($kegiatanSaya->toArray());
         // dd($daftarKegiatan->toArray());
         $daftarKegiatan = Kegiatan::with('organisasi')
         ->withCount('pendaftaranPesertaKegiatan') // <-- Hitung relasi secara efisien di sini
         ->where('status', 'Mendatang')
         ->get();
 
+        // dd($daftarKegiatan->toArray());
         return view('pages.mahasiswa.daftar-kegiatan', compact(
-            'daftarKegiatan'
+            'daftarKegiatan',
+            'kegiatanSaya'
         ));
     }
     public function show (string $id)
     {
+        $kegiatanSaya = Auth::user()->pendaftaranKegiatan()
+            // 1. Sesuaikan dengan nama tabel pivot asli di database
+            ->where('pendaftaran_peserta_kegiatans.status', 'Pendaftaran berhasil') 
+            
+            // 2. Sesuaikan nama tabel kegiatan dengan bentuk jamak (kegiatans)
+            ->where('kegiatans.status', 'Mendatang') 
+            
+            ->with('organisasi')
+            
+            // 3. Pastikan order by juga mengarah ke tabel kegiatans
+            ->orderBy('kegiatans.tanggal_kegiatan', 'asc') 
+            ->get();
 
         $daftarKegiatan = Kegiatan::with(['periode', 'organisasi'])
             ->withCount('pendaftaranPesertaKegiatan')
@@ -32,7 +60,8 @@ class DaftarKegiatan extends Controller
             ->first();
         // dd($daftarKegiatan->toArray());
         return view('pages.mahasiswa.daftar-kegiatan-detail', compact(
-            'daftarKegiatan'
+            'daftarKegiatan',
+            'kegiatanSaya'
         ));
     }
 
@@ -60,7 +89,7 @@ class DaftarKegiatan extends Controller
         PendaftaranPesertaKegiatan::create([
             'id_kegiatan' => $id,
             'id_user' => $userId, 
-            'status' => 'Menunggu konfirmasi',
+            'status' => 'Pendaftaran berhasil',
         ]);
 
         // 2. REDIRECT KE URL KEGIATAN SAYA
