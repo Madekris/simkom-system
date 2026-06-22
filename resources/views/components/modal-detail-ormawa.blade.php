@@ -38,7 +38,7 @@
             Pengurus
         </a>
 
-        <a href="{{ route('admin.organisasi.index', ['id' => 1, 'tab' => 'ad_art']) }}" 
+        <a href="{{ route('admin.organisasi.index', ['id' => request('id'), 'tab' => 'ad_art']) }}" 
         class="py-3 px-4 text-sm font-semibold border-b-2 transition-colors -mb-px {{ request('tab') == 'ad_art' ? 'border-[#1A2B5C] text-[#1A2B5C]' : 'border-transparent text-[#6B7280] hover:text-[#1C1E2C]' }}">
             AD/ART
         </a>
@@ -190,6 +190,43 @@
             </div>
         </div>
     @elseif (request('tab') === 'ad_art')
+
+       @if($data && $data->ad_art)
+        <div class="flex items-center gap-4 p-4 mx-6 my-5 rounded-lg bg-[#F7F8FC] border border-[#E5E7EB]">
+            
+            <div class="w-10 h-10 rounded-lg bg-[#EF4444]/10 text-[#EF4444] flex items-center justify-center shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text w-5 h-5">
+                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                    <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+                    <path d="M10 9H8"></path>
+                    <path d="M16 13H8"></path>
+                    <path d="M16 17H8"></path>
+                </svg>
+            </div>
+
+            <div class="flex-1 min-w-0">
+                <div class="font-semibold text-sm text-[#1C1E2C] truncate" title="{{ basename($data->ad_art) }}">
+                    {{ basename($data->ad_art) }}
+                </div>
+                <div class="text-xs text-[#6B7280]">
+                    Anggaran Dasar &amp; Anggaran Rumah Tangga 
+                    @if(isset($data->file_size)) · {{ $data->file_size }} @endif 
+                    · {{ $data->updated_at ? $data->updated_at->translatedFormat('d M Y') : '10 Sep 2025' }}
+                </div>
+            </div>
+
+            <a 
+                href="{{ route('organisasi.adart.show', ['filename' => basename($data->ad_art)]) }}" 
+                target="_blank" 
+                class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all shrink-0 outline-none h-8 rounded-md gap-1.5 px-3 bg-[#1A2B5C] hover:bg-[#0F1D3D] text-white"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye w-3.5 h-3.5"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg> 
+                Lihat
+            </a>
+
+        </div>
+        @else
+
         <div class="flex-1 overflow-y-auto px-6 py-5">
             <div class="py-12 text-center text-sm text-[#6B7280]">
                 
@@ -222,6 +259,7 @@
 
             </div>
         </div>
+        @endif
         
     @endif
 

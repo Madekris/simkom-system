@@ -388,7 +388,7 @@ public function store(Request $request)
                                 ],
                                 // 2. Data yang akan di-INSERT (jika baru) atau di-UPDATE (jika sudah ada)
                                 [
-                                    'id_periode'    => $periode->id,
+                                    'id_periode'    => $periode->id ?? '1',
                                     'jabatan'       => 'Pembina',
                                     'status'        => $validated['status'],
                                 ]

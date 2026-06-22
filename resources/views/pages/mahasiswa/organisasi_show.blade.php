@@ -270,31 +270,27 @@
     </div>
 
     <div class="space-y-3">
-        @if(isset($documents) && count($documents) > 0)
+        {{-- <pre class="bg-gray-50 p-4 rounded-lg border border-gray-200 text-sm font-mono text-gray-800 overflow-x-auto">
+{{ json_encode($organisasi, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}
+</pre> --}}
+        @if($organisasi && $organisasi->ad_art)
+     
             <div class="flex items-center gap-4 p-4 rounded-lg bg-[#F7F8FC] border border-[#E5E7EB]">
                 <div class="w-10 h-10 rounded-lg bg-[#EF4444]/10 text-[#EF4444] flex items-center justify-center shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text w-5 h-5"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <div class="font-semibold text-sm text-[#1C1E2C] truncate">AD_ART_Rade.pdf</div>
-                    <div class="text-xs text-[#6B7280]">Anggaran Dasar &amp; Anggaran Rumah Tangga · 1.2 MB · 10 Sep 2025</div>
-                </div>
-                <button data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] h-8 rounded-md gap-1.5 px-3 bg-[#1A2B5C] hover:bg-[#0F1D3D] text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye w-3.5 h-3.5 mr-1"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg> Lihat
-                </button>
-            </div>
+                    <div class="font-semibold text-sm text-[#1C1E2C] truncate">{{ basename($organisasi->ad_art) }}</div>
+                    <div class="text-xs text-[#6B7280]">
+                        Anggaran Dasar &amp; Anggaran Rumah Tangga 
+                    @if(isset($organisasi->file_size)) · {{ $organisasi->file_size }} @endif 
+                    · {{ $organisasi->updated_at ? $organisasi->updated_at->translatedFormat('d M Y') : '10 Sep 2025' }}
 
-            <div class="flex items-center gap-4 p-4 rounded-lg bg-[#F7F8FC] border border-[#E5E7EB]">
-                <div class="w-10 h-10 rounded-lg bg-[#EF4444]/10 text-[#EF4444] flex items-center justify-center shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text w-5 h-5"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>
+                    </div>
                 </div>
-                <div class="flex-1 min-w-0">
-                    <div class="font-semibold text-sm text-[#1C1E2C] truncate">SOP_Rade.pdf</div>
-                    <div class="text-xs text-[#6B7280]">Standar Operasional Prosedur · 0.8 MB · 10 Sep 2025</div>
-                </div>
-                <button data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] h-8 rounded-md gap-1.5 px-3 bg-[#1A2B5C] hover:bg-[#0F1D3D] text-white">
+                <a href="{{ route('organisasi.adart.show', ['filename' => basename($organisasi->ad_art)]) }}"  data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] h-8 rounded-md gap-1.5 px-3 bg-[#1A2B5C] hover:bg-[#0F1D3D] text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye w-3.5 h-3.5 mr-1"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg> Lihat
-                </button>
+                </a>
             </div>
         @else
             <div class="py-8 text-center text-sm text-[#6B7280] bg-[#F7F8FC] border border-dashed border-[#D1D5DB] rounded-xl px-4">

@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Log;
 
 class AdminController extends Controller
 {
@@ -385,7 +385,7 @@ public function getDokumen($id)
 
     } catch (\Exception $e) {
         // Jika ada kesalahan, log akan mencatat detail spesifiknya
-        \Log::error('Gagal memuat dokumen lewat DB Query: ' . $e->getMessage());
+        Log::error('Gagal memuat dokumen lewat DB Query: ' . $e->getMessage());
         
         return response()->json([
             'status' => 'error',
@@ -393,4 +393,29 @@ public function getDokumen($id)
         ], 500);
     }
 }
+
+    public function showAdArt(string $filename)
+    {
+        // Tentukan path lengkap file di dalam storage
+        $path = 'organisasi/ad_art/' . $filename;
+
+        // 1. Pastikan file benar-benar ada di storage
+        // if (!Storage::exists($path)) {
+        //     abort(404, 'Dokumen tidak ditemukan.');
+        // }
+
+        // Tambahkan disk('public') jika dulu diupload ke disk public
+        if (!Storage::disk('public')->exists('organisasi/ad_art/' . $filename)) {
+            abort(404, 'Dokumen tidak ditemukan di storage public.');
+        }
+
+        // Sesuaikan juga path absolutnya menuju folder public
+        $absolutePath = storage_path('app/public/organisasi/ad_art/' . $filename);
+
+        // 3. Kembalikan file untuk di-render langsung oleh browser
+        return response()->file($absolutePath, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"'
+        ]);
+    }
 }

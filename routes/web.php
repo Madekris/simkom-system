@@ -50,6 +50,7 @@ Route::post('/register', [Registrasi::class, 'store']);
 // ==========================================
 Route::middleware(['auth'])->group(function () {
 
+    Route::get('/organisasi/ad-art/{filename}', [AdminController::class, 'showAdArt'])->name('organisasi.adart.show');
     // Route untuk mendownload berkas file fisik dokumen
     Route::get('/dokumen/download/{id}', [DokumenKegiatan::class, 'download'])->name('dokumen.download');
     Route::delete('/dokumen/delete/{id}', [DokumenKegiatan::class, 'destroy'])->name('DokumenKegiatan.destroy');
