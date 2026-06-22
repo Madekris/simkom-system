@@ -59,7 +59,7 @@ Route::middleware(['auth'])->group(function () {
     
     Route::prefix('mahasiswa')
      ->name('mahasiswa.')
-     ->middleware(['role:mahasiswa']) // <-- Proteksi Role
+     ->middleware(['role:mahasiswa,pengurus,bendahara']) // <-- Proteksi Role
      ->group(function () {
         Route::get('/daftar-kegiatan', [MahasiswaDaftarKegiatan::class, 'index'])->name('daftar-kegiatan.index');
         Route::get('/daftar-kegiatan/{id}', [MahasiswaDaftarKegiatan::class, 'show'])->name('daftar-kegiatan.show');

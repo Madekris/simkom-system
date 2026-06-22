@@ -45,6 +45,18 @@
     @stack('styles')
 </head>
 <body class="h-full bg-[#F7F8FC]" x-data="{ sidebarOpen: false }">
+    @php
+        $role = Auth::user()->role;
+        if (in_array($role, ['pengurus', 'bendahara'])) {
+            if(Route::is('mahasiswa.*')){
+                $role = 'mahasiswa';
+            }
+            // Jalankan kode jika role adalah pengurus ATAU bendahara
+        }
+        $jsonPath = resource_path("json/menu/{$role}.json");
+        // UBAH BARIS 110 MENJADI SEPERTI INI:
+        $menus = file_exists($jsonPath) ? (json_decode(file_get_contents($jsonPath), true) ?? []) : [];
+    @endphp
 
     {{-- ============================================================
          LAYOUT UTAMA: SIDEBAR + KONTEN
@@ -90,7 +102,7 @@
                         <div class="font-bold tracking-tight text-sm">SIMKOM</div>
                         <div class="text-[10px] uppercase tracking-wider text-white/60">
                             {{-- Mengambil role user yang sedang login secara dinamis --}}
-                            {{ auth()->user()->role ?? 'Pengguna' }}
+                            {{ $role }}
                         </div>
                     </div>
                 </div>
@@ -105,22 +117,41 @@
 
             {{-- Navigasi --}}
             <nav class="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto scrollbar-hide">
-                @php
-        $role = Auth::user()->role;
-        $jsonPath = resource_path("json/menu/{$role}.json");
-        // UBAH BARIS 110 MENJADI SEPERTI INI:
-        $menus = file_exists($jsonPath) ? (json_decode(file_get_contents($jsonPath), true) ?? []) : [];
-    @endphp
+                @foreach($menus as $menu)
+                    @include('components.nav-item', [
+                        'label'  => $menu['label'],
+                        'icon'   => $menu['icon'],
+                        'active' => request()->routeIs($menu['route']),
+                        'href'   => Route::has($menu['route']) ? route($menu['route']) : '#',
+                        'badge'  => $menu['badge'] ?? null
+                    ])
+                @endforeach
 
-    @foreach($menus as $menu)
-        @include('components.nav-item', [
-            'label'  => $menu['label'],
-            'icon'   => $menu['icon'],
-            'active' => request()->routeIs($menu['route']),
-            'href'   => Route::has($menu['route']) ? route($menu['route']) : '#',
-            'badge'  => $menu['badge'] ?? null
-        ])
-    @endforeach
+                @if (in_array(Auth::user()->role, ['pengurus', 'bendahara']))
+                
+                    @php $role = Auth::user()->role; @endphp
+                    @if (!Route::is("$role.*"))
+                        <div class="pt-4 my-2 border-t border-white/10">
+                            <span class="px-3 text-[10px] font-bold uppercase tracking-wider text-white/40 block mb-1">Akses Khusus</span>
+                        </div>
+                        <a href="{{ route("$role.dashboard.index") }}" 
+                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all relative text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300 border border-emerald-500/20 bg-emerald-500/5 capitalize">
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                            <span class="flex-1 text-left">Panel {{ $role }}</span>
+                        </a>
+                    @endif
+                @endif
+                @if (Route::is("bendahara.*") || Route::is("pengurus.*") )
+                    <div class="pt-4 my-2 border-t border-white/10">
+                        <span class="px-3 text-[10px] font-bold uppercase tracking-wider text-white/40 block mb-1">Akses Khusus</span>
+                    </div>
+                        <a href="{{ route("mahasiswa.dashboard") }}" 
+                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all relative text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300 border border-emerald-500/20 bg-emerald-500/5 capitalize">
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+                            <span class="flex-1 text-left">Panel Mahasiswa</span>
+                        </a>
+                   
+                @endif
             </nav>
 
             {{-- Tombol Logout --}}

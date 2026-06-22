@@ -41,8 +41,35 @@
                             </span>
 
                      
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#DCFCE7] text-[#166534]">
-                                {{ $kegiatan['status'] }}
+                           @php
+                                $statusDatabase = strtolower($kegiatan['status'] ?? '');
+                                
+                                switch ($statusDatabase) {
+                                    case 'dibatalkan':
+                                        $badgeClass = 'bg-red-50 text-red-700 border-red-200/60';
+                                        $statusLabel = 'Dibatalkan';
+                                        break;
+                                    case 'selesai':
+                                        $badgeClass = 'bg-blue-50 text-blue-700 border-blue-200/60';
+                                        $statusLabel = 'Selesai';
+                                        break;
+                                    case 'pending':
+                                        $badgeClass = 'bg-slate-50 text-slate-700 border-slate-200/60';
+                                        $statusLabel = 'Pending';
+                                        break;
+                                    case 'mendatang':
+                                        $badgeClass = 'bg-orange-50 text-orange-700 border-orange-200/60';
+                                        $statusLabel = 'Mendatang';
+                                        break;
+                                    default:
+                                        $badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200/60';
+                                        $statusLabel = 'Berlangsung';
+                                        break;
+                                }
+                            @endphp
+
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border {{ $badgeClass }}">
+                                {{ $statusLabel }}
                             </span>
                         
                         </div>

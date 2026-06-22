@@ -49,8 +49,11 @@
                     $badgeClass = 'bg-blue-50 text-blue-700 border-blue-200';
                     $statusLabel = 'Selesai';
                 } elseif ($statusDatabase === 'pending') {
-                    $badgeClass = 'bg-orange-50 text-orange-700 border-orange-200';
+                    $badgeClass = 'bg-gray-50 text-gray-700 border-gray-200';
                     $statusLabel = 'Pending';
+                } elseif ($statusDatabase === 'mendatang') {
+                    $badgeClass = 'bg-orange-50 text-orange-700 border-orange-200';
+                    $statusLabel = 'Mendatang';
                 } else {
                     $badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
                     $statusLabel = 'Berlangsung';
@@ -235,6 +238,7 @@
                             <option value="Berlangsung">Berlangsung</option>
                             <option value="Selesai">Selesai</option>
                             <option value="Dibatalkan">Dibatalkan</option>
+                            <option value="Mendatang">Mendatang</option>
                         </select>
                         <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-500">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="m6 9 6 6 6-6"/></svg>

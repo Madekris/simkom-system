@@ -125,15 +125,32 @@
                    class="text-xs text-[#1A2B5C] font-semibold cursor-pointer hover:underline">Lihat →</a>
             </div>
             <div class="space-y-2.5">
-                @forelse($kegiatanSaya ?? [] as $k)
-                    <div class="p-3 rounded-lg bg-[#F7F8FC]">
-                        <div class="flex items-start justify-between gap-2">
-                            <div class="min-w-0 flex-1">
-                                <div class="text-sm font-semibold text-[#1C1E2C] truncate">{{ $k->kegiatan->judul ?? $k->judul }}</div>
-                                <div class="text-xs text-[#6B7280] mt-0.5">{{ $k->kegiatan->ormawa->nama ?? $k->ormawa ?? '-' }}</div>
-                                <div class="text-xs text-[#9CA3AF] mt-0.5">{{ $k->kegiatan->tanggal_mulai?->format('d M Y') ?? $k->tgl }}</div>
+                @forelse($kegiatanDiikuti ?? [] as $k)
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.01)] hover:bg-slate-100/70 hover:border-slate-200/80 transition-all duration-200 group">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="min-w-0 flex-1 space-y-1">
+                                <div class="text-sm font-bold text-slate-800 group-hover:text-[#1A2B5C] transition-colors line-clamp-1" title="{{ $k->kegiatan->judul_kegiatan ?? $k->judul }}">
+                                    {{ $k->kegiatan->judul_kegiatan ?? $k->judul }}
+                                </div>
+                                
+                                <div class="text-xs font-medium text-slate-500 flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    </svg>
+                                    <span class="truncate">{{ $k->kegiatan->organisasi->nama ?? $k->ormawa ?? '-' }}</span>
+                                </div>
+                                
+                                <div class="text-[11px] font-medium text-slate-400 flex items-center gap-1.5 pt-0.5">
+                                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"></path>
+                                    </svg>
+                                    <span>{{ $k->kegiatan->tanggal_kegiatan }}</span>
+                                </div>
                             </div>
-                            @include('components.status-badge', ['status' => $k->status ?? 'Dikonfirmasi'])
+
+                            <div class="flex-shrink-0 pt-0.5">
+                                @include('components.status-badge', ['status' => $k->kegiatan->status ?? 'Dikonfirmasi'])
+                            </div>
                         </div>
                     </div>
                 @empty

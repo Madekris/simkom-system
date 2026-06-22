@@ -30,6 +30,9 @@
         } elseif ($statusDatabase === 'pending') {
             $badgeClass = 'bg-orange-50 text-orange-700 border-orange-200';
             $statusLabel = 'Pending';
+        } elseif ($statusDatabase === 'Mendatang') {
+            $badgeClass = 'bg-orange-50 text-orange-700 border-gray-200';
+            $statusLabel = 'Mendatang';
         } else {
             $badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
             $statusLabel = 'Berlangsung';
