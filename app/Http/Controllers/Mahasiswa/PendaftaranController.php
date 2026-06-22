@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Mahasiswa;
 
 use App\Models\Kegiatan;
 use App\Models\PendaftaranPesertaKegiatan;
@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class PendaftaranPesertaController extends Controller
+class PendaftaranController extends Controller
 {
     /**
      * Memproses pendaftaran kegiatan secara instan tanpa verifikasi pengurus
