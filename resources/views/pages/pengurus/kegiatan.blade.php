@@ -5,7 +5,7 @@
 @section('topbar_subtitle', 'Kelola seluruh kegiatan ormawa Anda')
 
 @section('content')
-<div class="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
+<div class="p-4 sm:p-6 lg:p-8 space-y-6">
 
     {{-- Header & Button Tambah --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

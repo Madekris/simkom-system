@@ -14,7 +14,14 @@ class OrmawaBinaan extends Controller
         $ormawa = AnggotaOrganisasi::where('id_user', Auth::id())
             ->with([
                 'organisasi.ketua.user.mahasiswa', 
-                'organisasi.anggotaOrganisasi.user.mahasiswa.programStudi',
+                
+                // Memfilter anggota organisasi agar role user-nya BUKAN pembina
+                'organisasi.anggotaOrganisasi' => function ($query) {
+                    $query->whereHas('user', function ($subQuery) {
+                        $subQuery->where('role', '!=', 'pembina');
+                    })->with('user.mahasiswa.programStudi'); // Tetap load relasi ke bawahnya
+                },
+                
                 'organisasi.kegiatan' => function ($query) {
                     // Memfilter status kegiatan
                     $query->whereIn('status', ['Mendatang', 'Berlangsung']);

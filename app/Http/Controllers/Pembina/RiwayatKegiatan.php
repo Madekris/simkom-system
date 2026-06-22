@@ -71,11 +71,14 @@ class RiwayatKegiatan extends Controller
             ->toArray();
 
         // 2. Ambil data ORMAWA lengkap dengan jumlah anggota aktif dan jumlah kegiatan aktif
-        $listOrmawaBinaan = \App\Models\Organisasi::whereIn('id', $idOrmawaBinaan)
+       $listOrmawaBinaan = \App\Models\Organisasi::whereIn('id', $idOrmawaBinaan)
             ->withCount([
-                // Menghitung anggota yang statusnya aktif di ormawa ini
+                // Menghitung anggota yang statusnya aktif DAN role-nya bukan pembina
                 'anggotaOrganisasi as total_anggota' => function($query) {
-                    $query->where('status', 'aktif'); 
+                    $query->where('status', 'aktif')
+                          ->whereHas('user', function($subQuery) {
+                              $subQuery->where('role', '!=', 'pembina');
+                          });
                 },
                 // Menghitung kegiatan yang sudah disetujui/aktif
                 'kegiatan as kegiatan_aktif_count' => function($query) {

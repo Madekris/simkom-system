@@ -16,7 +16,7 @@
       </div>
       <div class="flex-1">
         <div class="font-bold text-[#1C1E2C]">Daftar Anggota</div>
-        <div class="text-xs text-[#6B7280]">HIMA TI · 5 anggota</div>
+        <div class="text-xs text-[#6B7280]">{{ $data->nama }} · {{ $data->anggotaOrganisasi->count() }} anggota</div>
       </div>
       <a href="{{ route('pembina.ormawa-binaan.index') }}" class="w-8 h-8 rounded-full hover:bg-[#F7F8FC] flex items-center justify-center">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x w-4 h-4 text-[#6B7280]">
@@ -40,7 +40,7 @@
         </thead>
         <tbody>
 
-            @forelse ($data as $d)
+            @forelse ($data->anggotaOrganisasi as $d)
                 @if ($d->user->role !== 'pembina')
                     
                 <tr class="border-t border-[#E5E7EB]">
@@ -92,7 +92,20 @@
                 @endif
                 
             @empty
-                
+                <tr>
+                <td colspan="6" class="px-5 py-12 text-center">
+                    <div class="flex flex-col items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-10 w-10 text-gray-400">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <line x1="17" x2="22" y1="8" y2="13"/>
+                            <line x1="22" x2="17" y1="8" y2="13"/>
+                        </svg>
+                        <p class="text-sm font-medium text-[#1C1E2C]">Tidak ada data anggota</p>
+                        <p class="text-xs text-gray-500">Belum ada mahasiswa atau pengurus yang terdaftar dalam daftar ini.</p>
+                    </div>
+                </td>
+            </tr>
             @endforelse
 
           </tbody>

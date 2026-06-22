@@ -87,7 +87,7 @@
         <div class="bg-white h-full rounded-xl border border-[#E5E7EB] shadow-[0_2px_12px_rgba(0,0,0,0.04)] lg:col-span-2 p-6 flex flex-col h-full">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="font-bold text-[#1C1E2C]">Kegiatan Mendatang</h3>
-                <a href="#" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all h-8 rounded-md px-3 text-[#1A2B5C] hover:bg-[#1A2B5C]/5">
+                <a href="{{ route('pengurus.kegiatan.index') }}" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all h-8 rounded-md px-3 text-[#1A2B5C] hover:bg-[#1A2B5C]/5">
                     Lihat Semua
                 </a>
             </div>
@@ -149,10 +149,10 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users w-4 h-4 mr-1"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> 
                         Verifikasi Anggota
                     </a>
-                    <button class="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all border border-[#E5E7EB] bg-white text-[#1C1E2C] hover:bg-[#F7F8FC] h-9 px-4 py-2 w-full justify-start">
+                    <a href="{{ route('pengurus.dokumen.index') }}" class="inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all border border-[#E5E7EB] bg-white text-[#1C1E2C] hover:bg-[#F7F8FC] h-9 px-4 py-2 w-full justify-start">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload w-4 h-4 mr-1"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" x2="12" y1="3" y2="15"></line></svg> 
                         Upload Dokumen
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>

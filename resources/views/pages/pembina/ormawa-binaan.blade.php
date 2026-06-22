@@ -56,7 +56,20 @@
                         </td>
                     </tr>
                 @empty
-                    
+                    <tr>
+                        <td colspan="6" class="px-5 py-12 text-center">
+                            <div class="flex flex-col items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="h-10 w-10 text-gray-400">
+                                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+                                    <path d="M6 6h10"/>
+                                    <path d="M6 10h10"/>
+                                    <path d="M11 14h5"/>
+                                </svg>
+                                <p class="text-sm font-medium text-[#1C1E2C]">Tidak ada data Ormawa</p>
+                                <p class="text-xs text-gray-500">Belum ada organisasi kemahasiswaan yang terdaftar atau aktif saat ini.</p>
+                            </div>
+                        </td>
+                    </tr>
                 @endforelse
             </tbody>
         </table>
@@ -65,7 +78,9 @@
 </div>
 
 @if (request('detail-anggota'))
-    <x-modal-detail-anggota :data="$ormawa->first()->organisasi->anggotaOrganisasi"/>
+    <x-modal-detail-anggota 
+    :data="$ormawa->where('id_organisasi', request('detail-anggota'))->first()?->organisasi ?? collect()" 
+/>
 @endif
 
 @endsection

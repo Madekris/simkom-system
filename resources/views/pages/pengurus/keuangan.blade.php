@@ -77,12 +77,12 @@
                 <div id="exportMenu" class="hidden absolute right-0 mt-2 w-44 rounded-xl shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none z-50">
                     <div class="py-1">
                         {{-- Opsi PDF --}}
-                        <a href="{{ route('pengurus.keuangan.export', ['id' => $ormawa->first()->id, 'format' => 'pdf']) }}" class="group flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 gap-2 font-medium">
+                        <a href="{{ route('keuangan.export', ['id' => $ormawa->first()->id, 'format' => 'pdf']) }}" class="group flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 gap-2 font-medium">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 15h3a1.5 1.5 0 0 0 0-3H9v6"/><path d="M12 12v3"/></svg>
                             Cetak ke PDF
                         </a>
                         {{-- Opsi Excel --}}
-                        <a href="{{ route('pengurus.keuangan.export', ['id' => $ormawa->first()->id, 'format' => 'excel']) }}" class="group flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 gap-2 font-medium">
+                        <a href="{{ route('keuangan.export', ['id' => $ormawa->first()->id, 'format' => 'excel']) }}" class="group flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 gap-2 font-medium">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 12h4v6"/><path d="M12 15H8"/></svg>
                             Unduh Excel
                         </a>

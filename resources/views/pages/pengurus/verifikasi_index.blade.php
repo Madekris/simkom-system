@@ -6,7 +6,7 @@
 @section('topbar_subtitle', 'BEM · (' . $listAnggota->count() . ') anggota')
 
 @section('content')
-<div class="p-4 md:p-5 max-w-[1300px] mx-auto space-y-4 select-none">
+<div class="p-4 md:p-5 space-y-4 select-none">
     
     {{-- Notifikasi Sukses / Alert --}}
     @if(session('success'))

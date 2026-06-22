@@ -16,14 +16,14 @@
             </div>
         </div>
         
-        <button data-slot="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 outline-none h-9 px-4 py-2 bg-[#F5A623] hover:bg-[#D88E15] text-[#1A2B5C]">
+        <a href="{{ route('pembina.persetujuan-kegiatan.index') }}" data-slot="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 outline-none h-9 px-4 py-2 bg-[#F5A623] hover:bg-[#D88E15] text-[#1A2B5C]">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-check w-4 h-4 mr-1">
                 <rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect>
                 <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
                 <path d="m9 14 2 2 4-4"></path>
             </svg> 
             Review Sekarang
-        </button>
+        </a>
     </div>
 
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
@@ -91,7 +91,7 @@
                                 {{ $ormawa->total_anggota ?? 0 }} anggota · {{ $ormawa->kegiatan_aktif_count ?? 0 }} kegiatan aktif
                             </div>
                         </div>
-                        <a href="#" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all h-8 rounded-md px-3 text-[#1A2B5C] hover:bg-[#1A2B5C]/5">
+                        <a href="{{ route('pembina.ormawa-binaan.index') }}" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all h-8 rounded-md px-3 text-[#1A2B5C] hover:bg-[#1A2B5C]/5">
                             Lihat
                         </a>
                     </div>

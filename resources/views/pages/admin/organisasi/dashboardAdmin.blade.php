@@ -99,11 +99,11 @@
                     <h3 class="font-bold text-[#1C1E2C]">Tren Kegiatan 6 Bulan Terakhir</h3>
                     <p class="text-xs text-[#6B7280]">Total kegiatan terselenggara per bulan</p>
                 </div>
-                <button data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none border bg-background text-foreground hover:bg-accent h-8 rounded-md gap-1.5 px-3 border-[#E5E7EB]">
+                {{-- <button data-slot="button" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-all outline-none border bg-background text-foreground hover:bg-accent h-8 rounded-md gap-1.5 px-3 border-[#E5E7EB]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-funnel w-4 h-4 mr-1">
                         <path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"></path>
                     </svg> Filter
-                </button>
+                </button> --}}
             </div>
     
             <div class="relative w-full" style="height: 260px;">
