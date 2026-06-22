@@ -47,13 +47,13 @@ class Login extends Controller
         Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
 
+        // --- PERUBAHAN DI SINI ---
+        // Mengelompokkan bendahara, pengurus, dan mahasiswa ke satu route yang sama
         $dashboardRoute = match ($user->role) {
-            'mahasiswa' => 'mahasiswa.dashboard',
-            'admin' => 'admin.dashboard',
-            'pengurus' => 'pengurus.dashboard.index',
-            'pembina' => 'pembina.dashboard',
-            'bendahara' => 'bendahara.dashboard.index',
-            default => null,
+            'admin'     => 'admin.dashboard',
+            'pembina'   => 'pembina.dashboard',
+            'mahasiswa', 'pengurus', 'bendahara' => 'mahasiswa.dashboard', // Ditumpuk di sini
+            default     => 'mahasiswa.dashboard',
         };
 
         if ($dashboardRoute && Route::has($dashboardRoute)) {

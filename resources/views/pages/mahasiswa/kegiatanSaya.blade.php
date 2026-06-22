@@ -124,11 +124,11 @@
                 <table class="w-full min-w-[900px] text-sm text-left border-collapse align-middle table-fixed">
                     <thead class="bg-[#F7F8FC] text-[#6B7280] select-none">
                         <tr>
-                            <th class="px-6 py-3.5 font-semibold w-[35%]">Nama Kegiatan</th>
-                            <th class="px-6 py-3.5 font-semibold w-[35%]">Ormawa</th>
-                            <th class="px-6 py-3.5 font-semibold w-[12%]">Tanggal</th>
-                            <th class="px-6 py-3.5 font-semibold w-[10%]">Status</th>
-                            <th class="px-6 py-3.5 font-semibold text-right w-[8%]">Aksi</th>
+                            <th class="px-6 py-3.5 font-semibold w-[30%]">Nama Kegiatan</th>
+                            <th class="px-6 py-3.5 font-semibold w-[30%]">Ormawa</th>
+                            <th class="px-6 py-3.5 font-semibold">Tanggal</th>
+                            <th class="px-6 py-3.5 font-semibold">Status</th>
+                            <th class="px-6 py-3.5 font-semibold text-right">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[#E5E7EB]">
@@ -138,11 +138,11 @@
                                 <td class="px-6 py-4 font-semibold text-[#1C1E2C] break-words" x-text="item.judul"></td>
                                 <td class="px-6 py-4 text-[#6B7280] break-words" x-text="item.ormawa"></td>
                                 <td class="px-6 py-4 text-[#6B7280] whitespace-nowrap" x-text="item.tanggal_indo"></td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-600 border border-blue-100">
-                                        Akan Datang
-                                    </span>
+                              
+                                <td class="px-6 py-4">
+                                    @include('components.status-badge', ['status' => ':item.status'])
                                 </td>
+                          
                                 <td class="px-6 py-4 text-right whitespace-nowrap">
                                     <button @click="openDetail(item.id)" class="inline-flex items-center justify-center text-sm font-medium transition-all h-8 rounded-md gap-1.5 px-3 text-[#1A2B5C] hover:bg-gray-100/80">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 mr-1"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
@@ -177,11 +177,11 @@
                 <table class="w-full min-w-[900px] text-sm text-left border-collapse align-middle table-fixed">
                     <thead class="bg-[#F7F8FC] text-[#6B7280] select-none">
                         <tr>
-                            <th class="px-6 py-3.5 font-semibold w-[35%]">Nama Kegiatan</th>
-                            <th class="px-6 py-3.5 font-semibold w-[35%]">Ormawa</th>
-                            <th class="px-6 py-3.5 font-semibold w-[12%]">Tanggal</th>
-                            <th class="px-6 py-3.5 font-semibold w-[10%]">Status</th>
-                            <th class="px-6 py-3.5 font-semibold text-right w-[8%]">Aksi</th>
+                            <th class="px-6 py-3.5 font-semibold w-[30%]">Nama Kegiatan</th>
+                            <th class="px-6 py-3.5 font-semibold w-[30%]">Ormawa</th>
+                            <th class="px-6 py-3.5 font-semibold">Tanggal</th>
+                            <th class="px-6 py-3.5 font-semibold">Status</th>
+                            <th class="px-6 py-3.5 font-semibold text-right">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-[#E5E7EB]">
@@ -190,13 +190,8 @@
                                 <td class="px-6 py-4 font-semibold text-[#1C1E2C] break-words" x-text="item.judul"></td>
                                 <td class="px-6 py-4 text-[#6B7280] break-words" x-text="item.ormawa"></td>
                                 <td class="px-6 py-4 text-[#6B7280] whitespace-nowrap" x-text="item.tanggal_indo"></td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <template x-if="item.status === 'selesai' || item.status === 'complete'">
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[#E5E7EB] text-[#374151]">Selesai</span>
-                                    </template>
-                                    <template x-if="item.status === 'berlangsung'">
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[#CCFBF1] text-[#0F766E]">Berlangsung</span>
-                                    </template>
+                                <td class="px-6 py-4">
+                                    @include('components.status-badge', ['status' => ':item.status'])
                                 </td>
                                 <td class="px-6 py-4 text-right whitespace-nowrap">
                                     <button @click="openDetail(item.id)" class="inline-flex items-center justify-center text-sm font-medium transition-all h-8 rounded-md gap-1.5 px-3 text-[#1A2B5C] hover:bg-gray-100/80">

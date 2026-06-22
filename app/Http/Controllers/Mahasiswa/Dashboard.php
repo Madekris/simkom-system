@@ -23,14 +23,12 @@ class Dashboard extends Controller
         $semuaKegiatan = PendaftaranPesertaKegiatan::where('id_user', Auth::id());
 
         $kegiatanDiikuti = PendaftaranPesertaKegiatan::where('id_user', Auth::id())
+            // 1. Pastikan pendaftaran ini HANYA untuk kegiatan yang berstatus 'Mendatang'
             ->whereHas('kegiatan', function ($query) {
-                // Menyaring pendaftaran yang HANYA memiliki kegiatan berstatus 'ongoing'
                 $query->where('status', 'Mendatang');
             })
-            ->with(['kegiatan' => function ($query) {
-                // Memuat data kegiatannya yang berstatus 'ongoing'
-                $query->where('status', 'Mendatang');
-            }])
+            // 2. Muat data kegiatan beserta organisasi di dalamnya secara sekaligus (Eager Loading)
+            ->with(['kegiatan.organisasi'])
             ->get(); // Jangan lupa tambahkan get() di ujung untuk mengambil datanya
 
         $totalKegiatanMendatang = $kegiatanDiikuti->count();
@@ -39,12 +37,14 @@ class Dashboard extends Controller
 
         $ormawaMahasiswa = AnggotaOrganisasi::where('id_user', Auth::id())->with('organisasi')->get();
 
+        // dd($kegiatanDiikuti->toArray());
         return view('pages.mahasiswa.dashboard', compact(
             'dataMahasiswa',
             'totalOrmawa',
             'totalKegiatanMendatang',
             'totalSemuaKegiatanSelesai',
-            'ormawaMahasiswa'
+            'ormawaMahasiswa',
+            'kegiatanDiikuti'
         ));
     }
 

@@ -25,6 +25,7 @@ use App\Http\Controllers\Pengurus\Kegiatan as PengurusKegiatan;
 use App\Http\Controllers\Pengurus\Keuangan as PengurusKeuangan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DokumenKegiatan;
+use App\Http\Controllers\Admin\Pengguna as AdminPengguna;
 use App\Http\Controllers\Pengurus\DokumenController;
 
 
@@ -52,7 +53,7 @@ Route::middleware(['auth'])->group(function () {
     // 1. AREA MAHASISWA (Hanya bisa diakses oleh role: mahasiswa)
     Route::prefix('mahasiswa')
      ->name('mahasiswa.')
-     ->middleware(['role:mahasiswa'])
+     ->middleware(['role:mahasiswa,pengurus,bendahara']) // <-- Proteksi Role
      ->group(function () {
          Route::get('/dashboard', [MahasiswaDashboard::class, 'index'])->name('dashboard');
          Route::get('/organisasi', [MahasiswaDashboard::class, 'organisasi'])->name('organisasi.index');
@@ -175,10 +176,15 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/organisasi/{id}/dokumen', [AdminController::class, 'getDokumen'])->name('organisasi.dokumen');
 
             // Log Aktivitas Sistem (semua user) — KHUSUS ADMIN
-            Route::middleware('role:admin')->group(function () {
-                Route::get('/log-aktivitas', [AdminLogAktivitas::class, 'index'])->name('log-aktivitas.index');
-                Route::get('/log-aktivitas/export-pdf', [AdminLogAktivitas::class, 'exportPdf'])->name('log-aktivitas.export-pdf');
-            });
+
+            Route::get('/log-aktivitas', [AdminLogAktivitas::class, 'index'])->name('log-aktivitas.index');
+            Route::get('/log-aktivitas/export-pdf', [AdminLogAktivitas::class, 'exportPdf'])->name('log-aktivitas.export-pdf');
+
+        //Pengguna
+            Route::get('/pengguna', [AdminPengguna::class, 'index'])->name('pengguna.index');
+            Route::put('/pengguna/{id}', [AdminPengguna::class, 'update'])->name('pengguna.update');
+            Route::post('/pengguna', [AdminPengguna::class, 'store'])->name('pengguna.store');
+            Route::get('/organisasi/{id}/detail', [AdminPengguna::class, 'getOrganisasiDetail'])->name('admin.organisasi.detail');
     });
 
 }); // Penutup Middleware Auth Utama

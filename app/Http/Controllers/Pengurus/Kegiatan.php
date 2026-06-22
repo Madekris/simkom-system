@@ -38,16 +38,20 @@ class Kegiatan extends Controller
 
         // 4. Sesuaikan filter dengan value database
         if ($statusFilter !== 'semua') {
-            if ($statusFilter === 'berlangsung') {
+            if ($statusFilter === 'Berlangsung') {
                 $query->whereIn('status', ['Pending', 'Mendatang', 'pending']);
-            } elseif ($statusFilter === 'selesai') {
+            } elseif ($statusFilter === 'Selesai') {
                 $query->where('status', 'Selesai');
-            } elseif ($statusFilter === 'dibatalkan') {
+            } elseif ($statusFilter === 'Dibatalkan') {
                 $query->where('status', 'Dibatalkan');
+            } elseif ($statusFilter === 'Mendatang') {
+                $query->where('status', 'Mendatang');
             }
         }
 
         $kegiatan = $query->get();
+
+        // dd($kegiatan->toArray());
 
         return view('pages.pengurus.kegiatan', compact('kegiatan', 'statusFilter'));
     }
@@ -144,7 +148,7 @@ class Kegiatan extends Controller
             'tanggal_kegiatan' => 'required|date',
             'lokasi'           => 'required|string|max:255',
             'kuota_peserta'    => 'required|numeric|min:0', // Proteksi backend anti-minus
-            'status'           => 'required|in:Pending,Berlangsung,Selesai,Dibatalkan,pending',
+            'status'           => 'required|in:Pending,Berlangsung,Selesai,Dibatalkan,Mendatang',
             'deskripsi'        => 'required|string',
         ]);
 
