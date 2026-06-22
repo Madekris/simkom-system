@@ -38,14 +38,15 @@ class Kegiatan extends Controller
 
         // 4. Sesuaikan filter dengan value database
         if ($statusFilter !== 'semua') {
-            if ($statusFilter === 'Berlangsung') {
-                $query->whereIn('status', ['Pending', 'Mendatang', 'pending']);
-            } elseif ($statusFilter === 'Selesai') {
-                $query->where('status', 'Selesai');
-            } elseif ($statusFilter === 'Dibatalkan') {
-                $query->where('status', 'Dibatalkan');
-            } elseif ($statusFilter === 'Mendatang') {
-                $query->where('status', 'Mendatang');
+            if ($statusFilter === 'berlangsung') {
+                // Mencakup variasi status aktif berjalan di database
+                $query->whereIn('status', ['Mendatang', 'Berlangsung', 'berlangsung']);
+            } elseif ($statusFilter === 'selesai') {
+                $query->where('status', 'LIKE', 'Selesai');
+            } elseif ($statusFilter === 'dibatalkan') {
+                $query->where('status', 'LIKE', 'Dibatalkan');
+            } elseif ($statusFilter === 'mendatang') {
+                $query->where('status', 'LIKE', 'Mendatang');
             }
         }
 
