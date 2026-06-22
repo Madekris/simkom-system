@@ -193,6 +193,8 @@ Route::middleware(['auth'])->group(function () {
         //Pengguna
         Route::get('/pengguna', [AdminPengguna::class, 'index'])->name('pengguna.index');
         Route::put('/pengguna/{id}', [AdminPengguna::class, 'update'])->name('pengguna.update');
+        Route::post('/pengguna', [AdminPengguna::class, 'store'])->name('pengguna.store');
+        Route::get('/organisasi/{id}/detail', [AdminPengguna::class, 'getOrganisasiDetail'])->name('admin.organisasi.detail');
     });
 
 }); // Penutup Middleware Auth Utama

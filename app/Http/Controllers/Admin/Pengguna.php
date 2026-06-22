@@ -50,7 +50,9 @@ class Pengguna extends Controller
         }
 
         $ps = ProgramStudi::get();
+        $addPengguna = $request->has('add_pengguna');
 
+        $allOrganisasi = Organisasi::get();
         // dd($org->toArray());
         // dd($dPengguna->toArray());
 
@@ -58,24 +60,121 @@ class Pengguna extends Controller
             'pengguna',
             'dPengguna',
             'org',
-            'ps'
+            'ps',
+            'addPengguna',
+            'allOrganisasi'
         ));
+    }
+
+    // app/Http/Controllers/Admin/PenggunaController.php atau API Controller
+
+    public function getOrganisasiDetail(string $id)
+    {
+        // 1. Ambil semua mahasiswa yang bisa dipilih
+        // Sesuaikan query ini dengan struktur database kamu (misal user dengan role 'Mahasiswa')
+        $mahasiswa = User::where('role', 'mahasiswa')->with('mahasiswa')->get();
+
+
+        // 2. Cek jabatan apa saja yang SUDAH TERISI di organisasi ini
+        // Asumsi: Kamu punya table 'pengurus' atau sejenisnya yang mencatat id_organisasi dan jabatan
+        $jabatanTerisi = AnggotaOrganisasi::where('id_organisasi', $id)
+            ->pluck('jabatan') // Mengambil array contoh: ['Ketua', 'Sekretaris']
+            ->toArray();
+
+        // dd($mahasiswa->toArrßay());
+        return response()->json([
+            'mahasiswa' => $mahasiswa,
+            'jabatan_terisi' => $jabatanTerisi
+        ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            // 1. Validasi Role (Wajib diisi dan harus sesuai opsi)
+            'role' => ['required', Rule::in(['Admin', 'Pembina', 'Pengurus'])],
+
+            // 2. Validasi Organisasi
+            // Wajib diisi jika role BUKAN Admin. Nilai tidak boleh '-'
+            'id_organisasi' => [
+                'required_unless:role,Admin',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->role !== 'Admin' && $value === '-') {
+                        $fail('Silakan pilih organisasi yang valid.');
+                    }
+                },
+                // Ganti 'organisasirers' dengan nama tabel organisasimu jika ingin cek ke DB
+                // 'nullable', 'exists:organisasis,id' 
+            ],
+
+            // 3. Validasi Jabatan
+            // Wajib diisi HANYA JIKA role adalah Pengurus
+            'jabatan' => [
+                'required_if:role,Pengurus',
+                'nullable',
+                Rule::in(['Ketua', 'Wakil Ketua', 'Sekretaris', 'Bendahara']),
+            ],
+
+            // 4. Validasi Mahasiswa / User
+            // Wajib diisi jika role BUKAN Admin
+            'id_user' => [
+                'required_unless:role,Admin,Pembina',
+                'nullable',
+                'exists:users,id', // Memastikan ID user terdaftar di tabel users
+            ],
+        ], [
+            // Kustomisasi Pesan Error (Bahasa Indonesia)
+            'role.required' => 'Role wajib dipilih.',
+            'role.in' => 'Pilihan role tidak valid.',
+            'id_organisasi.required_unless' => 'Organisasi wajib dipilih untuk role ini.',
+            'jabatan.required_if' => 'Jabatan wajib dipilih untuk role Pengurus.',
+            'jabatan.in' => 'Pilihan posisi jabatan tidak sesuai.',
+            'id_user.required_unless' => 'Mahasiswa wajib dipilih.',
+            'id_user.exists' => 'Mahasiswa yang dipilih tidak valid atau tidak terdaftar.',
+        ]);
+
+        if($validated['role'] == 'Pengurus') {
+            $periodeAktif = PeriodeKepengurusan::where('id_organisasi', $validated['id_organisasi'])
+                ->where('status_periode', 'aktif')
+                ->first();
+
+            // 2. Cegah proses jika periode aktif belum dibuat di database
+            if (!$periodeAktif) {
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['id_organisasi' => 'Organisasi ini belum memiliki Periode Kepengurusan yang aktif. Silakan buat periode aktif terlebih dahulu.']);
+            }
+
+            // Menggunakan 'id' untuk mencari User, dan strtolower() untuk menyamakan format role di database
+            User::where('id', $validated['id_user'])->update([
+                'role' => strtolower($validated['role']) // Mengubah 'Pengurus' menjadi 'pengurus'
+            ]);
+
+            AnggotaOrganisasi::create([
+                'id_user'       => $validated['id_user'],
+                'id_organisasi' => $validated['id_organisasi'],
+                'jabatan'       => $validated['jabatan'], // Nilainya: 'Ketua', 'Wakil Ketua', dll.
+                'status'        => 'aktif',               // Sesuai kebutuhan sistemmu (misal: 'Aktif')
+                
+                // 💡 Catatan untuk id_periode:
+                // Kamu harus mengambil ID Periode yang sedang aktif saat ini. Contoh jika ada model Periode:
+                // 'id_periode' => Periode::where('status', 'Aktif')->first()->id ?? 1,
+                'id_periode'    => $periodeAktif->id, // Ganti dengan logika/variabel id_periode jenjang berjalanmu
+            ]);
+
+        }
+        return redirect()
+            ->back()
+            ->with('success', 'Anggota organisasi berhasil didaftarkan!');
+            
+        // dd($validated);
     }
 
     /**
