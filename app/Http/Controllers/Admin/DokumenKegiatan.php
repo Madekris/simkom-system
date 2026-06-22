@@ -42,7 +42,7 @@ class DokumenKegiatan extends Controller
     $pathFile = 'public/dokumen_kegiatan/' . $namaFileFisik;
 
     // 4. Periksa apakah file fisiknya benar-benar ada
-    if (!\Storage::exists($pathFile)) {
+    if (!Storage::exists($pathFile)) {
         return redirect()->back()->with('error', 'Gagal mendownload! Berkas fisik tidak ditemukan di folder storage/app/' . $pathFile);
     }
 
@@ -50,7 +50,7 @@ class DokumenKegiatan extends Controller
     $ekstensi = pathinfo($namaFileFisik, PATHINFO_EXTENSION);
     $namaUnduhan = str_replace(' ', '_', $dokumen->nama_file) . '.' . $ekstensi;
 
-    return \Storage::download($pathFile, $namaUnduhan);
+    return Storage::download($pathFile, $namaUnduhan);
 }
 
     public function create()
@@ -83,7 +83,7 @@ class DokumenKegiatan extends Controller
         
         $namaFileBaru = time() . '_' . str_replace(' ', '_', $namaAsli);
         $path = $file->storeAs('public/dokumen_kegiatan', $namaFileBaru);
-        $pathUrl = \Storage::url($path);
+        $pathUrl = Storage::url($path);
 
         DokumenModel::create([
             'id_kegiatan'   => $request->id_kegiatan,

@@ -38,10 +38,10 @@
             Pengurus
         </a>
 
-        {{-- <a href="{{ route('admin.organisasi.index', ['id' => 1, 'tab' => 'ad_art']) }}" 
+        <a href="{{ route('admin.organisasi.index', ['id' => 1, 'tab' => 'ad_art']) }}" 
         class="py-3 px-4 text-sm font-semibold border-b-2 transition-colors -mb-px {{ request('tab') == 'ad_art' ? 'border-[#1A2B5C] text-[#1A2B5C]' : 'border-transparent text-[#6B7280] hover:text-[#1C1E2C]' }}">
             AD/ART
-        </a> --}}
+        </a>
     </div>
 
     @if (request('tab') === 'informasi')
@@ -189,6 +189,40 @@
 
             </div>
         </div>
+    @elseif (request('tab') === 'ad_art')
+        <div class="flex-1 overflow-y-auto px-6 py-5">
+            <div class="py-12 text-center text-sm text-[#6B7280]">
+                
+                <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    width="24" 
+                    height="24" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    stroke-width="2" 
+                    stroke-linecap="round" 
+                    stroke-linejoin="round" 
+                    class="lucide lucide-file-text mx-auto mb-3 h-10 w-10 text-[#D1D5DB]"
+                >
+                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                    <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+                    <path d="M10 9H8"></path>
+                    <path d="M16 13H8"></path>
+                    <path d="M16 17H8"></path>
+                </svg>
+
+                <div class="mb-1 font-semibold text-[#374151]">
+                    Belum ada dokumen AD/ART
+                </div>
+                
+                <div class="text-xs">
+                    Upload AD/ART melalui menu Edit Ormawa
+                </div>
+
+            </div>
+        </div>
+        
     @endif
 
     <div class="px-6 py-4 border-t border-[#E5E7EB] shrink-0 flex justify-end">

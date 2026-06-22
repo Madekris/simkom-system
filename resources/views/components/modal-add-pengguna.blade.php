@@ -25,9 +25,9 @@
      }"
      x-effect="fetchDetailOrganisasi()">
     
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-auto">
         
-        <form action="{{ route('admin.pengguna.store') }}" method="POST" class="flex flex-col flex-1 m-0">
+        <form action="{{ route('admin.pengguna.store') }}" method="POST" class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
             @csrf
 
             <div class="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB] shrink-0">
@@ -39,6 +39,7 @@
                     </svg>
                 </a>
             </div>
+           
 
             <div class="flex-1 overflow-y-auto px-6 py-5 space-y-4">
                 <div>
@@ -59,193 +60,193 @@
                     </select>
                 </div>
 
-<div x-show="role == 'Pembina'">
-    <div class="mb-4">
-        <label 
-            data-slot="label" 
-            class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
-        >
-            Nama Lengkap *
-        </label>
-        
-        <input 
-            type="text" 
-            name="nama_lengkap"
-            class="mt-1.5 w-full px-3 py-2 rounded-md border @error('nama_lengkap') border-red-500 focus:ring-red-500/20 @else border-[#E5E7EB] focus:border-[#1A2B5C] focus:ring-[#1A2B5C]/20 @enderror bg-white text-sm outline-none focus:ring-2" 
-            placeholder="Nama lengkap pengguna" 
-            value="{{ old('nama_lengkap') }}"
-        />
-        @error('nama_lengkap')
-            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-        @enderror
-    </div>
+                <div x-show="role == 'Pembina'">
+                    <div class="mb-4">
+                        <label 
+                            data-slot="label" 
+                            class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+                        >
+                            Nama Lengkap *
+                        </label>
+                        
+                        <input 
+                            type="text" 
+                            name="nama_lengkap"
+                            class="mt-1.5 w-full px-3 py-2 rounded-md border @error('nama_lengkap') border-red-500 focus:ring-red-500/20 @else border-[#E5E7EB] focus:border-[#1A2B5C] focus:ring-[#1A2B5C]/20 @enderror bg-white text-sm outline-none focus:ring-2" 
+                            placeholder="Nama lengkap pengguna" 
+                            value="{{ old('nama_lengkap') }}"
+                        />
+                        @error('nama_lengkap')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-    <div class="mb-4">
-        <label 
-            data-slot="label" 
-            class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
-        >
-            NIP *
-        </label>
-        
-        <input 
-            type="text" 
-            name="nip"
-            class="mt-1.5 w-full px-3 py-2 rounded-md border @error('nip') border-red-500 focus:ring-red-500/20 @else border-[#E5E7EB] focus:border-[#1A2B5C] focus:ring-[#1A2B5C]/20 @enderror bg-white text-sm outline-none focus:ring-2" 
-            placeholder="Masukkan nomor induk pegawai" 
-            value="{{ old('nip') }}"
-        />
-        @error('nip')
-            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-        @enderror
-    </div>
+                    <div class="mb-4">
+                        <label 
+                            data-slot="label" 
+                            class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+                        >
+                            NIP *
+                        </label>
+                        
+                        <input 
+                            type="text" 
+                            name="nip"
+                            class="mt-1.5 w-full px-3 py-2 rounded-md border @error('nip') border-red-500 focus:ring-red-500/20 @else border-[#E5E7EB] focus:border-[#1A2B5C] focus:ring-[#1A2B5C]/20 @enderror bg-white text-sm outline-none focus:ring-2" 
+                            placeholder="Masukkan nomor induk pegawai" 
+                            value="{{ old('nip') }}"
+                        />
+                        @error('nip')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-    <div class="mb-4">
-        <label 
-            data-slot="label" 
-            class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
-        >
-            Telepon *
-        </label>
-        
-        <input 
-            type="tel" 
-            name="telepon"
-            class="mt-1.5 w-full px-3 py-2 rounded-md border @error('no_telepon') border-red-500 focus:ring-red-500/20 @else border-[#E5E7EB] focus:border-[#1A2B5C] focus:ring-[#1A2B5C]/20 @enderror bg-white text-sm outline-none focus:ring-2" 
-            placeholder="Contoh: 08123456789" 
-            value="{{ old('telepon') }}"
-        />
-        @error('telepon')
-            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-        @enderror
-    </div>
+                    <div class="mb-4">
+                        <label 
+                            data-slot="label" 
+                            class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+                        >
+                            Telepon *
+                        </label>
+                        
+                        <input 
+                            type="tel" 
+                            name="telepon"
+                            class="mt-1.5 w-full px-3 py-2 rounded-md border @error('no_telepon') border-red-500 focus:ring-red-500/20 @else border-[#E5E7EB] focus:border-[#1A2B5C] focus:ring-[#1A2B5C]/20 @enderror bg-white text-sm outline-none focus:ring-2" 
+                            placeholder="Contoh: 08123456789" 
+                            value="{{ old('telepon') }}"
+                        />
+                        @error('telepon')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-    <div class="mb-4">
-        <label 
-            data-slot="label" 
-            class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
-        >
-            Email *
-        </label>
-        
-        <input 
-            type="email" 
-            name="email"
-            autocomplete="off"
-            class="mt-1.5 w-full px-3 py-2 rounded-md border @error('email') border-red-500 focus:ring-red-500/20 @else border-[#E5E7EB] focus:border-[#1A2B5C] focus:ring-[#1A2B5C]/20 @enderror bg-white text-sm outline-none focus:ring-2" 
-            placeholder="email@simkom-bali.ac.id" 
-            value="{{ old('email') }}"
-        />
-        @error('email')
-            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-        @enderror
-    </div>
+                    <div class="mb-4">
+                        <label 
+                            data-slot="label" 
+                            class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+                        >
+                            Email *
+                        </label>
+                        
+                        <input 
+                            type="email" 
+                            name="email"
+                            autocomplete="off"
+                            class="mt-1.5 w-full px-3 py-2 rounded-md border @error('email') border-red-500 focus:ring-red-500/20 @else border-[#E5E7EB] focus:border-[#1A2B5C] focus:ring-[#1A2B5C]/20 @enderror bg-white text-sm outline-none focus:ring-2" 
+                            placeholder="email@simkom-bali.ac.id" 
+                            value="{{ old('email') }}"
+                        />
+                        @error('email')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-    <div class="mb-4">
-        <label data-slot="label" class="flex items-center gap-2 text-sm leading-none font-medium text-[#1C1E2C] select-none mb-1.5">
-            Organisasi Binaan *
-        </label>
+                    <div class="mb-4">
+                        <label data-slot="label" class="flex items-center gap-2 text-sm leading-none font-medium text-[#1C1E2C] select-none mb-1.5">
+                            Organisasi Binaan *
+                        </label>
 
-        <div x-data="{ 
-            allOrgs: {{ json_encode($organisasi->map(fn($o) => ['id' => $o->id, 'nama' => $o->nama])) }},
-            selectedIds: {{ json_encode(collect(old('id_organisasi', $selectedOrgIds ?? []))->values()->all()) }}.map(Number),
-            
-            addOrg(id) {
-                if (id && !this.selectedIds.includes(Number(id))) {
-                    this.selectedIds.push(Number(id));
-                }
-            },
-            removeOrg(id) {
-                this.selectedIds = this.selectedIds.filter(i => i !== id);
-            }
-        }">
-            
-            <select 
-                x-on:change="addOrg($event.target.value); $event.target.value = ''"
-                class="w-full px-3 py-2 rounded-md border @error('id_organisasi') border-red-500 focus:ring-red-500/20 @else border-[#E5E7EB] focus:border-[#1A2B5C] focus:ring-[#1A2B5C]/20 @enderror bg-white text-sm outline-none transition-all focus:ring-2"
-            >
-                <option value="">Pilih Organisasi untuk Ditambahkan</option>
-                @foreach($organisasi as $org)
-                    <option value="{{ $org->id }}" x-show="!selectedIds.includes({{ $org->id }})">
-                        {{ $org->nama }}
-                    </option>
-                @endforeach
-            </select>
-
-            <div class="mt-4 mb-1">
-                <label data-slot="label" class="flex items-center gap-2 text-sm leading-none font-medium text-[#1C1E2C] select-none mb-2">
-                    Organisasi yang dibina:
-                </label>
-                
-                <div x-show="selectedIds.length === 0" class="text-sm text-gray-400 italic px-3 py-2 bg-gray-50 rounded-md border border-dashed border-gray-200">
-                    Belum ada organisasi yang dipilih.
-                </div>
-
-                <div class="flex flex-wrap gap-2">
-                    <template x-for="id in selectedIds.filter(i => i > 0)" :key="'badge-'+id">
-                        <div class="flex items-center gap-1.5 bg-[#1A2B5C]/5 text-[#1A2B5C] text-sm font-medium py-1.5 px-3 rounded-full border border-[#1A2B5C]/20">
+                        <div x-data="{ 
+                            allOrgs: {{ json_encode($organisasi->map(fn($o) => ['id' => $o->id, 'nama' => $o->nama])) }},
+                            selectedIds: {{ json_encode(collect(old('id_organisasi', $selectedOrgIds ?? []))->values()->all()) }}.map(Number),
                             
-                            <span x-text="allOrgs.find(o => o.id === id)?.nama"></span>
+                            addOrg(id) {
+                                if (id && !this.selectedIds.includes(Number(id))) {
+                                    this.selectedIds.push(Number(id));
+                                }
+                            },
+                            removeOrg(id) {
+                                this.selectedIds = this.selectedIds.filter(i => i !== id);
+                            }
+                        }">
                             
-                            <button 
-                                type="button" 
-                                x-on:click="removeOrg(id)" 
-                                class="w-4 h-4 rounded-full flex items-center justify-center hover:bg-[#1A2B5C]/20 text-[#1A2B5C] font-bold text-xs transition-colors"
-                                title="Hapus"
+                            <select 
+                                x-on:change="addOrg($event.target.value); $event.target.value = ''"
+                                class="w-full px-3 py-2 rounded-md border @error('id_organisasi') border-red-500 focus:ring-red-500/20 @else border-[#E5E7EB] focus:border-[#1A2B5C] focus:ring-[#1A2B5C]/20 @enderror bg-white text-sm outline-none transition-all focus:ring-2"
                             >
-                                &times;
-                            </button>
+                                <option value="">Pilih Organisasi untuk Ditambahkan</option>
+                                @foreach($organisasi as $org)
+                                    <option value="{{ $org->id }}" x-show="!selectedIds.includes({{ $org->id }})">
+                                        {{ $org->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
 
-                            <input type="hidden" name="id_organisasi[]" :value="id">
+                            <div class="mt-4 mb-1">
+                                <label data-slot="label" class="flex items-center gap-2 text-sm leading-none font-medium text-[#1C1E2C] select-none mb-2">
+                                    Organisasi yang dibina:
+                                </label>
+                                
+                                <div x-show="selectedIds.length === 0" class="text-sm text-gray-400 italic px-3 py-2 bg-gray-50 rounded-md border border-dashed border-gray-200">
+                                    Belum ada organisasi yang dipilih.
+                                </div>
+
+                                <div class="flex flex-wrap gap-2">
+                                    <template x-for="id in selectedIds.filter(i => i > 0)" :key="'badge-'+id">
+                                        <div class="flex items-center gap-1.5 bg-[#1A2B5C]/5 text-[#1A2B5C] text-sm font-medium py-1.5 px-3 rounded-full border border-[#1A2B5C]/20">
+                                            
+                                            <span x-text="allOrgs.find(o => o.id === id)?.nama"></span>
+                                            
+                                            <button 
+                                                type="button" 
+                                                x-on:click="removeOrg(id)" 
+                                                class="w-4 h-4 rounded-full flex items-center justify-center hover:bg-[#1A2B5C]/20 text-[#1A2B5C] font-bold text-xs transition-colors"
+                                                title="Hapus"
+                                            >
+                                                &times;
+                                            </button>
+
+                                            <input type="hidden" name="id_organisasi[]" :value="id">
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            @error('id_organisasi')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
                         </div>
-                    </template>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label 
+                                data-slot="label" 
+                                class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+                            >
+                                Password *
+                            </label>
+                            
+                            <input 
+                                type="password" 
+                                name="password"
+                                autocomplete="new-password"
+                                class="mt-1.5 w-full px-3 py-2 rounded-md border @error('password') border-red-500 focus:ring-red-500/20 @else border-[#E5E7EB] focus:border-[#1A2B5C] focus:ring-[#1A2B5C]/20 @enderror bg-white text-sm outline-none focus:ring-2" 
+                                placeholder="Min. 8 karakter" 
+                            />
+                            @error('password')
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label 
+                                data-slot="label" 
+                                class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+                            >
+                                Konfirmasi Password *
+                            </label>
+                            
+                            <input 
+                                type="password" 
+                                name="password_confirmation"
+                                autocomplete="new-password"
+                                class="mt-1.5 w-full px-3 py-2 rounded-md border @error('password') border-red-500 focus:ring-red-500/20 @else border-[#E5E7EB] focus:border-[#1A2B5C] focus:ring-[#1A2B5C]/20 @enderror bg-white text-sm outline-none focus:ring-2" 
+                                placeholder="Ulangi password" 
+                            />
+                        </div>
+                    </div>
                 </div>
-            </div>
-            @error('id_organisasi')
-                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-            @enderror
-        </div>
-    </div>
-
-    <div class="grid grid-cols-2 gap-4">
-        <div>
-            <label 
-                data-slot="label" 
-                class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
-            >
-                Password *
-            </label>
-            
-            <input 
-                type="password" 
-                name="password"
-                autocomplete="new-password"
-                class="mt-1.5 w-full px-3 py-2 rounded-md border @error('password') border-red-500 focus:ring-red-500/20 @else border-[#E5E7EB] focus:border-[#1A2B5C] focus:ring-[#1A2B5C]/20 @enderror bg-white text-sm outline-none focus:ring-2" 
-                placeholder="Min. 8 karakter" 
-            />
-            @error('password')
-                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
-            <label 
-                data-slot="label" 
-                class="flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
-            >
-                Konfirmasi Password *
-            </label>
-            
-            <input 
-                type="password" 
-                name="password_confirmation"
-                autocomplete="new-password"
-                class="mt-1.5 w-full px-3 py-2 rounded-md border @error('password') border-red-500 focus:ring-red-500/20 @else border-[#E5E7EB] focus:border-[#1A2B5C] focus:ring-[#1A2B5C]/20 @enderror bg-white text-sm outline-none focus:ring-2" 
-                placeholder="Ulangi password" 
-            />
-        </div>
-    </div>
-</div>
                 
                 <div x-show="role == 'Pengurus' && id_organisasi !== '-'">
                     <label class="flex items-center gap-2 text-sm leading-none font-medium select-none">Jabatan *</label>
@@ -291,6 +292,7 @@
                 </div>
 
             </div>
+
 
             <div class="px-6 py-4 border-t border-[#E5E7EB] shrink-0 flex justify-end gap-3">
                 <a href="{{ route('admin.pengguna.index') }}" data-slot="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] border bg-background text-foreground hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
