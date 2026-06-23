@@ -111,29 +111,36 @@ class AdminController extends Controller
         return back()->with('success', "Kegiatan '{$kegiatan->judul_kegiatan}' berhasil ditolak.");
     }
 
-    public function index(Request $request)
-    {
-        $organisasis = Organisasi::with('ketua')->where('status', 'aktif')->get();
-        $organisasis_diarsipkan = Organisasi::with('ketua')->where('status', 'diarsipkan')->get();
-        $mahasiswas = DB::table('mahasiswas')->get();
-        $jenis_organisasis = DB::table('jenis_organisasis')->get();
+    
+   public function index(Request $request)
+{
+    $organisasis = Organisasi::with('ketua')->where('status', 'aktif')->get();
+    $organisasis_diarsipkan = Organisasi::with('ketua')->where('status', 'diarsipkan')->get();
+    $mahasiswas = DB::table('mahasiswas')->get();
+    $jenis_organisasis = DB::table('jenis_organisasis')->get();
 
-        $oView = [];
-        $idOrg = $request->id;
+    // TAMBAHKAN INI: Ambil semua data pembina untuk menyuplai list di dropdown modal edit
+    // Jika Anda menggunakan Model, bisa gunakan Pembina::all() atau DB::table
+    $pembinas = DB::table('pembinas')->get(); 
 
-        if ($idOrg) {
-            $oView = Organisasi::with(['jenisOrganisasi', 'ketua.user.mahasiswa', 'pembina.user.pembina', 'anggotaOrganisasi', 'periode', 'kegiatan'])
-                ->findOrFail($idOrg);
-        }
+    $oView = [];
+    $idOrg = $request->id;
 
-        return view('pages.admin.organisasi.index', compact(
-            'organisasis',
-            'organisasis_diarsipkan',
-            'mahasiswas',
-            'jenis_organisasis',
-            'oView'
-        ));
+    if ($idOrg) {
+        $oView = Organisasi::with(['jenisOrganisasi', 'ketua.user.mahasiswa', 'pembina.user.pembina', 'anggotaOrganisasi', 'periode', 'kegiatan'])
+            ->findOrFail($idOrg);
     }
+
+    // Masukkan variabel 'pembinas' ke dalam compact
+    return view('pages.admin.organisasi.index', compact(
+        'organisasis',
+        'organisasis_diarsipkan',
+        'mahasiswas',
+        'jenis_organisasis',
+        'pembinas', // <-- Ditambahkan di sini
+        'oView'
+    ));
+}
 
     public function store(Request $request)
     {
@@ -417,5 +424,17 @@ public function getDokumen($id)
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="' . $filename . '"'
         ]);
+    }
+
+    public function getAnggota(string $id)
+    {
+        // Mengambil data mahasiswa berdasarkan keanggotaan organisasi secara real-time
+        $anggota = DB::table('mahasiswas')
+            ->join('anggota_organisasis', 'mahasiswas.id_user', '=', 'anggota_organisasis.id_user')
+            ->where('anggota_organisasis.id_organisasi', $id)
+            ->select('mahasiswas.id_user', 'mahasiswas.nama', 'mahasiswas.nim')
+            ->get();
+
+        return response()->json($anggota);
     }
 }
